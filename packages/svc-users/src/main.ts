@@ -16,4 +16,4 @@ const AppModule = createModule({
   }
 })
 
-runModule(AppModule, { prefix: "api/v2/users" })
+runModule(AppModule, { prefix: "api/v1/users" })
