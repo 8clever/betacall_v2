@@ -38,6 +38,10 @@ export class Call {
   @Column()
   phone: string;
 
+  /** MAIN RELATION WITH ORDERS */
+  @Column()
+  orderId: string;
+
   @Column({ nullable: true })
   operatorTimeUsage: number;
 
