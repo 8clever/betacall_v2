@@ -11,16 +11,32 @@ export class UsersService implements OnModuleInit {
     private usersRepository: Repository<User>,
   ) {}
 
+  static ROBOT_NAME = 'robot';
+
   async onModuleInit() {
     /** Add admin if not exists */
+    const robotPassword = this.getHash(UsersService.ROBOT_NAME);
+
     const admin = await this.usersRepository.findOne({ where: {
       login: config.admin.login
     }})
 
-    if (admin)
-      return;
-    
-    this.save(config.admin);
+    const robot = await this.usersRepository.findOne({ where: {
+      login: UsersService.ROBOT_NAME
+    }})
+
+    if (!robot)
+      await this.save({
+        login: UsersService.ROBOT_NAME,
+        password: robotPassword,
+        role: User.Roles.ADMIN
+      });
+
+    if (!admin)
+      await this.save({
+        ...config.admin,
+        role: User.Roles.ADMIN
+      });
   }
 
   findAll(where: Partial<User>): Promise<User[]> {

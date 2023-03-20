@@ -2,6 +2,7 @@ import { MiddlewareConsumer, Module, ModuleMetadata, RequestMethod } from "@nest
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { config } from "./config";
 import { User } from "./entities/user.entity";
+import { Call } from './entities/call.entity'
 import { HelmMiddleware } from "./middlewares/helm.middleware";
 
 interface Options {
@@ -19,7 +20,8 @@ export function createModule (options: Options) {
 				type: 'postgres',
 				...config.pg,
 				entities: [
-					User
+					User,
+					Call
 				],
 				synchronize: true,
 			})
