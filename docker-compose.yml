@@ -1,0 +1,64 @@
+version: '3.9'
+services:
+
+  svc-caller:
+    build:
+      dockerfile: ./dockerfiles/Dockerfile.system
+    command: npx nx serve svc-caller
+    volumes:
+      - ./:/app
+    environment:
+      - PG_HOST=postgres
+      - MQTT=mqtt://mqtt:1883
+    depends_on:
+      - traefik
+      - postgres
+      - mqtt
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.svc-caller.rule=PathPrefix(`/api/v1/caller`)"
+      - "traefik.http.routers.svc-caller.entrypoints=web"
+      - traefik.http.services.svc-caller.loadbalancer.server.port=3000
+
+  traefik:
+    image: traefik:v2.9
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - 3000:80
+      - 8080:8080
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  
+  postgres:
+    image: postgres:alpine
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+
+  mqtt:
+    image: eclipse-mosquitto
+    ports:
+      - 1883:1883
+      - 9001:9001
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  install:
+    user: node
+    build:
+      dockerfile: ./dockerfiles/Dockerfile.system
+    command: npm ci
+    volumes:
+      - ~/.npm:/home/node/.npm
+      - ~/.cache:/home/node/.cache
+      - ./:/app
+
+volumes:
+  pg-data:
+    name: pg-data
