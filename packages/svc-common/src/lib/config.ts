@@ -2,6 +2,7 @@
 export const config = {
 	secret: process.env.SECRET || "secret",
 	mqttUrl: process.env.MQTT || "mqtt://localhost:1883",
+	redisUrl: process.env.REDIS || "redis://localhost:6379",
 	admin: {
 		login: "admin",
 		password: process.env.ADMIN_PASSWORD || "123"

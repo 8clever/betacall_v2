@@ -1,16 +1,25 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm'
-import { Call } from "@betacall/svc-common"
+import { Call, config } from "@betacall/svc-common"
 import { Repository } from 'typeorm'
+import { createClient } from 'redis'
 
 @Injectable()
 export class CallerService implements OnModuleInit {
+
+  private redis = createClient({
+    url: config.redisUrl
+  });
+
   constructor(
     @InjectRepository(Call)
     private callRepo: Repository<Call>,
   ) {}
 
+  private CALL_QUEUE = 'call-queue'
+
   async onModuleInit() {
+    await this.redis.connect();
   }
 
   findLastOrderStatus(where: Partial<Call>) {
