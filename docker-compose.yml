@@ -1,6 +1,25 @@
 version: '3.9'
 services:
 
+  svc-users:
+    build:
+      dockerfile: ./dockerfiles/Dockerfile.system
+    command: npx nx serve svc-users
+    volumes:
+      - ./:/app
+    environment:
+      - PG_HOST=postgres
+      - MQTT=mqtt://mqtt:1883
+    depends_on:
+      - traefik
+      - postgres
+      - mqtt
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.svc-users.rule=PathPrefix(`/api/v1/users`)"
+      - "traefik.http.routers.svc-users.entrypoints=web"
+      - traefik.http.services.svc-users.loadbalancer.server.port=3000
+
   svc-caller:
     build:
       dockerfile: ./dockerfiles/Dockerfile.system
@@ -61,4 +80,4 @@ services:
 
 volumes:
   pg-data:
-    name: pg-data
+    name: pg-data-betacall
