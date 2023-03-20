@@ -22,7 +22,7 @@ export class CallerService implements OnModuleInit {
     await this.redis.connect();
   }
 
-  findLastOrderStatus(where: Partial<Call>) {
+  findLastOrderStatus(where: Partial<Call> | string) {
     return this.callRepo
       .createQueryBuilder("call")
       .distinctOn(['call.orderId'])
