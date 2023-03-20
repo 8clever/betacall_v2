@@ -1,7 +1,10 @@
 import { createModule, runModule } from '@betacall/svc-common'
+import { CallerModule } from "./caller/caller.module"
 
 const AppModule = createModule({
-  metadata: {}
+  metadata: {
+    imports: [CallerModule]
+  }
 });
 
 runModule(AppModule, {

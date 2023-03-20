@@ -7,6 +7,7 @@ export * from "./lib/ping"
 
 /** entities */
 export * from "./lib/entities/user.entity"
+export * from "./lib/entities/call.entity"
 
 /** guards */
 export * from "./lib/guards/auth.guard"
