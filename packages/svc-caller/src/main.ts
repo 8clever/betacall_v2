@@ -1,9 +1,13 @@
 import { createModule, runModule } from '@betacall/svc-common'
+import { AsteriskModule } from './asterisk/asterisk.module';
 import { CallerModule } from "./caller/caller.module"
 
 const AppModule = createModule({
   metadata: {
-    imports: [CallerModule]
+    imports: [
+      CallerModule,
+      AsteriskModule
+    ]
   }
 });
 
