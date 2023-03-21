@@ -1,0 +1,64 @@
+{
+  "name": "svc-topdelivery",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/svc-topdelivery/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/packages/svc-topdelivery",
+        "main": "packages/svc-topdelivery/src/main.ts",
+        "tsConfig": "packages/svc-topdelivery/tsconfig.app.json",
+        "assets": ["packages/svc-topdelivery/src/assets"],
+        "isolatedConfig": true,
+        "webpackConfig": "packages/svc-topdelivery/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "svc-topdelivery:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "svc-topdelivery:build:development"
+        },
+        "production": {
+          "buildTarget": "svc-topdelivery:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/svc-topdelivery/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "packages/svc-topdelivery/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": []
+}

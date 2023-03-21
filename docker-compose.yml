@@ -20,6 +20,22 @@ services:
       - "traefik.http.routers.svc-users.entrypoints=web"
       - traefik.http.services.svc-users.loadbalancer.server.port=3000
 
+  svc-topdelivery:
+    build:
+      dockerfile: ./dockerfiles/Dockerfile.system
+    command: npx nx serve svc-topdelivery
+    volumes:
+      - ./:/app
+    environment:
+      - MQTT=mqtt://mqtt:1883
+    depends_on:
+      - svc-caller
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.svc-caller.rule=PathPrefix(`/api/v1/topdelivery`)"
+      - "traefik.http.routers.svc-caller.entrypoints=web"
+      - traefik.http.services.svc-caller.loadbalancer.server.port=3000
+
   svc-caller:
     build:
       dockerfile: ./dockerfiles/Dockerfile.system
