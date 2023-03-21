@@ -225,7 +225,7 @@ export class AsteriskService implements OnModuleInit {
 		if (!info) return null;
 
 		let gateawayNum = 1;
-		let gateaway = getGateaway();
+		const gateaway = getGateaway();
 
 		return gateaway || null;
 

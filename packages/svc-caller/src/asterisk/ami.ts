@@ -1,6 +1,7 @@
 import net from 'net';
 import { Transform } from 'stream'
 import { EventEmitter } from 'events'
+import uuid from 'uuid'
 
 /** Const errors used by module. */
 enum ERROR {
@@ -29,10 +30,11 @@ class AMIError extends Error {
 class AMIParser extends Transform {
 	_localBuffer = '';
 
-	_transform = function (chunk: Buffer, encoding: string, done: Function) {
-		var eol = "\n",                     // end of line
-			eom = ["\n\n", "\r\n\r\n"],     // end of message
-			foundEom = -1,
+	_transform = function (chunk: Buffer, encoding: string, done: () => void) {
+		const eol = "\n",                     // end of line
+			eom = ["\n\n", "\r\n\r\n"]
+			     // end of message
+		let foundEom = -1,
 			foundEomStr = '',
 			eomIndex = 0,
 			tmpLocalBuffer = '',
@@ -62,11 +64,13 @@ class AMIParser extends Transform {
 				tmpLocalBuffer = tmpLocalBuffer.substring(foundEom + foundEomStr.length);
 
 				// we have a complete message, build key, value pairs
-				var lines = message.split(eol),
-					lineIndex = 0,
+				const lines = message.split(eol),
 					messajeJson = {
 						raw: message
-					},
+					}
+
+				let	lineIndex = 0,
+					
 					key = '',
 					value = '',
 					foundColon = -1;
@@ -122,7 +126,7 @@ interface DataJSON {
 interface Action {
 	json?: DataJSON,
 	txt?: string;
-	cb?: Function;
+	cb?: (data: DataJSON) => void;
 }
 
 export class AMI extends EventEmitter {
@@ -188,7 +192,7 @@ export class AMI extends EventEmitter {
 		});
 	}
 
-	action = (name: string = "", _data: object = {}, cb: Function = new Function()) => {
+	action = (name = "", _data: object = {}, cb: (data: Record<string, string>) => void) => {
 		const dataJson: DataJSON = {
 			..._data,
 			Action: name,
@@ -197,7 +201,7 @@ export class AMI extends EventEmitter {
 
 		let dataTxt = '';
 
-		for (let x in dataJson) {
+		for (const x in dataJson) {
 			dataTxt += x + ": " + dataJson[x] + "\r\n";
 		}
 
@@ -213,12 +217,6 @@ export class AMI extends EventEmitter {
 	}
 
 	private actionIDGenerator() {
-		var d = new Date().getTime();
-		var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-			var r = (d + Math.random() * 16) % 16 | 0;
-			d = Math.floor(d / 16);
-			return (c == 'x' ? r : (r & 0x7 | 0x8)).toString(16);
-		});
-		return uuid;
+		return uuid.v4();
 	}
 }
