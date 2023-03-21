@@ -14,6 +14,20 @@ export const config = {
 
 	// for CALL svc
 	redisUrl: process.env.REDIS || "redis://localhost:6379",
+	ami: {
+		timeout: Number(process.env.AMI_TIMEOUT || 120000),
+		exten: process.env.AMI_EXTEN || "333",
+		host: process.env.AMI_HOST || "0.0.0.0",
+		port: Number(process.env.AMI_PORT || "15038"),
+		username: process.env.AMI_USER || "user",
+		password: process.env.AMI_PASS || "password"
+	},
+	gateaways: {
+		default: {
+			slots: 7,
+			channel: "SIP/<phone>@voip1"
+		}
+	},
 
 	// for USERS svc
 	secret: process.env.SECRET || "secret",

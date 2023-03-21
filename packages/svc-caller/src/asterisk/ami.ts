@@ -1,8 +1,8 @@
 import net from 'net';
 import { Transform } from 'stream'
-import { EventEmitter} from 'events'
+import { EventEmitter } from 'events'
 
-  /** Const errors used by module. */
+/** Const errors used by module. */
 enum ERROR {
 	E_AMI_UNDEFINED = "Undefined error.",
 	E_AMI_ARGUMENT_HOSTNAME = "Argument 'hostname' missing in function call.",
@@ -15,7 +15,7 @@ enum ERROR {
 };
 
 class AMIError extends Error {
-	constructor (public message: ERROR, public code?: number) {
+	constructor(public message: ERROR, public code?: number) {
 		super(message);
 	}
 }
@@ -27,7 +27,7 @@ class AMIError extends Error {
 * @param {object} options - stream.Transform object
 */
 class AMIParser extends Transform {
-  _localBuffer = '';
+	_localBuffer = '';
 
 	_transform = function (chunk: Buffer, encoding: string, done: Function) {
 		var eol = "\n",                     // end of line
@@ -37,30 +37,30 @@ class AMIParser extends Transform {
 			eomIndex = 0,
 			tmpLocalBuffer = '',
 			message = '';
-	
+
 		// add chunk to local buffer
 		this._localBuffer += chunk.toString();
-	
+
 		// temporary variable of local buffer as string
 		tmpLocalBuffer = this._localBuffer;
-	
+
 		// try to find end of message with any separator
 		eomIndex = 0;
 		while (eom[eomIndex]) {
-	
+
 			// search at least one message separator
 			while ((foundEom = tmpLocalBuffer.indexOf(eom[eomIndex])) != -1) {
 				// we have a message
-	
+
 				// separator found, save it
 				foundEomStr = eom[eomIndex];
-	
+
 				// get a message
 				message = tmpLocalBuffer.substring(0, foundEom);
-	
+
 				// remove this message from local buffer
 				tmpLocalBuffer = tmpLocalBuffer.substring(foundEom + foundEomStr.length);
-	
+
 				// we have a complete message, build key, value pairs
 				var lines = message.split(eol),
 					lineIndex = 0,
@@ -70,19 +70,19 @@ class AMIParser extends Transform {
 					key = '',
 					value = '',
 					foundColon = -1;
-	
+
 				// parse evey line from the message
 				while (lines[lineIndex]) {
-	
+
 					// found colon on line
 					foundColon = lines[lineIndex].indexOf(':');
-	
+
 					// check if we have a colon in the line
 					if (foundColon != -1) {
 						// we have a good line let extract key, value pair
 						key = lines[lineIndex].slice(0, foundColon).trim();
 						value = lines[lineIndex].slice(foundColon + 1).trim();
-	
+
 						if (key.length > 0) {
 							// add key, value to object
 							messajeJson[key] = value;
@@ -92,7 +92,7 @@ class AMIParser extends Transform {
 					}
 					lineIndex++;
 				}
-	
+
 				// test what type of message we have: response or event
 				if (messajeJson['Response'] && messajeJson['ActionID']) {
 					// this is a response of on action
@@ -102,13 +102,13 @@ class AMIParser extends Transform {
 					this.emit('event', messajeJson);
 				}
 			}
-	
+
 			eomIndex++;
 		}
-	
+
 		// save the new local buffer
 		this._localBuffer = tmpLocalBuffer;
-	
+
 		// tell stream.Transform to continue
 		done();
 	}
@@ -133,7 +133,7 @@ export class AMI extends EventEmitter {
 
 	private socket: net.Socket;
 
-	private run () {
+	private run() {
 		this.parser.setEncoding('utf8');
 
 		this.parser.on('response', (data: DataJSON) => {
@@ -156,10 +156,10 @@ export class AMI extends EventEmitter {
 		});
 
 		this.socket.on('connect', () => {
-			this.action("Login", { 
-				Username: this.username, 
-				Secret: this.password, 
-				Events: "On" 
+			this.action("Login", {
+				Username: this.username,
+				Secret: this.password,
+				Events: "On"
 			}, (data: { Response?: string }) => {
 				if (data['Response'] == 'Success') {
 					this.emit('ready', data);
@@ -180,7 +180,7 @@ export class AMI extends EventEmitter {
 		this.socket.pipe(this.parser);
 	}
 
-	constructor (hostname: string, port: number, private username: string, private password: string) {
+	constructor(hostname: string, port: number, private username: string, private password: string) {
 		super()
 		this.socket = net.connect(port, hostname);
 		process.nextTick(() => {
@@ -188,20 +188,20 @@ export class AMI extends EventEmitter {
 		});
 	}
 
-	private action = (name: string = "", _data: object = {}, cb: Function = new Function()) => {
-    const dataJson: DataJSON = {
+	action = (name: string = "", _data: object = {}, cb: Function = new Function()) => {
+		const dataJson: DataJSON = {
 			..._data,
 			Action: name,
 			ActionID: this.actionIDGenerator()
 		};
-    
-    let dataTxt = '';
 
-    for (let x in dataJson) {
-      dataTxt += x + ": " + dataJson[x] + "\r\n";
-    }
+		let dataTxt = '';
 
-    dataTxt += "\r\n";
+		for (let x in dataJson) {
+			dataTxt += x + ": " + dataJson[x] + "\r\n";
+		}
+
+		dataTxt += "\r\n";
 
 		this.actions.set(dataJson.ActionID, {
 			json: dataJson,
@@ -209,8 +209,8 @@ export class AMI extends EventEmitter {
 			cb
 		});
 
-    this.socket.write(dataTxt);
-  }
+		this.socket.write(dataTxt);
+	}
 
 	private actionIDGenerator() {
 		var d = new Date().getTime();
