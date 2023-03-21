@@ -16,6 +16,11 @@ enum Status {
   SKIP = "skip"
 }
 
+enum Provider {
+  TOP_DELIVERY = "top-delivery",
+  B2CPL = 'b2cpl'
+}
+
 @Entity()
 export class Call {
   static Status = Status
@@ -37,6 +42,9 @@ export class Call {
 
   @Column()
   phone: string;
+
+  @Column({ enum: Provider })
+  provider: Provider;
 
   /** MAIN RELATION WITH ORDERS */
   @Column()
