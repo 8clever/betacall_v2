@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common'
 import { ClientsModule } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CallerController } from './caller.controller';
+import { CallerGateaway } from './caller.gateaway';
 import { CallerService } from './caller.service';
 
 @Module({
@@ -11,6 +12,6 @@ import { CallerService } from './caller.service';
     TypeOrmModule.forFeature([Call])
   ],
   controllers: [CallerController],
-  providers: [CallerService]
+  providers: [CallerService, CallerGateaway]
 })
 export class CallerModule {}
