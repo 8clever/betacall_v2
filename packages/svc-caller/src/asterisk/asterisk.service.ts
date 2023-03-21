@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
+import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { AMI } from "./ami";
 import { config, CustomMqtt, MQTT_TOKEN } from '@betacall/svc-common';
 import { CALL_STATUS } from "./asterisk.constants";
@@ -84,7 +84,7 @@ export class AsteriskService implements OnModuleInit {
 						return;
 					}
 
-					console.log(evt.Cause, evt["Cause-txt"]);
+					Logger.log(evt.Cause, evt["Cause-txt"]);
 					ami.emit(evt.Uniqueid, {
 						status: CALL_STATUS.CONNECTING_PROBLEM,
 						id: evt.Uniqueid

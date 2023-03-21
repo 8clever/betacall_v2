@@ -10,14 +10,17 @@ enum ERROR {
 	E_AMI_ARGUMENT_PORT = "Argument 'port' missing in function call.",
 	E_AMI_ARGUMENT_USERNAME = "Argument 'username' missing in function call.",
 	E_AMI_ARGUMENT_PASSWORD = "Argument 'password' missing in function call.",
-	E_AMI_SOCKED_ERROR = "Could not connect to server. Code: %s.",
+	E_AMI_SOCKED_ERROR = "Could not connect to server.",
 	E_AMI_SOCKED_CLOSE = "Lost connection to server.",
 	E_AMI_AUTH_FAILED = "Authentication failed."
 };
 
 class AMIError extends Error {
-	constructor(public message: ERROR, public code?: number) {
+	constructor(message: ERROR, public code?: string) {
 		super(message);
+
+		if (code)
+			this.message = `${this.message} code: ${code}`;
 	}
 }
 
@@ -174,6 +177,7 @@ export class AMI extends EventEmitter {
 		});
 
 		this.socket.on('error', (err: AMIError) => {
+			console.log(err)
 			this.emit('error', new AMIError(ERROR.E_AMI_SOCKED_ERROR, err.code));
 		});
 
