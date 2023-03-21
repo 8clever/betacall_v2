@@ -13,7 +13,6 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/typeorm": "^9.0.1",
     "@nrwl/nest": "^15.8.7",
-    "@nrwl/nx-darwin-x64": "^15.8.7",
     "axios": "^1.0.0",
     "helmet": "^6.0.1",
     "mqtt": "^4.3.7",
