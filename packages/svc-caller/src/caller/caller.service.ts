@@ -33,15 +33,6 @@ export class CallerService implements OnModuleInit {
     this.runMaxQueue().catch(this.handleError);
 
     this.intervalLogs();
-
-    this.push([
-      {
-        orderId: '1',
-        phone: '89585005602',
-        provider: Call.Provider.TOP_DELIVERY,
-        status: Call.Status.NOT_PROCESSED
-      }
-    ])
   }
 
   findLastOrderStatus() {
@@ -196,7 +187,6 @@ export class CallerService implements OnModuleInit {
     return `call."orderId" ${not ? "not" : ""} in (${calls.map(c => `'${c.orderId}'`).join(",")}) and call.provider = '${provider}' and call.history is null`;
   }
 
-  // TODO remove from queue history data
   async push(calls: Omit<Call, "id" | "dt" | "user">[]) {
     if (!calls.length) return;
 
