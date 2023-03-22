@@ -53,6 +53,9 @@ export class Call {
   orderId: string;
 
   @Column({ nullable: true })
+  history?: boolean;
+
+  @Column({ nullable: true })
   operatorTimeUsage?: number;
 
   @Column({ nullable: true })

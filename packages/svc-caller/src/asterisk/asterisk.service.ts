@@ -52,7 +52,6 @@ export class AsteriskService implements OnModuleInit {
 				});
 
 				ami.on("eventCoreShowChannel", evt => {
-					console.log(evt)
 					ami.emit(evt.Event + evt.ActionID, evt);
 				});
 
@@ -145,7 +144,6 @@ export class AsteriskService implements OnModuleInit {
 	}): Promise<{ status: CALL_STATUS, id: string }> => {
 		const id = this.generateID();
 		const isOn = this.isOn();
-		console.log(isOn)
 		if (!isOn) return { id, status: CALL_STATUS.ASTERISK_BUSY };
 
 		const gateawayDefault = this.getGateawayByDefault(gateawayName)

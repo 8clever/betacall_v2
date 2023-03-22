@@ -33,21 +33,11 @@ export class CallerService implements OnModuleInit {
     this.runMaxQueue().catch(this.handleError);
 
     this.intervalLogs();
-
-    /** TODO Remove */
-    this.push([
-      {
-        orderId: "1",
-        phone: "89585005602",
-        provider: Call.Provider.TOP_DELIVERY,
-        status: Call.Status.NOT_PROCESSED
-      }
-    ])
   }
 
   findLastOrderStatus() {
     return this.callRepo
-      .createQueryBuilder("call")
+      .createQueryBuilder('call')
       .distinctOn(['call.orderId'])
       .orderBy('call.orderId, dt asc, id')
   }
@@ -143,7 +133,7 @@ export class CallerService implements OnModuleInit {
     this.callRound.set(dto.orderId, round + 1);
 
     if (call.status === CALL_STATUS.UNNAVAILABLE) {
-      await this.save({
+      await this.add({
         ...dto,
         status: Call.Status.UNDER_CALL,
         callId: call.id
@@ -183,17 +173,21 @@ export class CallerService implements OnModuleInit {
     return this.queueRPush(orderId);
   }
 
+  private queryList = (calls: Pick<Call, 'orderId' | 'provider'>[], not: boolean = false) => {
+    const provider = calls[0].provider;
+    return `call."orderId" ${not ? "not" : ""} in (${calls.map(c => `'${c.orderId}'`).join(",")}) and call.provider = '${provider}' and call.history is null`;
+  }
+
   async push(calls: Omit<Call, "id" | "dt" | "user">[]) {
     if (!calls.length) return;
 
-    const query = `call.orderId in (${calls.map(c => `'${c.orderId}'`).join(",")})`;
-    const listCall = await this.findLastOrderStatus().where(query).getMany();
+    const listCall = await this.findLastOrderStatus().where(this.queryList(calls)).getMany();
     const queue = await this.queueList();
     const list = new Map(listCall.map(c => [ c.orderId, c ]));
 
     for (const c of calls) {
       if (!list.has(c.orderId)) {
-        const call = await this.save(c);
+        const call = await this.add(c);
         list.set(call.orderId, {
           ...call,
           user: this.robot
@@ -210,15 +204,25 @@ export class CallerService implements OnModuleInit {
         await this[call.status === Call.Status.NOT_PROCESSED ? "queueLPush" : "queueRPush"](call.orderId);
       }
     }
+
+    await this.callRepo.createQueryBuilder()
+      .update(Call)
+      .set({ history: true })
+      .where(this.queryList(calls, true))
+      .execute();
   }
 
   find(where: Partial<Call>) {
     return this.callRepo.find({ where });
   }
 
-  save (data: Partial<Call>) {
-    // allow only new records
+  add (d: Partial<Call>) {
+    const data = {...d}
     delete data.id;
+    return this.save(data);
+  }
+
+  save (data: Partial<Call>) {
     return this.callRepo.save(data);
   }
 }
