@@ -200,11 +200,12 @@ export class CallerService implements OnModuleInit {
         });
       }
 
-      const call = list.get(c.orderId);
       const inqueue = queue.has(c.orderId);
       if (inqueue) continue;
 
+      const call = list.get(c.orderId);
       const shouldProcese = this.filter(call);
+      
       if (shouldProcese) {
         await this.redis[call.status === Call.Status.NOT_PROCESSED ? "LPUSH" : "RPUSH"](this.CALL_QUEUE, call.orderId);
       }
