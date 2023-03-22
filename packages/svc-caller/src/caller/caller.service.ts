@@ -146,6 +146,7 @@ export class CallerService implements OnModuleInit {
         status: Call.Status.UNDER_CALL,
         callId: call.id
       });
+      return this.queueRPush(orderId);
     }
 
     if (call.status === CALL_STATUS.DONE) {
@@ -168,8 +169,11 @@ export class CallerService implements OnModuleInit {
         //     callId: call.id
         // });
         // return;
-      this.process.delete(orderId)
-      return;
+      return this.process.delete(orderId)
+    }
+
+    if (call.status === CALL_STATUS.MANUAL_RELEASE) {
+      return this.process.delete(orderId);
     }
 
     if (
@@ -179,7 +183,7 @@ export class CallerService implements OnModuleInit {
       return this.queueLPush(orderId)
     }
 
-    return this.queueRPush(orderId);
+    Logger.error("Invalid call status: " + call.status);
   }
 
   private queryList = (calls: Pick<Call, 'orderId' | 'provider'>[], not: boolean = false) => {
