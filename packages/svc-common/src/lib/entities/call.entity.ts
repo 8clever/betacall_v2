@@ -23,6 +23,8 @@ enum Provider {
 
 @Entity()
 export class Call {
+  static Provider = Provider
+
   static Status = Status
 
   static DeliveryType = DeliveryType
@@ -51,26 +53,26 @@ export class Call {
   orderId: string;
 
   @Column({ nullable: true })
-  operatorTimeUsage: number;
+  operatorTimeUsage?: number;
 
   @Column({ nullable: true })
-  dtNextCall: number;
+  dtNextCall?: number;
 
   @Column({ nullable: true })
-  callId: string;
+  callId?: string;
 
   @Column({ nullable: true })
-  fullName: string;
+  fullName?: string;
 
   @Column({ nullable: true })
-  region: string;
+  region?: string;
 
   @Column({ nullable: true })
-  dtendOfStorage: number;
+  dtendOfStorage?: number;
 
   @Column({ enum: DeliveryType, nullable: true })
-  deliveryType: DeliveryType
+  deliveryType?: DeliveryType
 
   @Column({ nullable: true })
-  marketName: string;
+  marketName?: string;
 }

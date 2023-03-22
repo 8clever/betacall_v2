@@ -24,6 +24,8 @@ export class AsteriskService implements OnModuleInit {
 
 	}
 
+	gateaways = Object.keys(config.gateaways)
+
 	ami = new AMI(
 		config.ami.host,
 		config.ami.port,
@@ -43,13 +45,14 @@ export class AsteriskService implements OnModuleInit {
 				reject(err);
 			});
 
-			ami.on('ready', function () {
+			ami.on('ready', () => {
 
 				ami.on("eventCoreShowChannelsComplete", evt => {
 					ami.emit(evt.Event + evt.ActionID, evt);
 				});
 
 				ami.on("eventCoreShowChannel", evt => {
+					console.log(evt)
 					ami.emit(evt.Event + evt.ActionID, evt);
 				});
 
@@ -116,6 +119,7 @@ export class AsteriskService implements OnModuleInit {
 
 				// ami.on("eventAgentConnect", holdTimeListener);
 
+				this.asteriskON = true;
 				resolve(null);
 			});
 		})
@@ -138,7 +142,7 @@ export class AsteriskService implements OnModuleInit {
 		gateawayName: string;
 		texts?: string[];
 		vars?: Record<string, string | number>
-	}) => {
+	}): Promise<{ status: CALL_STATUS, id: string }> => {
 		const id = this.generateID();
 		const isOn = this.isOn();
 		if (!isOn) return { id, status: CALL_STATUS.ASTERISK_BUSY };
@@ -181,21 +185,20 @@ export class AsteriskService implements OnModuleInit {
 				resolve(response);
 			});
 
-			this.ami.action(
-				'Originate',
-				{
-					Channel: channel,
-					Context: context,
-					Exten: config.ami.exten,
-					Priority: '1',
-					Async: true,
-					CallerID: phone,
-					ActionID: "service_call",
-					ChannelId: id,
-					Timeout: config.ami.timeout,
-					Variable: Variable.join(",")
-				},
-				(data: { Response: string }) => {
+			const originate = {
+				Channel: channel,
+				Context: context,
+				Exten: config.ami.exten,
+				Priority: '1',
+				Async: true,
+				CallerID: phone,
+				ActionID: "service_call",
+				ChannelId: id,
+				Timeout: config.ami.timeout,
+				Variable: Variable.join(",")
+			}
+
+			this.ami.action('Originate', originate, (data: { Response: string }) => {
 					if (data.Response === 'Error') {
 						reject(data);
 					}
