@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { AMI } from "./ami";
 import { config, CustomMqtt, MQTT_TOKEN } from '@betacall/svc-common';
 import { CALL_STATUS } from "./asterisk.constants";
-import uuid from 'uuid'
+import * as uuid from 'uuid'
 import { RosReestr } from './rosreestr'
 
 class GateAway {

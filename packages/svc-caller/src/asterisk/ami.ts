@@ -1,7 +1,7 @@
 import net from 'net';
 import { Transform } from 'stream'
 import { EventEmitter } from 'events'
-import uuid from 'uuid'
+import * as uuid from 'uuid'
 
 /** Const errors used by module. */
 enum ERROR {
@@ -148,7 +148,7 @@ export class AMI extends EventEmitter {
 			if (!actionId) return;
 
 			const action = this.actions.get(actionId);
-			const cb = action.cb;
+			const cb = action?.cb;
 			if (!cb) return;
 
 			this.actions.delete(actionId);
@@ -177,7 +177,6 @@ export class AMI extends EventEmitter {
 		});
 
 		this.socket.on('error', (err: AMIError) => {
-			console.log(err)
 			this.emit('error', new AMIError(ERROR.E_AMI_SOCKED_ERROR, err.code));
 		});
 

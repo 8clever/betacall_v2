@@ -17,10 +17,10 @@ export const config = {
 	ami: {
 		timeout: Number(process.env.AMI_TIMEOUT || 120000),
 		exten: process.env.AMI_EXTEN || "333",
-		host: process.env.AMI_HOST || "0.0.0.0",
-		port: Number(process.env.AMI_PORT || "15038"),
-		username: process.env.AMI_USER || "user",
-		password: process.env.AMI_PASS || "password"
+		host: process.env.AMI_HOST || "192.168.1.26",
+		port: Number(process.env.AMI_PORT || "5038"),
+		username: process.env.AMI_USER || "u",
+		password: process.env.AMI_PASS || "p"
 	},
 	gateaways: {
 		default: {
