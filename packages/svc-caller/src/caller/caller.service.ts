@@ -33,13 +33,22 @@ export class CallerService implements OnModuleInit {
     this.runMaxQueue().catch(this.handleError);
 
     this.intervalLogs();
+
+    this.push([
+      {
+        orderId: '1',
+        phone: '89585005602',
+        provider: Call.Provider.TOP_DELIVERY,
+        status: Call.Status.NOT_PROCESSED
+      }
+    ])
   }
 
   findLastOrderStatus() {
     return this.callRepo
       .createQueryBuilder('call')
       .distinctOn(['call.orderId'])
-      .orderBy('call.orderId, dt asc, id')
+      .orderBy('call.orderId, dt desc, id')
   }
 
   private intervalLogs = () => {
@@ -49,6 +58,7 @@ export class CallerService implements OnModuleInit {
 
   private filter (call: Call) {
     if (
+      call.history ||
       call.status === Call.Status.DONE ||
       call.status === Call.Status.DONE_PICKUP ||
       call.status === Call.Status.DENY ||
@@ -117,6 +127,13 @@ export class CallerService implements OnModuleInit {
     }
 
     const dto = await this.findLastOrderStatus().where({ orderId }).getOne();
+    const canProcess = this.filter(dto);
+
+    if (!canProcess) {
+      this.process.delete(orderId);
+      return;
+    };
+
     const round = this.callRound.get(dto.orderId) || 0;
     const gateidx = round % this.asteriskSvc.gateaways.length;
     const gateawayName = this.asteriskSvc.gateaways[gateidx];
@@ -160,6 +177,7 @@ export class CallerService implements OnModuleInit {
         //     callId: call.id
         // });
         // return;
+      this.process.delete(orderId)
       return;
     }
 
@@ -178,6 +196,7 @@ export class CallerService implements OnModuleInit {
     return `call."orderId" ${not ? "not" : ""} in (${calls.map(c => `'${c.orderId}'`).join(",")}) and call.provider = '${provider}' and call.history is null`;
   }
 
+  // TODO remove from queue history data
   async push(calls: Omit<Call, "id" | "dt" | "user">[]) {
     if (!calls.length) return;
 
@@ -198,11 +217,7 @@ export class CallerService implements OnModuleInit {
       if (inqueue) continue;
 
       const call = list.get(c.orderId);
-      const shouldProcese = this.filter(call);
-
-      if (shouldProcese) {
-        await this[call.status === Call.Status.NOT_PROCESSED ? "queueLPush" : "queueRPush"](call.orderId);
-      }
+      await this[call.status === Call.Status.NOT_PROCESSED ? "queueLPush" : "queueRPush"](call.orderId);
     }
 
     await this.callRepo.createQueryBuilder()
@@ -223,6 +238,7 @@ export class CallerService implements OnModuleInit {
   }
 
   save (data: Partial<Call>) {
+    delete data.dt;
     return this.callRepo.save(data);
   }
 }

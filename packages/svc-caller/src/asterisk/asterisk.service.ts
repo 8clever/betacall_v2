@@ -125,7 +125,14 @@ export class AsteriskService implements OnModuleInit {
 	}
 
 	async onModuleInit() {
-		await this.init();
+		for (;;) {
+			try {
+				await this.init()
+				break;
+			} catch (e) {
+				Logger.error(e)
+			}
+		}
 	}
 
 	private generateID() {
