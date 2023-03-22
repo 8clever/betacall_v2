@@ -145,6 +145,7 @@ export class AsteriskService implements OnModuleInit {
 	}): Promise<{ status: CALL_STATUS, id: string }> => {
 		const id = this.generateID();
 		const isOn = this.isOn();
+		console.log(isOn)
 		if (!isOn) return { id, status: CALL_STATUS.ASTERISK_BUSY };
 
 		const gateawayDefault = this.getGateawayByDefault(gateawayName)
@@ -197,8 +198,6 @@ export class AsteriskService implements OnModuleInit {
 				Timeout: config.ami.timeout,
 				Variable: Variable.join(",")
 			}
-
-			console.log(originate)
 
 			this.ami.action('Originate', originate, (data: { Response: string }) => {
 					if (data.Response === 'Error') {

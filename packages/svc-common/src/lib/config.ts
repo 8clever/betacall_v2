@@ -16,7 +16,7 @@ export const config = {
 	redisUrl: process.env.REDIS || "redis://localhost:6379",
 	ami: {
 		timeout: Number(process.env.AMI_TIMEOUT || 120000),
-		exten: process.env.AMI_EXTEN || "333",
+		exten: process.env.AMI_EXTEN || "1",
 		host: process.env.AMI_HOST || "192.168.1.26",
 		port: Number(process.env.AMI_PORT || "5038"),
 		username: process.env.AMI_USER || "u",

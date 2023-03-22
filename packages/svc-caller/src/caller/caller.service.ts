@@ -32,6 +32,8 @@ export class CallerService implements OnModuleInit {
 
     this.runMaxQueue().catch(this.handleError);
 
+    this.intervalLogs();
+
     /** TODO Remove */
     this.push([
       {
@@ -47,7 +49,12 @@ export class CallerService implements OnModuleInit {
     return this.callRepo
       .createQueryBuilder("call")
       .distinctOn(['call.orderId'])
-      .orderBy('call.orderId, dt desc, id')
+      .orderBy('call.orderId, dt asc, id')
+  }
+
+  private intervalLogs = () => {
+    Logger.log(`Slots: ${this.totalSlots}, Busy: ${this.busySlots}`)
+    setTimeout(this.intervalLogs, 10000);
   }
 
   private filter (call: Call) {
@@ -63,20 +70,20 @@ export class CallerService implements OnModuleInit {
 
   private callRound: Map<Call['orderId'], number> = new Map();
 
-  private runMaxQueue = async () => {
-    const totalSlots = Object.values(config.gateaways).reduce((memo, g) => memo + g.slots, 0);
-    let busySlots = 0;
-    for (;;) {
-      Logger.log(`Total slots: ${totalSlots}, Busy slots: ${busySlots}`);
+  private readonly totalSlots = Object.values(config.gateaways).reduce((memo, g) => memo + g.slots, 0);
 
-      busySlots += 1
+  private busySlots = 0;
+
+  private runMaxQueue = async () => {
+    for (;;) {
+      this.busySlots += 1
       this.processNextCall()
         .catch(this.handleError)
         .then(() => {
-          busySlots -= 1;
+          this.busySlots -= 1;
         });
 
-      while (busySlots >= totalSlots) {
+      while (this.busySlots >= this.totalSlots) {
         await new Promise(res => setTimeout(res, 1000));
       }
     }
@@ -138,7 +145,6 @@ export class CallerService implements OnModuleInit {
     if (call.status === CALL_STATUS.UNNAVAILABLE) {
       await this.save({
         ...dto,
-        id: null,
         status: Call.Status.UNDER_CALL,
         callId: call.id
       });
@@ -210,6 +216,8 @@ export class CallerService implements OnModuleInit {
   }
 
   save (data: Partial<Call>) {
+    // allow only new records
+    delete data.id;
     return this.callRepo.save(data);
   }
 }
