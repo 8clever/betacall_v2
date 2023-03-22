@@ -50,11 +50,12 @@ export class CallerService implements OnModuleInit {
       .orderBy('call.orderId, dt desc, id')
   }
 
-  private isProcessedCall (call: Call) {
+  private filter (call: Call) {
     if (
       call.status === Call.Status.DONE ||
       call.status === Call.Status.DONE_PICKUP ||
-      call.status === Call.Status.DENY
+      call.status === Call.Status.DENY ||
+      call.status === Call.Status.REPLACE_DATE && new Date().valueOf() < call.dtNextCall
     ) return false;
 
     return true;
@@ -85,8 +86,35 @@ export class CallerService implements OnModuleInit {
     Logger.error(err);
   }
 
+  private process: Set<string> = new Set();
+
+  private async queuePop () {
+    const id = await this.redis.LPOP(this.CALL_QUEUE);
+    if (!id) return null;
+    this.process.add(id);
+    return id;
+  }
+
+  private async queueLPush (id: string) {
+    await this.redis.LPUSH(this.CALL_QUEUE, id);
+    this.process.delete(id);
+  }
+
+  private async queueRPush (id: string) {
+    await this.redis.RPUSH(this.CALL_QUEUE, id);
+    this.process.delete(id);
+  }
+
+  private async queueList () {
+    const list = await this.redis.LRANGE(this.CALL_QUEUE, 0, -1);
+    return new Set([
+      ...list,
+      ...this.process
+    ])
+  }
+
   private processNextCall = async () => {
-    const orderId = await this.redis.LPOP(this.CALL_QUEUE);
+    const orderId = await this.queuePop();
     if (orderId === null) {
       return;
     }
@@ -143,10 +171,10 @@ export class CallerService implements OnModuleInit {
       call.status === CALL_STATUS.ASTERISK_BUSY || 
       call.status === CALL_STATUS.CONNECTING_PROBLEM
     ) {
-      return this.redis.LPUSH(this.CALL_QUEUE, orderId);
+      return this.queueLPush(orderId)
     }
 
-    return this.redis.RPUSH(this.CALL_QUEUE, orderId);
+    return this.queueRPush(orderId);
   }
 
   async push(calls: Omit<Call, "id" | "dt" | "user">[]) {
@@ -154,8 +182,7 @@ export class CallerService implements OnModuleInit {
 
     const query = `call.orderId in (${calls.map(c => `'${c.orderId}'`).join(",")})`;
     const listCall = await this.findLastOrderStatus().where(query).getMany();
-    const listQueue = await this.redis.LRANGE(this.CALL_QUEUE, 0, -1);
-    const queue = new Set(listQueue);
+    const queue = await this.queueList();
     const list = new Map(listCall.map(c => [ c.orderId, c ]));
 
     for (const c of calls) {
@@ -171,12 +198,8 @@ export class CallerService implements OnModuleInit {
       const inqueue = queue.has(c.orderId);
       if (inqueue) continue;
 
-      const isProcessed = this.isProcessedCall(call);
-      if (isProcessed) {
-        if (call.status === Call.Status.REPLACE_DATE && new Date().valueOf() < call.dtNextCall) {
-          continue;
-        }
-
+      const shouldProcese = this.filter(call);
+      if (shouldProcese) {
         await this.redis[call.status === Call.Status.NOT_PROCESSED ? "LPUSH" : "RPUSH"](this.CALL_QUEUE, call.orderId);
       }
     }

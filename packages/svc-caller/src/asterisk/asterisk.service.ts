@@ -198,6 +198,8 @@ export class AsteriskService implements OnModuleInit {
 				Variable: Variable.join(",")
 			}
 
+			console.log(originate)
+
 			this.ami.action('Originate', originate, (data: { Response: string }) => {
 					if (data.Response === 'Error') {
 						reject(data);

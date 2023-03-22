@@ -24,8 +24,9 @@ export const config = {
 	},
 	gateaways: {
 		default: {
-			slots: 7,
-			channel: "SIP/<phone>@voip1"
+			slots: 8,
+			channel: "Local/<phone>@voip1/n",
+			context: "testt"
 		}
 	},
 
