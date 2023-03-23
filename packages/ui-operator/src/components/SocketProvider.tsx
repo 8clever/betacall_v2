@@ -2,10 +2,6 @@ import { Api, useAuth } from '@betacall/ui-kit';
 import React from 'react';
 import { io } from 'socket.io-client';
 
-/**
- * 
- * @returns { url: 'ws://localhost:3004', options: { transports: ['websocket'] } }
- */
 export function SocketProvider () {
 
 	const { user } = useAuth();
