@@ -56,26 +56,11 @@ export class Call {
   history?: boolean;
 
   @Column({ nullable: true })
-  operatorTimeUsage?: number;
-
-  @Column({ nullable: true })
   dtNextCall?: number;
 
   @Column({ nullable: true })
   callId?: string;
 
   @Column({ nullable: true })
-  fullName?: string;
-
-  @Column({ nullable: true })
   region?: string;
-
-  @Column({ nullable: true })
-  dtendOfStorage?: number;
-
-  @Column({ enum: DeliveryType, nullable: true })
-  deliveryType?: DeliveryType
-
-  @Column({ nullable: true })
-  marketName?: string;
 }
