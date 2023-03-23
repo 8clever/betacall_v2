@@ -9,8 +9,13 @@ export class AuthService {
   ) {}
 
   async generateToken(user: User) {
+    const payload = {
+      id: user.id,
+      login: user.login,
+      role: user.role
+    }
     return {
-      access_token: this.jwtService.sign({ ...user }),
+      access_token: this.jwtService.sign(payload),
     };
   }
 
