@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@betacall/svc-common": ["packages/svc-common/src/index.ts"]
+      "@betacall/svc-common": ["packages/svc-common/src/index.ts"],
+      "@betacall/ui-kit": ["packages/ui-kit/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
