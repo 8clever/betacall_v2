@@ -5,58 +5,31 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/webpack:webpack",
+      "executor": "@nrwl/vite:build",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "compiler": "babel",
-        "outputPath": "dist/packages/ui-auth",
-        "index": "packages/ui-auth/src/index.html",
-        "baseHref": "/",
-        "main": "packages/ui-auth/src/main.tsx",
-        "tsConfig": "packages/ui-auth/tsconfig.app.json",
-        "assets": [
-          "packages/ui-auth/src/favicon.ico",
-          "packages/ui-auth/src/assets"
-        ],
-        "styles": [],
-        "scripts": [],
-        "isolatedConfig": true,
-        "webpackConfig": "packages/ui-auth/webpack.config.js"
+        "outputPath": "dist/packages/ui-auth"
       },
       "configurations": {
         "development": {
-          "extractLicenses": false,
-          "optimization": false,
-          "sourceMap": true,
-          "vendorChunk": true
+          "mode": "development"
         },
         "production": {
-          "fileReplacements": [
-            {
-              "replace": "packages/ui-auth/src/environments/environment.ts",
-              "with": "packages/ui-auth/src/environments/environment.prod.ts"
-            }
-          ],
-          "optimization": true,
-          "outputHashing": "all",
-          "sourceMap": false,
-          "namedChunks": false,
-          "extractLicenses": true,
-          "vendorChunk": false
+          "mode": "production"
         }
       }
     },
     "serve": {
-      "executor": "@nrwl/webpack:dev-server",
+      "executor": "@nrwl/vite:dev-server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "ui-auth:build",
-        "hmr": true
+        "buildTarget": "ui-auth:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "ui-auth:build:development"
+          "buildTarget": "ui-auth:build:development",
+          "hmr": true
         },
         "production": {
           "buildTarget": "ui-auth:build:production",
@@ -64,25 +37,34 @@
         }
       }
     },
+    "preview": {
+      "executor": "@nrwl/vite:preview-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "ui-auth:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "ui-auth:build:development"
+        },
+        "production": {
+          "buildTarget": "ui-auth:build:production"
+        }
+      }
+    },
+    "test": {
+      "executor": "@nrwl/vite:test",
+      "outputs": ["coverage/packages/ui-auth"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../coverage/packages/ui-auth"
+      }
+    },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": ["packages/ui-auth/**/*.{ts,tsx,js,jsx}"]
-      }
-    },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
-      "options": {
-        "jestConfig": "packages/ui-auth/jest.config.ts",
-        "passWithNoTests": true
-      },
-      "configurations": {
-        "ci": {
-          "ci": true,
-          "codeCoverage": true
-        }
       }
     }
   },

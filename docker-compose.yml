@@ -1,6 +1,22 @@
 version: '3.9'
 services:
 
+  ui-auth:
+    build:
+      dockerfile: ./dockerfiles/Dockerfile.system
+    command: npx nx serve ui-auth
+    environment:
+      - BASE_URL=/auth
+    volumes:
+      - ./:/app
+    depends_on:
+      - svc-users
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ui-auth.rule=PathPrefix(`/auth`)"
+      - "traefik.http.routers.ui-auth.entrypoints=web"
+      - traefik.http.services.ui-auth.loadbalancer.server.port=3000
+
   svc-users:
     build:
       dockerfile: ./dockerfiles/Dockerfile.system
