@@ -66,9 +66,9 @@ services:
       - svc-caller
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.svc-caller.rule=PathPrefix(`/api/v1/topdelivery`)"
-      - "traefik.http.routers.svc-caller.entrypoints=web"
-      - traefik.http.services.svc-caller.loadbalancer.server.port=3000
+      - "traefik.http.routers.svc-topdelivery.rule=PathPrefix(`/api/v1/topdelivery`)"
+      - "traefik.http.routers.svc-topdelivery.entrypoints=web"
+      - traefik.http.services.svc-topdelivery.loadbalancer.server.port=3000
 
   svc-caller:
     build:

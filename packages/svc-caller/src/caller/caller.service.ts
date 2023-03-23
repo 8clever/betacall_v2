@@ -27,8 +27,6 @@ export class CallerService implements OnModuleInit {
     await this.queue.init();
 
     this.runMaxQueue().catch(this.handleError);
-
-    this.intervalLogs();
   }
 
   findLastOrderStatus() {

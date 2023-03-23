@@ -5,6 +5,7 @@ import { AuthProvider, GlobalStyle, Protected, UserApi } from '@betacall/ui-kit'
 
 import { Main } from './components/Main';
 import { Layout } from 'antd';
+import { SocketProvider } from './components/SocketProvider';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -16,6 +17,7 @@ root.render(
     <Layout>
       <AuthProvider>
         <Protected role={UserApi.Role.OPERATOR}>
+          <SocketProvider />
           <BrowserRouter basename={import.meta.env.BASE_URL}>
             <Routes>
               <Route path="/" element={<Main />} />

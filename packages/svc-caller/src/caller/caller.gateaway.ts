@@ -1,32 +1,44 @@
-import { Logger, UseGuards } from '@nestjs/common';
 import {
-  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  OnGatewayConnection,
+  OnGatewayDisconnect
 } from '@nestjs/websockets';
 import { Socket } from 'net';
 import { Server } from 'socket.io';
-import { AuthGuard } from './gateaway.guard';
 
-/**
- * TODO Complete work with sockets
- */
+interface Request {
+  handshake: {
+    query: {
+      user: string;
+    }
+  }
+}
 
 @WebSocketGateway({
+  path: "/api/v1/caller/socket",
   cors: {
     origin: '*',
   },
 })
-export class CallerGateaway {
+export class CallerGateaway implements OnGatewayConnection<Request>, OnGatewayDisconnect<Request> {
+
   @WebSocketServer()
   server: Server;
 
-	users: Set<string>;
-
-	@UseGuards(AuthGuard)
-  @SubscribeMessage('events')
-	handleEvent(client: Socket, data: string): string {
-		Logger.log(client, data);
-		return data;
-	}
+	users = new Set<string>();
+  
+  handleDisconnect(req: Request) {
+    const { user } = req.handshake.query
+    if (user) {
+      this.users.delete(user)
+    }
+  }
+  
+  handleConnection(req: Request) {
+    const { user } = req.handshake.query
+    if (user) {
+      this.users.add(user)
+    }
+  }
 }
