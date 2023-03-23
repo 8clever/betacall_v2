@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import React from "react";
 import { UserApi } from "../api/UserApi";
 import { useAuth } from "./AuthProvider";
 
@@ -8,13 +8,13 @@ interface IProps {
 }
 
 export function Protected (props: IProps) {
-  const auth = useAuth();  
-
+  const auth = useAuth();
+  
   if (auth.user && auth.user.role === props.role)
     return props.children as JSX.Element;
 
   if (auth.loaded)
-    return <Navigate to="/auth/signin" />
+    window.location.href = '/auth'
 
   return null; 
 }

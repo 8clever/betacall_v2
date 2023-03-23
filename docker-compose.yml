@@ -1,6 +1,24 @@
 version: '3.9'
 services:
 
+  ui-operator:
+    build:
+      dockerfile: ./dockerfiles/Dockerfile.system
+    command: npx nx serve ui-operator
+    environment:
+      - BASE_URL=/operator
+    volumes:
+      - ./:/app
+    depends_on:
+      - svc-topdelivery
+      - svc-caller
+      - ui-auth
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ui-operator.rule=PathPrefix(`/operator`)"
+      - "traefik.http.routers.ui-operator.entrypoints=web"
+      - traefik.http.services.ui-operator.loadbalancer.server.port=3000
+
   ui-auth:
     build:
       dockerfile: ./dockerfiles/Dockerfile.system
