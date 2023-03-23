@@ -9,7 +9,7 @@ export function SignIn () {
 	const onFinish = React.useCallback(async (values: UserApi.SignIn) => {
 		const userApi = new UserApi();
 		await userApi.signin(values)
-		const query = qs.parse(window.location.search);
+		const query = qs.parse(window.location.search.slice(1));
 		const backUrl = query.backUrl as string || "/";
 		window.location.href = backUrl;
 	}, []);
@@ -50,7 +50,9 @@ export function SignIn () {
 }
 
 const Container = styled.div`
-	padding: 30px 0;
 	display: flex;
+	align-items: center;
+	height: 100vh;
+	width: 100vw;
 	justify-content: center;
 `
