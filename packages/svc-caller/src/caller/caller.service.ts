@@ -2,16 +2,12 @@ import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm'
 import { Call, config, CustomMqtt, MQTT_TOKEN, User } from "@betacall/svc-common"
 import { Repository } from 'typeorm'
-import { createClient } from 'redis'
 import { AsteriskService } from "../asterisk/asterisk.service";
 import { CALL_STATUS } from "../asterisk/asterisk.constants";
+import { Queue } from "./caller.queue";
 
 @Injectable()
 export class CallerService implements OnModuleInit {
-
-  private redis = createClient({
-    url: config.redisUrl
-  });
 
   constructor(
     @InjectRepository(Call)
@@ -21,14 +17,14 @@ export class CallerService implements OnModuleInit {
     private mqtt: CustomMqtt
   ) {}
 
-  private CALL_QUEUE = 'call-queue'
+  private readonly queue = new Queue('call-queue');
 
   private robot: User;
 
   async onModuleInit() {
     this.robot = await this.mqtt.paranoid('users:robot', {});
 
-    await this.redis.connect();
+    await this.queue.init();
 
     this.runMaxQueue().catch(this.handleError);
 
@@ -84,35 +80,8 @@ export class CallerService implements OnModuleInit {
     Logger.error(err);
   }
 
-  private process: Set<string> = new Set();
-
-  private async queuePop () {
-    const id = await this.redis.LPOP(this.CALL_QUEUE);
-    if (!id) return null;
-    this.process.add(id);
-    return id;
-  }
-
-  private async queueLPush (id: string) {
-    await this.redis.LPUSH(this.CALL_QUEUE, id);
-    this.process.delete(id);
-  }
-
-  private async queueRPush (id: string) {
-    await this.redis.RPUSH(this.CALL_QUEUE, id);
-    this.process.delete(id);
-  }
-
-  private async queueList () {
-    const list = await this.redis.LRANGE(this.CALL_QUEUE, 0, -1);
-    return new Set([
-      ...list,
-      ...this.process
-    ])
-  }
-
   private processNextCall = async () => {
-    const orderId = await this.queuePop();
+    const orderId = await this.queue.lPop();
     if (orderId === null) {
       return;
     }
@@ -121,7 +90,7 @@ export class CallerService implements OnModuleInit {
     const canProcess = this.filter(dto);
 
     if (!canProcess) {
-      this.process.delete(orderId);
+      this.queue.delete(orderId)
       return;
     };
 
@@ -146,7 +115,7 @@ export class CallerService implements OnModuleInit {
         status: Call.Status.UNDER_CALL,
         callId: call.id
       });
-      return this.queueRPush(orderId);
+      return this.queue.rPush(orderId);
     }
 
     if (call.status === CALL_STATUS.DONE) {
@@ -169,18 +138,18 @@ export class CallerService implements OnModuleInit {
         //     callId: call.id
         // });
         // return;
-      return this.process.delete(orderId)
+      return this.queue.delete(orderId)
     }
 
     if (call.status === CALL_STATUS.MANUAL_RELEASE) {
-      return this.process.delete(orderId);
+      return this.queue.delete(orderId);
     }
 
     if (
       call.status === CALL_STATUS.ASTERISK_BUSY || 
       call.status === CALL_STATUS.CONNECTING_PROBLEM
     ) {
-      return this.queueLPush(orderId)
+      return this.queue.lPush(orderId)
     }
 
     Logger.error("Invalid call status: " + call.status);
@@ -195,7 +164,7 @@ export class CallerService implements OnModuleInit {
     if (!calls.length) return;
 
     const listCall = await this.findLastOrderStatus().where(this.queryList(calls)).getMany();
-    const queue = await this.queueList();
+    const queueList = await this.queue.list();
     const list = new Map(listCall.map(c => [ c.orderId, c ]));
 
     for (const c of calls) {
@@ -207,11 +176,14 @@ export class CallerService implements OnModuleInit {
         });
       }
 
-      const inqueue = queue.has(c.orderId);
+      const inqueue = queueList.has(c.orderId);
       if (inqueue) continue;
 
       const call = list.get(c.orderId);
-      await this[call.status === Call.Status.NOT_PROCESSED ? "queueLPush" : "queueRPush"](call.orderId);
+      if (call.status === Call.Status.NOT_PROCESSED)
+        await this.queue.lPush(call.orderId);
+      else
+        await this.queue.rPush(call.orderId);
     }
 
     await this.callRepo.createQueryBuilder()
