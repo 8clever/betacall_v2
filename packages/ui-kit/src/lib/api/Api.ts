@@ -3,13 +3,15 @@ import qs from 'querystring';
 
 export class Api {
 
+	static readonly ACCESS_TOKEN = 'access_token';
+
 	constructor (private baseUrl: string) {
 
 	}
 
 	private getHeaders () {
 		return {
-			Authorization: `Bearer ${localStorage.getItem('access_token')}`
+			Authorization: `Bearer ${localStorage.getItem(Api.ACCESS_TOKEN)}`
 		}
 	}
 

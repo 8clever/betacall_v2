@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider, GlobalStyle, Protected, UserApi } from '@betacall/ui-kit'
 
 import { Main } from './components/Main';
+import { Layout } from 'antd';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -12,15 +13,17 @@ const root = ReactDOM.createRoot(
 root.render(
   <StrictMode>
     <GlobalStyle />
-    <AuthProvider>
-      <Protected role={UserApi.Role.OPERATOR}>
-        <BrowserRouter basename={import.meta.env.BASE_URL}>
-          <Routes>
-            <Route path="/" element={<Main />} />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </BrowserRouter>
-      </Protected>
-    </AuthProvider>
+    <Layout>
+      <AuthProvider>
+        <Protected role={UserApi.Role.OPERATOR}>
+          <BrowserRouter basename={import.meta.env.BASE_URL}>
+            <Routes>
+              <Route path="/" element={<Main />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </BrowserRouter>
+        </Protected>
+      </AuthProvider>
+    </Layout>
   </StrictMode>
 );

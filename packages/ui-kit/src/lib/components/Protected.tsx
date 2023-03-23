@@ -14,7 +14,7 @@ export function Protected (props: IProps) {
     return props.children as JSX.Element;
 
   if (auth.loaded)
-    window.location.href = '/auth'
+    UserApi.GoToAuth();
 
   return null; 
 }

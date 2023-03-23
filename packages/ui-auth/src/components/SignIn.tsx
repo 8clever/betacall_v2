@@ -1,4 +1,4 @@
-import { Button, Card, Divider, Form, Input, Typography } from "antd";
+import { Button, Card, Divider, Form, Input, Layout, Typography } from "antd";
 import styled from "styled-components";
 import React from "react";
 import { UserApi } from "@betacall/ui-kit";
@@ -15,37 +15,39 @@ export function SignIn () {
 	}, []);
 
 	return (
-		<Container>
-			<Card bordered>
-				<Form 
-					onFinish={onFinish}
-				>
-					<Typography.Title>
-						Welcome to Betacall
-					</Typography.Title>
-					<Divider />
-					<Form.Item
-						name='username'
-						required 
-						rules={[{ required: true, message: 'Please input your username!' }]}
-						label='Login'>
-						<Input />
-					</Form.Item>
-					<Form.Item 
-						required
-						name="password"
-						rules={[{ required: true, message: 'Please input your password!' }]}
-						label="Password">
-						<Input.Password />
-					</Form.Item>
-					<Form.Item>
-						<Button type="primary" htmlType="submit">
-							Sign In
-						</Button>
-					</Form.Item>
-				</Form>
-			</Card>
-		</Container>
+		<Layout>
+			<Container>
+				<Card bordered>
+					<Form 
+						onFinish={onFinish}
+					>
+						<Typography.Title>
+							Welcome to Betacall
+						</Typography.Title>
+						<Divider />
+						<Form.Item
+							name='username'
+							required 
+							rules={[{ required: true, message: 'Please input your username!' }]}
+							label='Login'>
+							<Input />
+						</Form.Item>
+						<Form.Item 
+							required
+							name="password"
+							rules={[{ required: true, message: 'Please input your password!' }]}
+							label="Password">
+							<Input.Password />
+						</Form.Item>
+						<Form.Item>
+							<Button type="primary" htmlType="submit">
+								Sign In
+							</Button>
+						</Form.Item>
+					</Form>
+				</Card>
+			</Container>
+		</Layout>
 	)
 }
 
