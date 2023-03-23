@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, JoinTable, ManyToOne, Column, CreateDateColumn } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, JoinTable, ManyToOne, Column, CreateDateColumn, Index } from 'typeorm'
 import { User } from './user.entity';
 
 enum DeliveryType {
@@ -49,6 +49,7 @@ export class Call {
   provider: Provider;
 
   /** MAIN RELATION WITH ORDERS */
+  @Index()
   @Column()
   orderId: string;
 
