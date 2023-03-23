@@ -1,3 +1,4 @@
+import { User } from '@betacall/svc-common';
 import { Controller, Request, Post, UseGuards, Body } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AuthGuard } from '@nestjs/passport';
@@ -19,12 +20,12 @@ export class AuthController {
 	
   @UseGuards(AuthGuard('local'))
   @Post('/auth/login')
-  async login(@Request() req) {
+  async login(@Request() req: { user: User }) {
     return this.auth.generateToken(req.user)
   }
 
   @Post('/auth/signup')
-  async signup(@Body() user) {
+  async signup(@Body() user: User) {
     return this.user.signup(user)
   }
 }

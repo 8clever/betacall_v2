@@ -1,3 +1,4 @@
+import { User } from '@betacall/svc-common';
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { JwtAuthGuard } from '../auth/jwt.auth.guard';
@@ -17,7 +18,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/me')
-  me(@Req() req) {
+  me(@Req() req: { user: User }) {
     return req.user;
   }
 }

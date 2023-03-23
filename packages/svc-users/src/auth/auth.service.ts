@@ -9,16 +9,14 @@ export class AuthService {
   ) {}
 
   async generateToken(user: User) {
-    const payload = { username: user.login, sub: user.id };
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign(user),
     };
   }
 
   async validateToken(jwt: string) {
     try {
-      const verify = this.jwtService.verify(jwt);
-      const user = { id: verify.sub, login: verify.username }
+      const user = this.jwtService.verify(jwt);
       return user;
     } catch (e) {
       return {
