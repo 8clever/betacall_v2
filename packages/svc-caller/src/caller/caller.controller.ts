@@ -17,7 +17,12 @@ export class CallerController {
     return true;
   }
 
-  @MessagePattern("caller:save")
+  @MessagePattern("call:add")
+  addCall(@Payload() payload: Partial<Call>) {
+    return this.callService.add(payload);
+  }
+
+  @MessagePattern("call:save")
   saveCall(@Payload() payload: Partial<Call>) {
     return this.callService.save(payload);
   }
