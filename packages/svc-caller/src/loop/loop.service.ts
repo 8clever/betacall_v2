@@ -30,7 +30,7 @@ export class LoopService implements OnModuleInit {
 		if (!provider)
 			throw new Error("Provider by name not found: " + providerName);
 		
-      if (!calls.length) return;
+    if (!calls.length) return;
 
     const listCall = await this.callsvc.findLastOrderStatus().where(this.callsvc.queryList(providerName, calls)).getMany();
     const queueList = await provider.queue.list();
