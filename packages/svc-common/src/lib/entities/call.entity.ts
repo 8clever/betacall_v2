@@ -22,7 +22,7 @@ export class Call {
   static Status = Statuses
 
   @PrimaryGeneratedColumn("uuid")
-  id: string;
+  id?: string;
 
   @ManyToOne(() => User)
   @JoinTable()
@@ -32,7 +32,7 @@ export class Call {
   status: Statuses;
 
   @CreateDateColumn()
-  dt: number;
+  dt?: number;
 
   @Column()
   phone: string;

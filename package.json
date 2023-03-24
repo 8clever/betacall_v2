@@ -20,6 +20,7 @@
     "axios": "^1.0.0",
     "helmet": "^6.0.1",
     "mqtt": "^4.3.7",
+    "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "pg": "^8.10.0",
@@ -31,9 +32,11 @@
     "redis": "^4.6.5",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.0.0",
+    "soap": "^1.0.0",
     "socket.io-client": "^4.6.1",
     "styled-components": "5.3.6",
     "tslib": "^2.3.0",
+    "typeorm": "^0.3.12",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

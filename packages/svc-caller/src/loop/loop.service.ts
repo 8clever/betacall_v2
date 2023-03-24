@@ -115,7 +115,7 @@ export class LoopService implements OnModuleInit {
 		
     if (!calls.length) return;
 
-    const listCall = await this.callsvc.findLastOrderStatus().where(this.callsvc.queryList(providerName, calls)).getMany();
+    const listCall: Call[] = await this.callsvc.findLastOrderStatus().where(this.callsvc.queryList(providerName, calls)).getMany();
     const queueList = await provider.queue.list();
     const list = new Map(listCall.map(c => [ c.orderId, c ]));
 

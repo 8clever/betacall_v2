@@ -61,6 +61,7 @@ services:
     volumes:
       - ./:/app
     environment:
+      - PG_HOST=postgres
       - MQTT=mqtt://mqtt:1883
     depends_on:
       - svc-caller
@@ -132,7 +133,7 @@ services:
     user: node
     build:
       dockerfile: ./dockerfiles/Dockerfile.system
-    command: npm ci
+    command: npm ci --legacy-peer-deps
     volumes:
       - ~/.npm:/home/node/.npm
       - ~/.cache:/home/node/.cache
