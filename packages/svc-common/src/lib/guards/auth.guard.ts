@@ -16,7 +16,6 @@ export class AuthGuard implements CanActivate {
   ): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
 		const jwt = getToken(req.headers || req.handshake.headers);
-    console.log(jwt)
 		const sendResponse = this.client.send("auth:check", { jwt })
 		const response = await promiseObservable<{ error: string } & User>(sendResponse);
     if (response.error)

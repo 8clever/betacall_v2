@@ -4,7 +4,6 @@ import { ClientsModule } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AsteriskModule } from '../asterisk/asterisk.module';
 import { CallerController } from './caller.controller';
-import { CallerGateaway } from './caller.gateaway';
 import { CallerService } from './caller.service';
 
 @Module({
@@ -14,6 +13,7 @@ import { CallerService } from './caller.service';
     AsteriskModule
   ],
   controllers: [CallerController],
-  providers: [CallerService, CallerGateaway]
+  providers: [CallerService],
+  exports: [CallerService]
 })
 export class CallerModule {}

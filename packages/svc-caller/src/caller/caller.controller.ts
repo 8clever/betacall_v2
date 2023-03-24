@@ -17,11 +17,6 @@ export class CallerController {
     return true;
   }
 
-  @MessagePattern("caller:push")
-  push(@Payload() payload: { messages: Call[] }) {
-    return this.callService.push(payload.messages);
-  }
-
   @MessagePattern("caller:save")
   saveCall(@Payload() payload: Partial<Call>) {
     return this.callService.save(payload);

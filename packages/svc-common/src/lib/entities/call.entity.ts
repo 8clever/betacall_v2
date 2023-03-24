@@ -1,33 +1,25 @@
 import { Entity, PrimaryGeneratedColumn, JoinTable, ManyToOne, Column, CreateDateColumn, Index } from 'typeorm'
 import { User } from './user.entity';
 
-enum DeliveryType {
-  PICKUP = "PICKUP",
-  COURIER = "COURIER"
-}
-
-enum Status {
+enum Statuses {
+  COMPLETED = 'completed',
+  OPERATOR = "operator",
   NOT_PROCESSED = "not_processed",
-  DONE = "done",
-  DONE_PICKUP = "done_pickup",
-  DENY = "deny",
   UNDER_CALL = "under_call",
   REPLACE_DATE = "replace_date",
-  SKIP = "skip"
+  CONNECTING_PROBLEM = 'connecting-problem'
 }
 
-enum Provider {
+enum Providers {
   TOP_DELIVERY = "top-delivery",
   B2CPL = 'b2cpl'
 }
 
 @Entity()
 export class Call {
-  static Provider = Provider
+  static Provider = Providers
 
-  static Status = Status
-
-  static DeliveryType = DeliveryType
+  static Status = Statuses
 
   @PrimaryGeneratedColumn("uuid")
   id: string;
@@ -36,8 +28,8 @@ export class Call {
   @JoinTable()
   user: User
 
-  @Column({ enum: Status })
-  status: Status;
+  @Column({ enum: Statuses })
+  status: Statuses;
 
   @CreateDateColumn()
   dt: number;
@@ -45,8 +37,8 @@ export class Call {
   @Column()
   phone: string;
 
-  @Column({ enum: Provider })
-  provider: Provider;
+  @Column({ enum: Providers })
+  provider: Providers;
 
   /** MAIN RELATION WITH ORDERS */
   @Index()
@@ -64,4 +56,9 @@ export class Call {
 
   @Column({ nullable: true })
   region?: string;
+}
+
+export namespace Call {
+  export type Provider = Providers;
+  export type Status = Statuses;
 }

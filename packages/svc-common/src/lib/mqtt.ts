@@ -6,7 +6,7 @@ import { promiseObservable } from "./promiseObservable";
 export const MQTT_TOKEN = "MQTT"
 
 export class CustomMqtt extends ClientMqtt {
-	async paranoid (topic: string, payload: object | string | number| null | undefined) {
+	async paranoid (topic: string, payload: object | string | number) {
 		for (;;) {
 			try {
 				const req = this.send(topic, payload);

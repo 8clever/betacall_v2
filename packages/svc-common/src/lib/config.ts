@@ -1,3 +1,4 @@
+import { Call } from "./entities/call.entity";
 
 export const config = {
 	// for all services
@@ -22,9 +23,16 @@ export const config = {
 		username: process.env.AMI_USER || "u",
 		password: process.env.AMI_PASS || "p"
 	},
+	providers: {
+		[Call.Provider.TOP_DELIVERY]: {
+			slots: 3
+		},
+		[Call.Provider.B2CPL]: {
+			slots: 2
+		}
+	},
 	gateaways: {
 		default: {
-			slots: 8,
 			channel: "Local/<phone>@voip1/n",
 			context: "testt"
 		}

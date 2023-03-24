@@ -17,13 +17,14 @@ root.render(
     <Layout>
       <AuthProvider>
         <Protected role={UserApi.Role.OPERATOR}>
-          <SocketProvider />
-          <BrowserRouter basename={import.meta.env.BASE_URL}>
-            <Routes>
-              <Route path="/" element={<Main />} />
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </BrowserRouter>
+          <SocketProvider>
+            <BrowserRouter basename={import.meta.env.BASE_URL}>
+              <Routes>
+                <Route path="/" element={<Main />} />
+                <Route path="*" element={<Navigate to="/" />} />
+              </Routes>
+            </BrowserRouter>
+          </SocketProvider>
         </Protected>
       </AuthProvider>
     </Layout>

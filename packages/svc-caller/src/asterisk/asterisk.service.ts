@@ -1,7 +1,6 @@
 import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { AMI } from "./ami";
-import { config, CustomMqtt, MQTT_TOKEN } from '@betacall/svc-common';
-import { CALL_STATUS } from "./asterisk.constants";
+import { Call, config, CustomMqtt, MQTT_TOKEN } from '@betacall/svc-common';
 import * as uuid from 'uuid'
 import { RosReestr } from './rosreestr'
 
@@ -80,7 +79,7 @@ export class AsteriskService implements OnModuleInit {
 						evt.Cause === "127"
 					) {
 						ami.emit(evt.Uniqueid, {
-							status: CALL_STATUS.UNNAVAILABLE,
+							status: Call.Status.UNDER_CALL,
 							id: evt.Uniqueid
 						});
 						return;
@@ -88,7 +87,7 @@ export class AsteriskService implements OnModuleInit {
 
 					Logger.log(evt.Cause, evt["Cause-txt"]);
 					ami.emit(evt.Uniqueid, {
-						status: CALL_STATUS.CONNECTING_PROBLEM,
+						status: Call.Status.CONNECTING_PROBLEM,
 						id: evt.Uniqueid
 					});
 				});
@@ -101,22 +100,10 @@ export class AsteriskService implements OnModuleInit {
 
 					ami.emit(evt.Uniqueid, {
 						id: evt.Uniqueid,
-						status: CALL_STATUS.DONE,
-						exten: evt.DestCallerIDNum
+						status: Call.Status.OPERATOR,
+						userLogin: evt.DestCallerIDNum
 					});
 				});
-
-				// TODO not forget understand what is it
-				// const holdTimeListener = _.debounce(async (evt) => {
-				// 	const io = await ctx.api.socket.getIo();
-				// 	const t = await ctx.api.scheduler._getRobotToken("", {});
-				// 	const user = await ctx.api.users.getUsers(t, { login: evt.DestCallerIDNum });
-				// 	if (user) {
-				// 		io.emit(`${user._id}_holdTime`, evt.HoldTime);
-				// 	}
-				// }, 300);
-
-				// ami.on("eventAgentConnect", holdTimeListener);
 
 				this.asteriskON = true;
 				resolve(null);
@@ -152,10 +139,14 @@ export class AsteriskService implements OnModuleInit {
 		gateawayName: string;
 		texts?: string[];
 		vars?: Record<string, string | number>
-	}): Promise<{ status: CALL_STATUS, id: string }> => {
+	}): Promise<{ 
+		status: Call.Status, 
+		id: string;
+		userLogin?: string;
+	}> => {
 		const id = this.generateID();
 		const isOn = this.isOn();
-		if (!isOn) return { id, status: CALL_STATUS.ASTERISK_BUSY };
+		if (!isOn) return { id, status: Call.Status.CONNECTING_PROBLEM };
 
 		const gateawayDefault = this.getGateawayByDefault(gateawayName)
 		let gateaway = await this.getGateawayByPhone(phone);
@@ -168,7 +159,7 @@ export class AsteriskService implements OnModuleInit {
 			if (!isAvailable) gateaway = gateaway.next();
 		}
 
-		if (!(gateaway && isAvailable)) return { id, status: CALL_STATUS.ASTERISK_BUSY };
+		if (!(gateaway && isAvailable)) return { id, status: Call.Status.CONNECTING_PROBLEM };
 
 		const Variable = [];
 
@@ -219,7 +210,7 @@ export class AsteriskService implements OnModuleInit {
 
 	releaseCall = async (callId: string) => {
 		this.ami.emit(callId, {
-			status: CALL_STATUS.MANUAL_RELEASE,
+			status: Call.Status.COMPLETED,
 			id: callId
 		});
 	}
