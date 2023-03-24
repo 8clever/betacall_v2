@@ -3,6 +3,7 @@ import styled from "styled-components";
 import React from "react";
 import { UserApi } from "@betacall/ui-kit";
 import qs from 'querystring';
+import { LoginOutlined } from '@ant-design/icons'
 
 export function SignIn () {
 
@@ -39,8 +40,13 @@ export function SignIn () {
 							label="Password">
 							<Input.Password />
 						</Form.Item>
-						<Form.Item>
-							<Button type="primary" htmlType="submit">
+						<Divider />
+						<Form.Item style={{ textAlign: "center" }}>
+							<Button 
+								icon={<LoginOutlined />}
+								size="large" 
+								type="link" 
+								htmlType="submit">
 								Sign In
 							</Button>
 						</Form.Item>

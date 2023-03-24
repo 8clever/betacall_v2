@@ -3,7 +3,7 @@ import { Button, Space, Typography } from "antd"
 import React from "react";
 import styled from "styled-components"
 import { Provider, useSocket } from "./SocketProvider";
-import { LinkOutlined, DisconnectOutlined } from "@ant-design/icons"
+import { LinkOutlined, DisconnectOutlined, LogoutOutlined } from "@ant-design/icons"
 
 export function Main () {
 	const auth = useAuth();
@@ -17,7 +17,7 @@ export function Main () {
 
 	return (
 		<Container>
-			<Space direction="vertical" style={{ textAlign: "center" }}>
+			<Space direction="vertical" size="large" style={{ textAlign: "center" }}>
 				<Typography.Title level={3}>
 					Hello {auth.user?.login}
 				</Typography.Title>
@@ -39,7 +39,11 @@ export function Main () {
 						)
 					})}
 				</Space>
-				<Button onClick={UserApi.Logout} type="link">
+				<Button 
+					icon={<LogoutOutlined />}
+					size="large"
+					onClick={UserApi.Logout} 
+					type="link">
 					Logout
 				</Button>
 			</Space>
