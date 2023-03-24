@@ -8,8 +8,7 @@ import { UsersService } from './users.service';
 export class UsersController {
 
   constructor(
-    private readonly usersvc: UsersService,
-    private readonly tokensvc: 
+    private readonly usersvc: UsersService
   ) {}
 
   @MessagePattern("users:find")
