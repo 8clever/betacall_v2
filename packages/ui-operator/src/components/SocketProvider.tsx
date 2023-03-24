@@ -16,9 +16,11 @@ export function SocketConnect (props: { provider: Provider }) {
 	const { provider } = props;
 
 	const auth = useAuth();
-	const { login } = auth.user!;
+	const login = auth.user?.login;
 
 	React.useEffect(() => {
+		if (!login) return;
+
 		const socket = io({
 			path: '/api/v1/caller/loop/socket',
 			query: {
@@ -73,7 +75,7 @@ export function SocketProvider (props: { children?: React.ReactNode }) {
 			providers,
 			toggleProvider
 		}
-	}, [ providers ]);
+	}, [ providers, toggleProvider ]);
 
 	return (
 		<SocketContext.Provider value={value}>
