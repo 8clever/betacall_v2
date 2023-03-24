@@ -1,4 +1,4 @@
-import { Call, User } from "@betacall/svc-common";
+import { Call } from "@betacall/svc-common";
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { Server } from "net";
 import { CallerService } from "../caller/caller.service";

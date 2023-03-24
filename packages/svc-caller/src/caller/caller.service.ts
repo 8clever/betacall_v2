@@ -1,4 +1,4 @@
-import { Global, Inject, Injectable, OnModuleInit } from "@nestjs/common";
+import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm'
 import { Call, CustomMqtt, MQTT_TOKEN, User } from "@betacall/svc-common"
 import { Repository } from 'typeorm'

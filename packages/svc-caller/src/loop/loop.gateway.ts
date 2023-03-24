@@ -1,5 +1,4 @@
 import { Call } from "@betacall/svc-common";
-import { Injectable } from "@nestjs/common";
 import { OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server } from "net";
 import { LoopService } from "./loop.service";
