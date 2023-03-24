@@ -1,25 +1,15 @@
-import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm'
-import { Call, CustomMqtt, MQTT_TOKEN, User } from "@betacall/svc-common"
+import { Call } from "@betacall/svc-common"
 import { Repository } from 'typeorm'
-import { AsteriskService } from "../asterisk/asterisk.service";
 
 @Injectable()
-export class CallerService implements OnModuleInit {
+export class CallerService {
 
   constructor(
     @InjectRepository(Call)
     public repo: Repository<Call>,
-    public asterisk: AsteriskService,
-    @Inject(MQTT_TOKEN)
-    public mqtt: CustomMqtt
   ) {}
-
-  robot: User;
-
-  async onModuleInit() {
-    this.robot = await this.mqtt.paranoid('users:robot', {});
-  }
 
   findLastOrderStatus() {
     return this.repo
