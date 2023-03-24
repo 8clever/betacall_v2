@@ -31,7 +31,7 @@ export class LoopGateway implements OnGatewayInit<Server> {
   }
 
   afterInit(server: Server) {
-    this.loopsvc.server = server;
+    this.loopsvc.socket = server;
   }
 
   handleDisconnect(req: Request) {
