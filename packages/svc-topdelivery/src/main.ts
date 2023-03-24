@@ -1,8 +1,10 @@
 import { createModule, runModule } from '@betacall/svc-common';
+import { TopDeliveryModule } from './td/td.module';
 
 const AppModule = createModule({
-  metadata: {},
-  db: false
+  metadata: {
+    imports: [TopDeliveryModule]
+  }
 });
 
 runModule(AppModule, {

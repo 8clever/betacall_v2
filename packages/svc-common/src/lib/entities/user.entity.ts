@@ -22,3 +22,7 @@ export class User {
   @Column({ enum: Roles })
   role: Roles;
 }
+
+export namespace User {
+  export type Role = Roles;
+}
