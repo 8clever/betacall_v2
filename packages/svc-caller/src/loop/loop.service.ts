@@ -3,7 +3,7 @@ import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import { Server } from "net";
 import { AsteriskService } from "../asterisk/asterisk.service";
 import { CallerService } from "../caller/caller.service";
-import { Loop } from "./loop.process"
+import { Loop } from "./loop.parallel"
 import { Queue } from "./loop.queue";
 import { getUserTopic } from "./user.topic";
 
