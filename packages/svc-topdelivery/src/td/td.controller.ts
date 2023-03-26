@@ -18,35 +18,35 @@ export class TopDeliveryController {
 
 	@Roles(User.Roles.OPERATOR)
 	@UseGuards(AuthGuard)
-	@Post('done-order-pickup')
+	@Post('/done-order-pickup')
 	doneOrderPickup(@Req() req: { user: User }, @Body() body: { order: Order, pickupId: number } ) {
 		return this.tdsvc.doneOrderPickup(req.user, body);
 	}
 
 	@Roles(User.Roles.OPERATOR)
 	@UseGuards(AuthGuard)
-	@Post('done-order')
+	@Post('/done-order')
 	doneOrder(@Req() req: { user: User }, @Body() body: { order: Order } ) {
 		return this.tdsvc.doneOrder(req.user, body);
 	}
 
 	@Roles(User.Roles.OPERATOR)
 	@UseGuards(AuthGuard)
-	@Post('deny-order')
+	@Post('/deny-order')
 	denyOrder(@Req() req: { user: User }, @Body() body: { order: Order } ) {
 		return this.tdsvc.denyOrder(req.user, body);
 	}
 
 	@Roles(User.Roles.OPERATOR)
 	@UseGuards(AuthGuard)
-	@Post('undercall-order')
+	@Post('/undercall-order')
 	underCall(@Req() req: { user: User }, @Body() body: { order: Order } ) {
 		return this.tdsvc.underCall(req.user, body);
 	}
 
 	@Roles(User.Roles.OPERATOR)
 	@UseGuards(AuthGuard)
-	@Post('replacedate-order')
+	@Post('/replacedate-order')
 	replaceCall(@Req() req: { user: User }, @Body() body: { order: Order, replaceDate: string } ) {
 		return this.tdsvc.replaceCallDate(req.user, body);
 	}

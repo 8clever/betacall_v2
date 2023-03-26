@@ -1,8 +1,8 @@
-import { useAuth, UserApi } from "@betacall/ui-kit"
+import { useAuth, UserApi, Provider } from "@betacall/ui-kit"
 import { Button, Space, Typography } from "antd"
 import React from "react";
 import styled from "styled-components"
-import { Provider, useSocket } from "./SocketProvider";
+import { useSocket } from "./SocketProvider";
 import { LinkOutlined, DisconnectOutlined, LogoutOutlined } from "@ant-design/icons"
 
 export function Main () {

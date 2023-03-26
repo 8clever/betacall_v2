@@ -24,10 +24,11 @@ export class TopDeliveryService implements OnModuleInit {
 			config.topdelivery.basic.password
 		));
 		
-		await this.loadOrdersInterval();
+		// TODO REMOVE ON PRODUCTION
+		// await this.loadOrdersInterval();
 
-		/** refresh orders each 2 hours */
-		setInterval(this.loadOrdersInterval, 1000 * 60 * 60 * 2)
+		// /** refresh orders each 2 hours */
+		// setInterval(this.loadOrdersInterval, 1000 * 60 * 60 * 2)
 	}
 
 	private loadOrdersInterval = async () => {

@@ -27,16 +27,20 @@ export class CallerService {
       callsByProviders.set(call.provider, arr);
     }
 
-    const promises: Promise<object[]>[] = [];
+    const orders: { order: object, provider: Call.Provider }[] = [];
     
     for (const [provider, calls] of callsByProviders) {
       const orderids = calls.map(c => c.orderId);
-      const promise = this.mqtt.paranoid(`${provider}:getOrdersByIds`, orderids);
-      promises.push(promise)
+      const providerOrders: object[] = await this.mqtt.paranoid(`${provider}:getOrdersByIds`, orderids);
+      for (const o of providerOrders) {
+        orders.push({
+          provider,
+          order: o
+        });
+      }
     }
     
-    const result = await Promise.all(promises);
-    return result.flat();
+    return orders;
   }
 
   findLastOrderStatus() {

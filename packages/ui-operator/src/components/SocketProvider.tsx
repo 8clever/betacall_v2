@@ -1,11 +1,8 @@
-import { useAuth } from '@betacall/ui-kit';
+import { Provider, useAuth } from '@betacall/ui-kit';
 import React from 'react';
 import { io } from 'socket.io-client';
-
-export enum Provider {
-	TOP_DELIVERY = "top-delivery",
-  B2CPL = 'b2cpl'
-}
+import { useOrders } from './OrderProvider';
+import {} from "@betacall/ui-kit"
 
 const clientMessage = (user: string, topic: string) => {
 	return `${user}-${topic}`;
@@ -17,6 +14,8 @@ export function SocketConnect (props: { provider: Provider }) {
 
 	const auth = useAuth();
 	const login = auth.user?.login;
+
+	const { refresh } = useOrders();
 
 	React.useEffect(() => {
 		if (!login) return;
@@ -37,15 +36,14 @@ export function SocketConnect (props: { provider: Provider }) {
 			console.info(`Loop connected: ${login} - ${provider}`)
 		});
 
-		socket.on(clientMessage(login, 'refresh'), (provider: Provider) => {
-			/** TODO Complete refresh */
-			console.info("Required refresh: " + provider)
+		socket.on(clientMessage(login, 'refresh'), () => {
+			refresh();
 		});
 
 		return () => {
 			socket.disconnect();
 		}
-	}, [ login, provider ]);
+	}, [ login, provider, refresh ]);
 
 	return null;
 }
