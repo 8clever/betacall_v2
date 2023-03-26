@@ -1,4 +1,4 @@
-import { Call, config, CustomMqtt, MQTT_TOKEN, User } from "@betacall/svc-common";
+import { Call, config, CustomMqtt, MQTT_TOKEN, Stats, User } from "@betacall/svc-common";
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import { createClientAsync, Client, BasicAuthSecurity } from 'soap'
 import { Order } from "./td.types";
@@ -29,18 +29,30 @@ export class TopDeliveryService implements OnModuleInit {
 		return hash.digest('hex');
 	}
 
-	callConfirm = async (user: User, order: Order) => {
-		const call: Call = {
-			orderId: order.orderIdentity.orderId.toString(),
-			phone: "",
-			provider: Call.Provider.TOP_DELIVERY,
-			status: Call.Status.COMPLETED,
+	private addStats = async (user: User, payload: Partial<Order>) => {
+		const stats: Stats<Partial<Order>> = {
+			data: payload,
 			user
 		}
-		return this.mqtt.paranoid("call:add", call);
+		return this.mqtt.paranoid("stats:add", stats);
 	}
 
-	doneOrderPickup = async (params: { order: Order, pickupId: number }) => {
+	private callConfirm = async (
+		user: User, 
+		call: Pick<Call, "status"> & Partial<Pick<Call, "dtNextCall">>, 
+		order: Order
+	) => {
+		const payload: Call = {
+			...call,
+			phone: "",
+			orderId: order.orderIdentity.orderId.toString(),
+			provider: Call.Provider.TOP_DELIVERY,
+			user
+		}
+		return this.mqtt.paranoid("call:add", payload);
+	}
+
+	doneOrderPickup = async (user: User, params: { order: Order, pickupId: number }) => {
 		const { order } = params;
 		const payload: Partial<Order> = {
 			accessCode: this.generateAccessCode(params.order),
@@ -57,9 +69,12 @@ export class TopDeliveryService implements OnModuleInit {
 
 		if (response.requestResult.status === 1) 
 			throw new Error(response.requestResult.message);
+
+		await this.addStats(user, payload);
+		await this.callConfirm(user, { status: Call.Status.COMPLETED }, order);
 	}
 
-	doneOrder = async (params: { order: Order }) => {
+	doneOrder = async (user: User, params: { order: Order }) => {
 		const { order } = params;
 		const payload: Partial<Order> & { desireDateDelivery: object } = {
 			accessCode: this.generateAccessCode(order),
@@ -81,6 +96,9 @@ export class TopDeliveryService implements OnModuleInit {
 		if (response.requestResult.status === 1) {
 			throw new Error(response.requestResult.message);
 		}
+
+		await this.addStats(user, payload);
+		await this.callConfirm(user, { status: Call.Status.COMPLETED }, order);
 	}
 
 	private readonly denyReasons = Object.freeze({
@@ -97,7 +115,7 @@ export class TopDeliveryService implements OnModuleInit {
 		11: "Доставлен другой товар"
 	})
 
-	denyOrder = async (params: { order: Order }) => {
+	denyOrder = async (user: User, params: { order: Order }) => {
 		const { order } = params;
 		const payload: Partial<Order> = {
 			accessCode: this.generateAccessCode(order),
@@ -122,9 +140,12 @@ export class TopDeliveryService implements OnModuleInit {
 
 		if (response.requestResult.status === 1) 
 			throw new Error(response.requestResult.message);
+
+		await this.addStats(user, payload);
+		await this.callConfirm(user, { status: Call.Status.COMPLETED }, order);
 	}
 
-	underCall = async (params: { order: Order }) => {
+	underCall = async (user: User, params: { order: Order }) => {
 		const { order } = params;
 		const payload: Partial<Order> = {
 			accessCode: this.generateAccessCode(order),
@@ -142,10 +163,14 @@ export class TopDeliveryService implements OnModuleInit {
 		});
 		if (response.requestResult.status === 1) 
 			throw new Error(response.requestResult.message);
+
+		await this.addStats(user, payload);
+		await this.callConfirm(user, { status: Call.Status.UNDER_CALL }, order);
 	}
 
-	replaceCallDate = async (params: { order: Order, replaceDate: string }) => {
+	replaceCallDate = async (user: User, params: { order: Order, replaceDate: string }) => {
 		const { order } = params;
+		const replaceDate = new Date(params.replaceDate);
 		const payload: Partial<Order> = {
 			accessCode: this.generateAccessCode(order),
 			orderIdentity: order.orderIdentity,
@@ -154,14 +179,18 @@ export class TopDeliveryService implements OnModuleInit {
 					id: 20,
 					name: "edit_by_cc"
 				},
-				comment: `Просит перезвонить позднее %${new Date(params.replaceDate).toLocaleDateString()}%`
+				comment: `Просит перезвонить позднее %${replaceDate.toLocaleDateString()}%`
 			}
 		}
 		const [ response ] = await this.tdClient.addOrderEventAsync({
 			auth: config.topdelivery.body,
 			orderEvent: payload
 		});
+		
 		if (response.requestResult.status === 1) 
 			throw new Error(response.requestResult.message);
+
+		await this.addStats(user, payload);
+		await this.callConfirm(user, { status: Call.Status.REPLACE_DATE, dtNextCall: replaceDate.valueOf() }, order);
 	}
 }

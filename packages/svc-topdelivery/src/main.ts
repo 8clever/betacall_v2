@@ -1,4 +1,4 @@
-import { createModule, runModule } from '@betacall/svc-common';
+import { Call, createModule, runModule } from '@betacall/svc-common';
 import { TopDeliveryModule } from './td/td.module';
 
 const AppModule = createModule({
@@ -8,5 +8,5 @@ const AppModule = createModule({
 });
 
 runModule(AppModule, {
-  prefix: "api/v1/topdelivery",
+  prefix: `api/v1/${Call.Provider.TOP_DELIVERY}`,
 })
