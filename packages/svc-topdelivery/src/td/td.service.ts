@@ -123,7 +123,7 @@ export class TopDeliveryService implements OnModuleInit {
 		if (response.requestResult.status === 1) 
 			throw new Error(response.requestResult.message);
 
-		await this.addStats(user, payload);
+		await this.addStats(user, order);
 		await this.callConfirm(user, { status: Call.Status.COMPLETED }, order);
 	}
 
@@ -150,7 +150,7 @@ export class TopDeliveryService implements OnModuleInit {
 			throw new Error(response.requestResult.message);
 		}
 
-		await this.addStats(user, payload);
+		await this.addStats(user, { ...order, ...payload });
 		await this.callConfirm(user, { status: Call.Status.COMPLETED }, order);
 	}
 
@@ -194,7 +194,7 @@ export class TopDeliveryService implements OnModuleInit {
 		if (response.requestResult.status === 1) 
 			throw new Error(response.requestResult.message);
 
-		await this.addStats(user, payload);
+		await this.addStats(user, { ...order, ...payload });
 		await this.callConfirm(user, { status: Call.Status.COMPLETED }, order);
 	}
 
@@ -217,7 +217,7 @@ export class TopDeliveryService implements OnModuleInit {
 		if (response.requestResult.status === 1) 
 			throw new Error(response.requestResult.message);
 
-		await this.addStats(user, payload);
+		await this.addStats(user, { ...order, ...payload });
 		await this.callConfirm(user, { status: Call.Status.UNDER_CALL }, order);
 	}
 
@@ -243,7 +243,7 @@ export class TopDeliveryService implements OnModuleInit {
 		if (response.requestResult.status === 1) 
 			throw new Error(response.requestResult.message);
 
-		await this.addStats(user, payload);
+		await this.addStats(user, { ...order, ...payload });
 		await this.callConfirm(user, { status: Call.Status.REPLACE_DATE, dtNextCall: replaceDate.valueOf() }, order);
 	}
 }
