@@ -35,8 +35,8 @@ export const config = {
 
 	gateaways: {
 		default: {
-			channel: "Local/<phone>@voip1/n",
-			context: "testt"
+			channel: process.env.ASTERISK_CHANNEL || "Local/<phone>@voip1/n",
+			context: process.env.ASTERISK_CTX || "testt"
 		}
 	},
 
