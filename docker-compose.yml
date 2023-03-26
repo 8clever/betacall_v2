@@ -35,6 +35,25 @@ services:
       - "traefik.http.routers.ui-auth.entrypoints=web"
       - traefik.http.services.ui-auth.loadbalancer.server.port=3000
 
+  svc-stats:
+    build:
+      dockerfile: ./dockerfiles/Dockerfile.system
+    command: npx nx serve svc-stats
+    volumes:
+      - ./:/app
+    environment:
+      - PG_HOST=postgres
+      - MQTT=mqtt://mqtt:1883
+    depends_on:
+      - traefik
+      - postgres
+      - mqtt
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.svc-stats.rule=PathPrefix(`/api/v1/stats`)"
+      - "traefik.http.routers.svc-stats.entrypoints=web"
+      - traefik.http.services.svc-stats.loadbalancer.server.port=3000
+
   svc-users:
     build:
       dockerfile: ./dockerfiles/Dockerfile.system
