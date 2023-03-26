@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm'
 import { Call, CustomMqtt, MQTT_TOKEN, User } from "@betacall/svc-common"
-import { IsNull, Repository } from 'typeorm'
+import { In, IsNull, Not, Repository } from 'typeorm'
 
 @Injectable()
 export class CallerService {
@@ -20,17 +20,21 @@ export class CallerService {
       history: IsNull()
     }).getMany();
     const callsByProviders: Map<Call.Provider, Call[]> = new Map();
+
     for (const call of calls) {
       const arr = callsByProviders.get(call.provider) || [];
       arr.push(call);
       callsByProviders.set(call.provider, arr);
     }
+
     const promises: Promise<object[]>[] = [];
+    
     for (const [provider, calls] of callsByProviders) {
       const orderids = calls.map(c => c.orderId);
       const promise = this.mqtt.paranoid(`${provider}:getOrdersByIds`, orderids);
       promises.push(promise)
     }
+    
     const result = await Promise.all(promises);
     return result.flat();
   }
@@ -43,7 +47,12 @@ export class CallerService {
   }
 
   queryList = (provider: Call.Provider, calls: Pick<Call, 'orderId' | 'provider'>[], not = false) => {
-    return `call."orderId" ${not ? "not" : ""} in (${calls.map(c => `'${c.orderId}'`).join(",")}) and call.provider = '${provider}' and call.history is null`;
+    const orderids = calls.map(c => c.orderId);
+    return {
+      orderId: not ? Not(In(orderids)) : In(orderids),
+      provider,
+      history: IsNull()
+    }
   }
 
   find(where: Partial<Call>) {
