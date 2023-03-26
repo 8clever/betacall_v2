@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm'
-import { Call } from "@betacall/svc-common"
-import { Repository } from 'typeorm'
+import { Call, CustomMqtt, MQTT_TOKEN, User } from "@betacall/svc-common"
+import { IsNull, Repository } from 'typeorm'
 
 @Injectable()
 export class CallerService {
@@ -9,7 +9,31 @@ export class CallerService {
   constructor(
     @InjectRepository(Call)
     public repo: Repository<Call>,
+    @Inject(MQTT_TOKEN)
+    private mqtt: CustomMqtt
   ) {}
+
+  async getOperatorOrders (user: User) {
+    const calls: Call[] = await this.findLastOrderStatus().where({ 
+      user,
+      status: Call.Status.OPERATOR,
+      history: IsNull()
+    }).getMany();
+    const callsByProviders: Map<Call.Provider, Call[]> = new Map();
+    for (const call of calls) {
+      const arr = callsByProviders.get(call.provider) || [];
+      arr.push(call);
+      callsByProviders.set(call.provider, arr);
+    }
+    const promises: Promise<object[]>[] = [];
+    for (const [provider, calls] of callsByProviders) {
+      const orderids = calls.map(c => c.orderId);
+      const promise = this.mqtt.paranoid(`${provider}:getOrdersByIds`, orderids);
+      promises.push(promise)
+    }
+    const result = await Promise.all(promises);
+    return result.flat();
+  }
 
   findLastOrderStatus() {
     return this.repo

@@ -38,6 +38,16 @@ export class TopDeliveryService implements OnModuleInit {
 		}
 	}
 
+	getOrdersByIds (ids: (string | number)[]) {
+		const orders: Order[] = [];
+		for (const id of ids) {
+			const order = this.orders.get(Number(id));
+			if (order)
+				orders.push(order)
+		}
+		return orders
+	}
+
 	private async loadOrders () {
 		this.orders = new Map();
 
