@@ -1,14 +1,14 @@
 import { CallApi } from "@betacall/ui-kit";
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 interface OrderContext {
-	orders: CallApi.MyOrder[],
+	list: CallApi.MyOrder[],
 	refresh: () => void;
 }
 
 const orderContext = React.createContext<OrderContext>({
-	orders: [],
+	list: [],
 	refresh: () => {/** empty */}
 });
 
@@ -20,21 +20,12 @@ export function OrderProvider (props: IProps) {
 
 	const [ orders, setOrders ] = React.useState<CallApi.MyOrder[]>([]);
 
-	const navigate = useNavigate();
-
 	const refresh = React.useCallback(() => {
 		const api = new CallApi();
 		api.getMyOrders().then(orders => {
 			setOrders(orders)
-			
-			if (orders.length) {
-				navigate(`/provider/${orders[0].provider}`)
-				return;
-			}
-
-			navigate("/");
 		});
-	}, [ navigate ]);
+	}, []);
 
 	React.useEffect(() => {
 		refresh();
@@ -42,7 +33,7 @@ export function OrderProvider (props: IProps) {
 
 	const value = React.useMemo(() => {
 		return {
-			orders,
+			list: orders,
 			refresh
 		}
 	}, [ orders, refresh ])

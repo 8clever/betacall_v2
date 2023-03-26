@@ -4,9 +4,13 @@ import React from "react";
 import styled from "styled-components"
 import { useSocket } from "./SocketProvider";
 import { LinkOutlined, DisconnectOutlined, LogoutOutlined } from "@ant-design/icons"
+import { useOrders } from "./OrderProvider";
+import { Navigate } from "react-router-dom";
 
 export function Main () {
 	const auth = useAuth();
+
+	const orders = useOrders();
 
 	const { providers, toggleProvider } = useSocket();
 
@@ -14,6 +18,9 @@ export function Main () {
 		const provider = e.currentTarget.getAttribute('data-provider');
 		toggleProvider(provider as Provider);
 	}, [ toggleProvider ])
+
+	if (orders.list.length)
+		return <Navigate to={`/provider/${orders.list[0].provider}`}/>
 
 	return (
 		<Container>
@@ -29,6 +36,7 @@ export function Main () {
 						const isConnected = providers.has(p);
 						return (
 							<Button 
+								key={p}
 								type={isConnected ? 'primary' : "ghost" }
 								icon={isConnected ? <LinkOutlined /> : <DisconnectOutlined />}
 								onClick={connect}

@@ -15,7 +15,9 @@ export class TopDeliveryService implements OnModuleInit {
 
 	}
 
-	orders: Map<Order['orderIdentity']['orderId'], Order> = new Map();
+	orders: Map<Order['orderIdentity']['orderId'], Order> = new Map([
+		[1, {}]
+	]);
 
 	async onModuleInit() {
 		this.tdClient = await createClientAsync(config.topdelivery.url);
