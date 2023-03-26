@@ -6,12 +6,15 @@ export interface Order {
 	accessCode: string;
 	deliveryType: object,
 	deliveryAddress: {
+		region: string;
 		inCityAddress: string;
 	},
 	pickupAddress: {
 		id: number;
 	},
-	clientInfo: object,
+	clientInfo: {
+		phone: string;
+	},
 	clientAddress: string;
 	workStatus: {
 		id: number;

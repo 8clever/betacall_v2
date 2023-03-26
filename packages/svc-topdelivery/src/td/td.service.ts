@@ -1,5 +1,5 @@
 import { Call, config, CustomMqtt, MQTT_TOKEN, Stats, User } from "@betacall/svc-common";
-import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
+import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { createClientAsync, Client, BasicAuthSecurity } from 'soap'
 import { Order } from "./td.types";
 import { createHash } from 'crypto'
@@ -15,12 +15,54 @@ export class TopDeliveryService implements OnModuleInit {
 
 	}
 
+	orders: Map<Order['orderIdentity']['orderId'], Order> = new Map();
+
 	async onModuleInit() {
 		this.tdClient = await createClientAsync(config.topdelivery.url);
 		this.tdClient.setSecurity(new BasicAuthSecurity(
 			config.topdelivery.basic.user,
 			config.topdelivery.basic.password
-		));	
+		));
+		
+		await this.loadOrdersInterval();
+
+		/** refresh orders each 2 hours */
+		setInterval(this.loadOrdersInterval, 1000 * 60 * 60 * 2)
+	}
+
+	private loadOrdersInterval = async () => {
+		try {
+			await this.loadOrders();
+		} catch (e) {
+			Logger.error(e, e.stack);
+		}
+	}
+
+	private async loadOrders () {
+		this.orders = new Map();
+
+		const [ data ] = await this.tdClient.getCallOrdersAsync({
+			auth: config.topdelivery.body
+		});
+
+		const orders: Order[] = data.orderInfo;
+		const calls: Omit<Call, "id" | "dt" | "user">[] = [];
+
+		for (const order of orders) {
+			this.orders.set(order.orderIdentity.orderId, order);
+			calls.push({
+				orderId: order.orderIdentity.orderId.toString(),
+				phone: order.clientInfo.phone,
+				provider: Call.Provider.TOP_DELIVERY,
+				status: Call.Status.NOT_PROCESSED,
+				region: order.deliveryAddress.region
+			});
+		}
+
+		await this.mqtt.paranoid("call-loop:push", {
+			messages: calls,
+			provider: Call.Provider.TOP_DELIVERY
+		});
 	}
 
 	private generateAccessCode (order: Order) {
@@ -32,6 +74,7 @@ export class TopDeliveryService implements OnModuleInit {
 	private addStats = async (user: User, payload: Partial<Order>) => {
 		const stats: Stats<Partial<Order>> = {
 			data: payload,
+			provider: Call.Provider.TOP_DELIVERY,
 			user
 		}
 		return this.mqtt.paranoid("stats:add", stats);

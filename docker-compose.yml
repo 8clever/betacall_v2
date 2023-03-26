@@ -10,6 +10,7 @@ services:
     volumes:
       - ./:/app
     depends_on:
+      - svc-stats
       - svc-topdelivery
       - svc-caller
       - ui-auth
@@ -82,8 +83,6 @@ services:
     environment:
       - PG_HOST=postgres
       - MQTT=mqtt://mqtt:1883
-    depends_on:
-      - svc-caller
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.svc-topdelivery.rule=PathPrefix(`/api/v1/topdelivery`)"
