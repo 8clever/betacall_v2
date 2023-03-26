@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, JoinTable, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Call } from './call.entity';
 import { User } from './user.entity';
 
 @Entity()
@@ -10,6 +11,9 @@ export class Stats<T extends object = object> {
 	@ManyToOne(() => User)
 	@JoinTable()
 	user: Partial<User>
+
+	@Column({ enum: Call.Provider })
+	provider: Call.Provider;
 
 	@Column('json')
 	data: T;
