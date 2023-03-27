@@ -20,15 +20,12 @@ export class CallerController {
   @Roles(User.Roles.OPERATOR)
   @UseGuards(AuthGuard)
   @Get('/assign-order')
-  assignOrder(@Req() req: { user: User }, @Query() query: { id: string, provider: Call.Provider }) {
-    return this.callService.add({
-      orderId: query.id,
+  async assignOrder(@Req() req: { user: User }, @Query() query: { id: string, provider: Call.Provider }) {
+    return this.callService.assignOrder({
       user: req.user,
-      phone: "",
-      provider: query.provider,
-      status: Call.Status.OPERATOR,
-      region: ""
-    })
+      orderId: query.id,
+      provider: query.provider
+    });
   }
 
   @Roles(User.Roles.OPERATOR)

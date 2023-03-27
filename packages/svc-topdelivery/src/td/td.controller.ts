@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { AuthGuard, Call, Roles, User } from "@betacall/svc-common"
 import { Order } from "./td.types";
 import { TopDeliveryService } from "./td.service";
@@ -14,6 +14,13 @@ export class TopDeliveryController {
 	@MessagePattern(`${Call.Provider.TOP_DELIVERY}:getOrdersByIds`)
 	getOrdersByID(@Payload() ids: string[] ) {
 		return this.tdsvc.getOrdersByIds(ids);
+	}
+
+	@Roles(User.Roles.OPERATOR)
+	@UseGuards(AuthGuard)
+	@Get('/near-delivery-dates-intervals')
+	getNearDeliveryDatesIntervals (@Query() query: { id: string }) {
+		return this.tdsvc.getNearDeliveryDatesIntervals({ orderId: query.id });
 	}
 
 	@Roles(User.Roles.OPERATOR)

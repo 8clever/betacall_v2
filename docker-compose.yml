@@ -89,7 +89,7 @@ services:
       - MQTT=mqtt://mqtt:1883
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.svc-topdelivery.rule=PathPrefix(`/api/v1/topdelivery`)"
+      - "traefik.http.routers.svc-topdelivery.rule=PathPrefix(`/api/v1/top-delivery`)"
       - "traefik.http.routers.svc-topdelivery.entrypoints=web"
       - traefik.http.services.svc-topdelivery.loadbalancer.server.port=3000
 

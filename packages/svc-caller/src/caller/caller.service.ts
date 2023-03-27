@@ -13,6 +13,15 @@ export class CallerService {
     private mqtt: CustomMqtt
   ) {}
 
+  assignOrder = async (params: { user: User, orderId: string, provider: Call.Provider }) => {
+    await this.add({
+      ...params,
+      status: Call.Status.OPERATOR,
+      phone: "",
+      region: ""
+    });
+  }
+
   async getOperatorOrders (user: User) {
     const calls: Call[] = await this.findLastOrderStatus().where({ 
       user,

@@ -1,3 +1,17 @@
+
+export interface TimeInterval {
+	bTime: string; // HH:mm:ss time from
+	eTime: string; // HH:mm:ss time to
+}
+
+export interface Quota {
+	date: string;
+	quotas: {
+		available: number;
+	}
+	timeInterval: TimeInterval[];
+}
+
 export interface Order {
 	orderIdentity: {
 		orderId: number;

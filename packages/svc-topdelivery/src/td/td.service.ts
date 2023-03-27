@@ -1,7 +1,7 @@
 import { Call, config, CustomMqtt, MQTT_TOKEN, Stats, User } from "@betacall/svc-common";
 import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { createClientAsync, Client, BasicAuthSecurity } from 'soap'
-import { Order } from "./td.types";
+import { Order, Quota } from "./td.types";
 import { createHash } from 'crypto'
 
 @Injectable()
@@ -253,5 +253,17 @@ export class TopDeliveryService implements OnModuleInit {
 
 		await this.addStats(user, { ...order, ...payload });
 		await this.callConfirm(user, { status: Call.Status.REPLACE_DATE, dtNextCall: replaceDate.valueOf() }, order);
+	}
+
+	getNearDeliveryDatesIntervals = async (params: { orderId: string }) => {
+		const [ response ] = await this.tdClient.getNearDeliveryDatesIntervalsAsync({
+				auth: config.topdelivery.body,
+				orderIdentity: {
+					orderId: params.orderId
+				}
+		});
+
+		const dateTimeIntervals: Quota[] = response.dateTimeIntervals || [];
+		return dateTimeIntervals;
 	}
 }

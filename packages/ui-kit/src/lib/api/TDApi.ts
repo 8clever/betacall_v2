@@ -5,6 +5,10 @@ import { Provider } from "./types";
 export class TDApi {
 	api = new Api(`api/v1/${Provider.TOP_DELIVERY}`);
 
+	getNearDeliveryDatesIntervals = async (params: { id: string }): Promise<TDApi.Quota[]> => {
+		return this.api.get("/near-delivery-dates-intervals", params);
+	}
+
 	doneOrderPickup = async (order: TDApi.Order, pickupId: number) => {
 		return this.api.post("/done-order-pickup", { order, pickupId });
 	}
@@ -27,6 +31,19 @@ export class TDApi {
 }
 
 export namespace TDApi {
+	export interface TimeInterval {
+		bTime: string; // HH:mm:ss time from
+		eTime: string; // HH:mm:ss time to
+	}
+	
+	export interface Quota {
+		date: string;
+		quotas: {
+			available: number;
+		}
+		timeInterval: TimeInterval[];
+	}
+
 	export interface Order {
 		orderIdentity: {
 			orderId: number;
@@ -63,6 +80,12 @@ export namespace TDApi {
 			},
 			comment: string;
 		},
-		desiredDateDelivery: object;
+		desiredDateDelivery: {
+			date: string;
+			timeInterval: {
+				bTime: string;
+				eTime: string;
+			}
+		};
 	}
 }

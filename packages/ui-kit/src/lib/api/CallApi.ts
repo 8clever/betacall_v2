@@ -8,6 +8,10 @@ export class CallApi {
 	getMyOrders = async (): Promise<CallApi.MyOrder[]> => {
 		return this.api.get("/my-orders", {});
 	}
+
+	assignOrder = async (params: { id: string, provider: Provider }) => {
+		return this.api.get('/assign-order', params);
+	}
 }
 
 export namespace CallApi {
