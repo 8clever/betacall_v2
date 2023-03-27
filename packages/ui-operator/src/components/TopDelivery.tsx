@@ -177,7 +177,22 @@ export function TopDelivery () {
 	const endOfStorageDate = React.useMemo(() => {
 		if (!order.endOfStorageDate) return "";
 		return new Date(order.endOfStorageDate).toLocaleDateString();
-	}, [ order.endOfStorageDate ])
+	}, [ order.endOfStorageDate ]);
+
+	const doneOrder = React.useCallback(() => {
+		const order = form.getFieldsValue();
+		const api = new TDApi();
+		if (pickupId) {
+			api.doneOrderPickup(order, Number(pickupId)).then(() => {
+				orders.refresh()
+			});
+			return;
+		}
+
+		api.doneOrder(order).then(() => {
+			orders.refresh()
+		})
+	}, [ form, orders, pickupId ]);
 
 	return (
 		<Form form={form} initialValues={order}>
@@ -189,7 +204,7 @@ export function TopDelivery () {
 						</Col>
 						<Col>
 							<Space>
-								<Button type="primary">Done</Button>
+								<Button type="primary" onClick={doneOrder}>Done</Button>
 								<Button danger>Deny</Button>
 								<Button>Undercall</Button>
 								<Button>Replace call</Button>
