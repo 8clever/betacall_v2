@@ -68,8 +68,11 @@ export class LoopService implements OnModuleInit {
     const gateidx = round % this.asterisk.gateaways.length;
     const gateawayName = this.asterisk.gateaways[gateidx];
 
+    /** SET TEST PHONE */
+    const phone = config.testPhone || dto.phone;
+
     const call = await this.asterisk.call({
-      phone: dto.phone,
+      phone,
       gateawayName,
       vars: {
         orderId,

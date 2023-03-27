@@ -1,5 +1,5 @@
 import { AuthGuard, Call, Roles, User } from "@betacall/svc-common";
-import { Controller, Get, Req, UseGuards } from "@nestjs/common";
+import { Controller, Get, Query, Req, UseGuards } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { CallerService } from "./caller.service";
 
@@ -15,6 +15,20 @@ export class CallerController {
   @Get('/ping')
   ping() {
     return true;
+  }
+
+  @Roles(User.Roles.OPERATOR)
+  @UseGuards(AuthGuard)
+  @Get('/assign-order')
+  assignOrder(@Req() req: { user: User }, @Query() query: { id: string, provider: Call.Provider }) {
+    return this.callService.add({
+      orderId: query.id,
+      user: req.user,
+      phone: "",
+      provider: query.provider,
+      status: Call.Status.OPERATOR,
+      region: ""
+    })
   }
 
   @Roles(User.Roles.OPERATOR)

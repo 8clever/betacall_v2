@@ -24,11 +24,10 @@ export class TopDeliveryService implements OnModuleInit {
 			config.topdelivery.basic.password
 		));
 		
-		// TODO REMOVE ON PRODUCTION
-		// await this.loadOrdersInterval();
+		await this.loadOrdersInterval();
 
-		// /** refresh orders each 2 hours */
-		// setInterval(this.loadOrdersInterval, 1000 * 60 * 60 * 2)
+		/** refresh orders each 2 hours */
+		setInterval(this.loadOrdersInterval, 1000 * 60 * 60 * 2)
 	}
 
 	private loadOrdersInterval = async () => {
@@ -50,12 +49,14 @@ export class TopDeliveryService implements OnModuleInit {
 	}
 
 	private async loadOrders () {
-		this.orders = new Map();
-
 		const [ data ] = await this.tdClient.getCallOrdersAsync({
 			auth: config.topdelivery.body
 		});
 
+		if (data?.requestResult?.status === 1)
+			throw new Error(data.requestResult.message)
+
+		this.orders = new Map();
 		const orders: Order[] = data.orderInfo;
 		const calls: Omit<Call, "id" | "dt" | "user">[] = [];
 
@@ -68,6 +69,12 @@ export class TopDeliveryService implements OnModuleInit {
 				status: Call.Status.NOT_PROCESSED,
 				region: order.deliveryAddress.region
 			});
+		}
+
+		Logger.log(`Top Delivery loaded orders: ${this.orders.size}`)
+		if (config.testPhone) {
+			const orderid = [...this.orders.values()][0].orderIdentity.orderId;
+			Logger.log(`Test order ID: ${orderid}`)
 		}
 
 		await this.mqtt.paranoid("call-loop:push", {

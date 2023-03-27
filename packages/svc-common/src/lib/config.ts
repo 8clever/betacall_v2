@@ -23,16 +23,15 @@ export const config = {
 		username: process.env.AMI_USER || "u",
 		password: process.env.AMI_PASS || "p"
 	},
-
+	testPhone: process.env.TEST_PHONE || "",
 	providers: {
 		[Call.Provider.TOP_DELIVERY]: {
-			slots: Number(process.env.TD_SLOTS || 3)
+			slots: Number(process.env.TD_SLOTS || 0)
 		},
 		[Call.Provider.B2CPL]: {
-			slots: Number(process.env.B2CPL_SLOTS || 2)
+			slots: Number(process.env.B2CPL_SLOTS || 0)
 		}
 	},
-
 	gateaways: {
 		default: {
 			channel: process.env.ASTERISK_CHANNEL || "Local/<phone>@voip1/n",

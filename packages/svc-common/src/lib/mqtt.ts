@@ -6,14 +6,14 @@ import { promiseObservable } from "./promiseObservable";
 export const MQTT_TOKEN = "MQTT"
 
 export class CustomMqtt extends ClientMqtt {
-	async paranoid (topic: string, payload: object | string | number) {
+	async paranoid (topic: string, payload: object | string | number, timeout?: number) {
 		for (;;) {
 			try {
 				const req = this.send(topic, payload);
-				const res = await promiseObservable(req);
+				const res = await promiseObservable(req, timeout);
 				return res;
-			} catch {
-				Logger.log("Retry request: " + topic);
+			} catch (e) {
+				Logger.log(e.message, e.stack);
 			}
 		}
 	}

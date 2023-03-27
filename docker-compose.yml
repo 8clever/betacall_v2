@@ -80,6 +80,10 @@ services:
     command: npx nx serve svc-topdelivery
     volumes:
       - ./:/app
+    depends_on:
+      - traefik
+      - postgres
+      - mqtt
     environment:
       - PG_HOST=postgres
       - MQTT=mqtt://mqtt:1883

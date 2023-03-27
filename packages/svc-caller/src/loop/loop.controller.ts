@@ -11,7 +11,8 @@ export class LoopController {
 	) {}
 
 	@MessagePattern("call-loop:push")
-  push(@Payload() payload: { messages: Call[], provider: Call.Provider }) {
-    return this.loopsvc.push(payload.provider, payload.messages);
-  }
+  async push(@Payload() payload: { messages: Call[], provider: Call.Provider }) {
+    await this.loopsvc.push(payload.provider, payload.messages);
+		return 'Loop updated';
+	}
 }
