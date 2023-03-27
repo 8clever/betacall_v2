@@ -5,6 +5,10 @@ import { Provider } from "./types";
 export class TDApi {
 	api = new Api(`api/v1/${Provider.TOP_DELIVERY}`);
 
+	getPickupPoints = async (params: { partnerId: string }): Promise<TDApi.PickupPoint[]> => {
+		return this.api.get("/pickup-points", params);
+	}
+
 	getNearDeliveryDatesIntervals = async (params: { id: string }): Promise<TDApi.Quota[]> => {
 		return this.api.get("/near-delivery-dates-intervals", params);
 	}
@@ -44,10 +48,20 @@ export namespace TDApi {
 		timeInterval: TimeInterval[];
 	}
 
+	export interface PickupPoint {
+		locationId: string;
+		cityOfLocation: string;
+		addressOfLocation: string;
+	}
+
 	export interface Order {
+		clientFullCost: string;
+		endOfStorageDate: string;
+		orderUrl: string;
 		orderIdentity: {
 			orderId: number;
 			barcode: string;
+			webshopNumber: string;
 		},
 		accessCode: string;
 		deliveryType: object,
@@ -56,6 +70,9 @@ export namespace TDApi {
 			inCityAddress: string;
 		},
 		pickupAddress: {
+			id: number;
+		},
+		partnerExecutor: {
 			id: number;
 		},
 		clientInfo: {
@@ -87,5 +104,9 @@ export namespace TDApi {
 				eTime: string;
 			}
 		};
+		pickupPoints: PickupPoint[],
+		status: {
+			name: string;
+		}
 	}
 }

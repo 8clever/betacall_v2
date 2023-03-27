@@ -18,6 +18,13 @@ export class TopDeliveryController {
 
 	@Roles(User.Roles.OPERATOR)
 	@UseGuards(AuthGuard)
+	@Get('/pickup-points')
+	getPickupPoints(@Query() query: { partnerId: string }) {
+		return this.tdsvc.pickupPoints.get(query.partnerId) || [];
+	}
+
+	@Roles(User.Roles.OPERATOR)
+	@UseGuards(AuthGuard)
 	@Get('/near-delivery-dates-intervals')
 	getNearDeliveryDatesIntervals (@Query() query: { id: string }) {
 		return this.tdsvc.getNearDeliveryDatesIntervals({ orderId: query.id });

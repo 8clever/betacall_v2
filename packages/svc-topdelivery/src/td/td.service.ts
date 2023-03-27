@@ -3,6 +3,7 @@ import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { createClientAsync, Client, BasicAuthSecurity } from 'soap'
 import { Order, Quota } from "./td.types";
 import { createHash } from 'crypto'
+import { pickupPoints } from './td.pickup.points'
 
 @Injectable()
 export class TopDeliveryService implements OnModuleInit {
@@ -17,12 +18,20 @@ export class TopDeliveryService implements OnModuleInit {
 
 	orders: Map<Order['orderIdentity']['orderId'], Order> = new Map();
 
+	pickupPoints: Map<string, typeof pickupPoints> = new Map();
+
 	async onModuleInit() {
 		this.tdClient = await createClientAsync(config.topdelivery.url);
 		this.tdClient.setSecurity(new BasicAuthSecurity(
 			config.topdelivery.basic.user,
 			config.topdelivery.basic.password
 		));
+
+		for (const p of pickupPoints) {
+			const points = this.pickupPoints.get(p.partnerId) || [];
+			points.push(p);
+			this.pickupPoints.set(p.partnerId, points);
+		}
 		
 		await this.loadOrdersInterval();
 

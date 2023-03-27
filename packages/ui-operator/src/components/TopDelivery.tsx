@@ -1,5 +1,5 @@
 import { TDApi } from "@betacall/ui-kit";
-import { Button, Card, Col, DatePicker, Form, Input, Row, Select, Space, Typography } from "antd";
+import { Alert, Button, Card, Col, DatePicker, Form, Input, Row, Select, Space, Typography } from "antd";
 import React from "react";
 import styled from "styled-components";
 import { useOrders } from "./OrderProvider"
@@ -20,6 +20,11 @@ const intervalsParse = (int: string) => {
 	}
 }
 
+const warningMarkets = [
+	"homshoppingrasha",
+	"hsr24.ru"
+]
+
 export function TopDelivery () {
 
 	const orders = useOrders();
@@ -31,9 +36,13 @@ export function TopDelivery () {
 
 	const [ quota, setQuota ] = React.useState<TDApi.Quota[]>([]);
 
+	const [ pickupPoints, setPickupPoints ] = React.useState<TDApi.PickupPoint[]>([]);
+
 	const [ desiredDateDelivery, setDesiredDateDelivery ] = React.useState<any>(order.desiredDateDelivery.date);
 
 	const [ desiredTimeIntervals, setDesiredTimeIntervals ] = React.useState<string | null>(desiredDateDelivery ? null : intervalsToString(order.desiredDateDelivery.timeInterval));
+
+	const [ pickupId, setPickupId ] = React.useState<string | null>(null);
 
 	React.useEffect(() => {
 		const api = new TDApi();
@@ -41,6 +50,13 @@ export function TopDelivery () {
 			setQuota(data);
 		});
 	}, [ id ]);
+
+	React.useEffect(() => {
+		const api = new TDApi();
+		api.getPickupPoints({ partnerId: order.partnerExecutor.id.toString() }).then(data => {
+			setPickupPoints(data);
+		});
+	}, [ order.partnerExecutor.id ])
 
 	const disabledDates = React.useCallback((date: any) => {
 		const current = new Date(date.valueOf()).toLocaleDateString();
@@ -73,6 +89,17 @@ export function TopDelivery () {
 		form.setFieldValue(['desiredDateDelivery', "timeInterval",], value);
 	}, [ desiredTimeIntervals ]);
 
+	const watchDeliveryType = Form.useWatch("deliveryType", form);
+
+	const isWarningMarket = React.useMemo(() => {
+		return warningMarkets.includes(order.orderUrl);
+	}, [ order.orderUrl ]);
+
+	const endOfStorageDate = React.useMemo(() => {
+		if (!order.endOfStorageDate) return "";
+		return new Date(order.endOfStorageDate).toLocaleDateString();
+	}, [ order.endOfStorageDate ])
+
 	return (
 		<Container>
 			<Form form={form} initialValues={order}>
@@ -93,7 +120,7 @@ export function TopDelivery () {
 				</Card>
 				<Row gutter={padding}>
 					<Col>
-						<Card>
+						<Card style={{ marginBottom: padding }}>
 							<Typography.Title level={3}>Client</Typography.Title>
 							<Form.Item label="Name" name={["clientInfo", "fio"]}>
 								<Input />
@@ -110,7 +137,7 @@ export function TopDelivery () {
 						</Card>
 					</Col>
 					<Col>
-						<Card>
+						<Card style={{ marginBottom: padding }}>
 							<Typography.Title level={3}>Delivery</Typography.Title>
 							<Form.Item label="Date">
 								<DatePicker 
@@ -148,9 +175,67 @@ export function TopDelivery () {
 							<Form.Item label="Address" name={["deliveryAddress", "inCityAddress", "address"]}>
 								<Input.TextArea />
 							</Form.Item>
+							<Form.Item label="Type" name={["deliveryType"]}>
+								<Select>
+									<Select.Option value="PICKUP">PICKUP</Select.Option>
+									<Select.Option value="COURIER">COURIER</Select.Option>
+								</Select>
+							</Form.Item>
+							{
+								watchDeliveryType === "PICKUP" ?
+								<Form.Item label="Pickup Point">
+									<Select value={pickupId} onChange={setPickupId}>
+										{pickupPoints.map(p => {
+											return (
+												<Select.Option key={p.locationId} value={p.locationId}>
+													{p.cityOfLocation} {p.addressOfLocation}
+												</Select.Option>
+											)
+										})}
+									</Select>
+								</Form.Item> : null
+							}
 						</Card>
 					</Col>
-					<Col></Col>
+					<Col style={{ marginBottom: padding }}>
+						<Card>
+							<Typography.Title level={3}>Order</Typography.Title>
+							<Form.Item label="Order ID" name={["orderIdentity", "orderId"]}>
+								<Input readOnly />
+							</Form.Item>
+							<Form.Item label="Bar Code" name={["orderIdentity", "barcode"]}>
+								<Input readOnly />
+							</Form.Item>
+							<Form.Item label="In Market" name={["orderIdentity", "webshopNumber"]}>
+								<Input readOnly />
+							</Form.Item>
+							<Form.Item label="Status" name={["status", "name"]}>
+								<Input readOnly />
+							</Form.Item>
+							<Form.Item label="Work status" name={["workStatus", "name"]}>
+								<Input readOnly />
+							</Form.Item>
+							<Form.Item label="Market name" name={["orderUrl"]}>
+								<Input readOnly />
+							</Form.Item>
+							{
+								isWarningMarket ?
+								<Alert message="You should use other script for this market." type="warning" /> :
+								null
+							}
+							<Button 
+								target="_blank"
+								type="link" href={`https://is.topdelivery.ru/pages/order.php?id=${order.orderIdentity.orderId}`}>
+								Top Delivery
+							</Button>
+							<Form.Item label="End of storage date">
+								<Input value={endOfStorageDate} readOnly />
+							</Form.Item>
+							<Form.Item label="Full order price">
+								<Input value={order.clientFullCost + " р."} readOnly/>
+							</Form.Item>
+						</Card>
+					</Col>
 				</Row>
 			</Form>
 		</Container>
@@ -161,4 +246,5 @@ const Container = styled.div`
 	width: 100vw;
 	height: 100vh;
 	padding: ${padding}px;
+	overflow: auto;
 `

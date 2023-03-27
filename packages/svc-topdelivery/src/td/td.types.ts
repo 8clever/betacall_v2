@@ -13,6 +13,9 @@ export interface Quota {
 }
 
 export interface Order {
+	partnerExecutor: {
+		id: string;
+	}
 	orderIdentity: {
 		orderId: number;
 		barcode: string;
