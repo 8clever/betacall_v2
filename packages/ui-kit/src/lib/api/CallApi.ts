@@ -17,7 +17,7 @@ export class CallApi {
 export namespace CallApi {
 
 	export interface Call {
-
+		empty: true;
 	}
 
 	export interface MyOrder {
