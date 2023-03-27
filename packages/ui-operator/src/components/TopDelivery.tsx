@@ -275,17 +275,17 @@ export function TopDelivery () {
 								<Alert message="You should use other script for this market." type="warning" /> :
 								null
 							}
-							<Button 
-								target="_blank"
-								type="link" href={`https://is.topdelivery.ru/pages/order.php?id=${order.orderIdentity.orderId}`}>
-								Top Delivery
-							</Button>
 							<Form.Item label="End of storage date">
 								<Input value={endOfStorageDate} readOnly />
 							</Form.Item>
 							<Form.Item label="Full order price">
 								<Input value={order.clientFullCost + " р."} readOnly/>
 							</Form.Item>
+							<Button 
+								target="_blank"
+								type="link" href={`https://is.topdelivery.ru/pages/order.php?id=${order.orderIdentity.orderId}`}>
+								Top Delivery
+							</Button>
 						</Card>
 					</Col>
 					<Col>
