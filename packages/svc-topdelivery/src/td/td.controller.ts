@@ -18,6 +18,13 @@ export class TopDeliveryController {
 
 	@Roles(User.Roles.OPERATOR)
 	@UseGuards(AuthGuard)
+	@Get('/history')
+	getHistory(@Query() query: { orderId: string }) {
+		return this.tdsvc.getHistoryByOrderId({ orderId: query.orderId });
+	}
+
+	@Roles(User.Roles.OPERATOR)
+	@UseGuards(AuthGuard)
 	@Get('/pickup-points')
 	getPickupPoints(@Query() query: { partnerId: string }) {
 		return this.tdsvc.pickupPoints.get(query.partnerId) || [];

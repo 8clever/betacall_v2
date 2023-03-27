@@ -5,6 +5,10 @@ import { Provider } from "./types";
 export class TDApi {
 	api = new Api(`api/v1/${Provider.TOP_DELIVERY}`);
 
+	getHistory = async (params: { orderId: string }): Promise<TDApi.History[]> => {
+		return this.api.get("/history", params);
+	}
+
 	getPickupPoints = async (params: { partnerId: string }): Promise<TDApi.PickupPoint[]> => {
 		return this.api.get("/pickup-points", params);
 	}
@@ -35,6 +39,22 @@ export class TDApi {
 }
 
 export namespace TDApi {
+
+	export interface HistoryEvent {
+		city :{ id: number, name: string }
+		comment: string;
+		date: string;
+		eventId: number;
+		eventType: { id: number, name: string }
+		newValue: string;
+		prevValue: string;
+		region: {id: number, name: string }
+		user: string;
+	}
+	export interface History {
+		events: HistoryEvent[]
+	}
+
 	export interface TimeInterval {
 		bTime: string; // HH:mm:ss time from
 		eTime: string; // HH:mm:ss time to

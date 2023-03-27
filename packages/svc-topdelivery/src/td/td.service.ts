@@ -47,6 +47,16 @@ export class TopDeliveryService implements OnModuleInit {
 		}
 	}
 
+	getHistoryByOrderId = async (params: { orderId: string }) => {
+		const [ response ] = await this.tdClient.getOrderEventsAsync({
+			auth: config.topdelivery.body,
+			order: {
+				orderId: params.orderId
+			}
+    });
+    return response.orderEventsInfo;
+}
+
 	getOrdersByIds (ids: (string | number)[]) {
 		const orders: Order[] = [];
 		for (const id of ids) {

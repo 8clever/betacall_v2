@@ -1,5 +1,5 @@
 import { TDApi } from "@betacall/ui-kit";
-import { Alert, Button, Card, Col, DatePicker, Form, Input, Row, Select, Space, Typography } from "antd";
+import { Alert, Button, Card, Col, DatePicker, Form, Input, Row, Select, Space, Table, TableColumnType, TableProps, Typography } from "antd";
 import React from "react";
 import styled from "styled-components";
 import { useOrders } from "./OrderProvider"
@@ -25,6 +25,52 @@ const warningMarkets = [
 	"hsr24.ru"
 ]
 
+const historyColumns: TableColumnType<TDApi.HistoryEvent>[] = [
+	{
+		title: "Date",
+		key: "date",
+		dataIndex: "date",
+		render: (_) => {
+			return new Date(_).toLocaleDateString()
+		}
+	},
+	{
+		title: "Updated By",
+		key: 'updated by',
+		dataIndex: "user"
+	},
+	{
+		title: "Title",
+		key: "title",
+		dataIndex: ["eventType", 'name'],
+	},
+	{
+		title: "New value",
+		key: "new value",
+		dataIndex: "newValue"
+	},
+	{
+		title: "Prev value",
+		key: 'prev',
+		dataIndex: "prevValue"
+	},
+	{
+		title: "Region",
+		key: "region",
+		dataIndex: ["region", "name"]
+	},
+	{
+		title: "City",
+		key: "city",
+		dataIndex: ["city", "name"]
+	},
+	{
+		title: "Comment",
+		key: "comment",
+		dataIndex: ["comment"]
+	}
+]
+
 export function TopDelivery () {
 
 	const orders = useOrders();
@@ -44,10 +90,16 @@ export function TopDelivery () {
 
 	const [ pickupId, setPickupId ] = React.useState<string | null>(null);
 
+	const [ history, setHistory ] = React.useState<TDApi.History[]>([]);
+
 	React.useEffect(() => {
 		const api = new TDApi();
-		api.getNearDeliveryDatesIntervals({ id: id.toString() }).then(data => {
-			setQuota(data);
+		Promise.all([
+			api.getNearDeliveryDatesIntervals({ id: id.toString() }),
+			api.getHistory({ orderId: id.toString() })
+		]).then(([ intervals, history ]) => {
+			setQuota(intervals);
+			setHistory(history);
 		});
 	}, [ id ]);
 
@@ -234,6 +286,15 @@ export function TopDelivery () {
 							<Form.Item label="Full order price">
 								<Input value={order.clientFullCost + " р."} readOnly/>
 							</Form.Item>
+						</Card>
+					</Col>
+					<Col>
+						<Card>
+							<Typography.Title level={3}>History</Typography.Title>
+							<Table
+								columns={historyColumns}
+								dataSource={history?.[0]?.events || []}
+							/>
 						</Card>
 					</Col>
 				</Row>
