@@ -1,10 +1,11 @@
 import { TDApi, DatePicker } from "@betacall/ui-kit";
 import { Alert, Button, Card, Col, Form, Input, Row, Select, Space, Table, TableColumnType, Typography } from "antd";
 import React from "react";
-import styled from "styled-components";
 import { useOrders } from "./OrderProvider"
+import ReactGridLayout, { Responsive, WidthProvider } from "react-grid-layout";
+import './style.css';
 
-const padding = 5;
+const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 const intDelimeter = " - ";
 
@@ -70,6 +71,24 @@ const historyColumns: TableColumnType<TDApi.HistoryEvent>[] = [
 		dataIndex: ["comment"]
 	}
 ]
+
+enum Cards {
+	Actions = 'Actions',
+	Client = 'Client',
+	Order = 'Order',
+	Delivery = 'Deliver',
+	History = 'History'
+}
+
+const layout: ReactGridLayout.Layouts = {
+	"lg": [
+		{ i: Cards.Actions,  x: 0, y: 0, w: 12, h: 1, static: true },
+		{ i: Cards.Client,   x: 0, y: 1, w: 4,  h: 4, isResizable: true },
+		{ i: Cards.Delivery, x: 4, y: 1, w: 4,  h: 4, isResizable: true },
+		{ i: Cards.Order,    x: 8, y: 1, w: 4,  h: 4, isResizable: true },
+		{ i: Cards.History,  x: 0, y: 5, w: 12, h: 3 }
+	]
+};
 
 export function TopDelivery () {
 
@@ -161,9 +180,9 @@ export function TopDelivery () {
 	}, [ order.endOfStorageDate ])
 
 	return (
-		<Container>
-			<Form form={form} initialValues={order}>
-				<Card style={{ marginBottom: padding }}>
+		<Form form={form} initialValues={order}>
+			<ResponsiveReactGridLayout layouts={layout}>
+				<Card key={Cards.Actions}>
 					<Row justify='space-between' align="middle">
 						<Col>
 							<Typography.Title level={2}>Top Delivery</Typography.Title>
@@ -178,142 +197,125 @@ export function TopDelivery () {
 						</Col>
 					</Row>
 				</Card>
-				<Row gutter={padding}>
-					<Col>
-						<Card style={{ marginBottom: padding }}>
-							<Typography.Title level={3}>Client</Typography.Title>
-							<Form.Item label="Name" name={["clientInfo", "fio"]}>
-								<Input />
-							</Form.Item>
-							<Form.Item label="Phone" name={["clientInfo", "phone"]}>
-								<Input />
-							</Form.Item>
-							<Form.Item label="E-Mail" name={["clientInfo", "email"]}>
-								<Input />
-							</Form.Item>
-							<Form.Item label="Comment" name={["clientInfo", "comment"]}>
-								<Input.TextArea />
-							</Form.Item>
-						</Card>
-					</Col>
-					<Col>
-						<Card style={{ marginBottom: padding }}>
-							<Typography.Title level={3}>Delivery</Typography.Title>
-							<Form.Item label="Date">
-								<DatePicker
-									value={desiredDateDelivery}
-									onChange={setDesiredDateDelivery}
-									disabledDate={disabledDates}
-								/>
-							</Form.Item>
-							{
-								desiredDateDelivery ?
-								<Form.Item label="Time Intervals">
-									<Select
-										onChange={setDesiredTimeIntervals}
-										value={desiredTimeIntervals}
-										disabled={!timeIntervals?.quotas?.available}>
-										{timeIntervals?.timeInterval.map((i, idx) => {
-											const value = intervalsToString(i);
-											return <Select.Option key={idx} value={value}>
-												{value}
-											</Select.Option>
-										})}
-									</Select>
-								</Form.Item> :
-								null
-							}
-							<Form.Item label="Region" name={["deliveryAddress", "region"]}>
-								<Input readOnly />
-							</Form.Item>
-							<Form.Item label="City" name={["deliveryAddress", "city"]}>
-								<Input readOnly />
-							</Form.Item>
-							<Form.Item label="Zip" name={["deliveryAddress", "inCityAddress", "zipcode"]}>
-								<Input />
-							</Form.Item>
-							<Form.Item label="Address" name={["deliveryAddress", "inCityAddress", "address"]}>
-								<Input.TextArea />
-							</Form.Item>
-							<Form.Item label="Type" name={["deliveryType"]}>
-								<Select>
-									<Select.Option value="PICKUP">PICKUP</Select.Option>
-									<Select.Option value="COURIER">COURIER</Select.Option>
-								</Select>
-							</Form.Item>
-							{
-								watchDeliveryType === "PICKUP" ?
-								<Form.Item label="Pickup Point">
-									<Select value={pickupId} onChange={setPickupId}>
-										{pickupPoints.map(p => {
-											return (
-												<Select.Option key={p.locationId} value={p.locationId}>
-													{p.cityOfLocation} {p.addressOfLocation}
-												</Select.Option>
-											)
-										})}
-									</Select>
-								</Form.Item> : null
-							}
-						</Card>
-					</Col>
-					<Col style={{ marginBottom: padding }}>
-						<Card>
-							<Typography.Title level={3}>Order</Typography.Title>
-							<Form.Item label="Order ID" name={["orderIdentity", "orderId"]}>
-								<Input readOnly />
-							</Form.Item>
-							<Form.Item label="Bar Code" name={["orderIdentity", "barcode"]}>
-								<Input readOnly />
-							</Form.Item>
-							<Form.Item label="In Market" name={["orderIdentity", "webshopNumber"]}>
-								<Input readOnly />
-							</Form.Item>
-							<Form.Item label="Status" name={["status", "name"]}>
-								<Input readOnly />
-							</Form.Item>
-							<Form.Item label="Work status" name={["workStatus", "name"]}>
-								<Input readOnly />
-							</Form.Item>
-							<Form.Item label="Market name" name={["orderUrl"]}>
-								<Input readOnly />
-							</Form.Item>
-							{
-								isWarningMarket ?
-								<Alert message="You should use other script for this market." type="warning" /> :
-								null
-							}
-							<Form.Item label="End of storage date">
-								<Input value={endOfStorageDate} readOnly />
-							</Form.Item>
-							<Form.Item label="Full order price">
-								<Input value={order.clientFullCost + " р."} readOnly/>
-							</Form.Item>
-							<Button 
-								target="_blank"
-								type="link" href={`https://is.topdelivery.ru/pages/order.php?id=${order.orderIdentity.orderId}`}>
-								Top Delivery
-							</Button>
-						</Card>
-					</Col>
-					<Col>
-						<Card>
-							<Typography.Title level={3}>History</Typography.Title>
-							<Table
-								columns={historyColumns}
-								dataSource={history?.[0]?.events || []}
-							/>
-						</Card>
-					</Col>
-				</Row>
-			</Form>
-		</Container>
+				<Card key={Cards.Client}>
+					<Typography.Title level={3}>Client</Typography.Title>
+					<Form.Item label="Name" name={["clientInfo", "fio"]}>
+						<Input />
+					</Form.Item>
+					<Form.Item label="Phone" name={["clientInfo", "phone"]}>
+						<Input />
+					</Form.Item>
+					<Form.Item label="E-Mail" name={["clientInfo", "email"]}>
+						<Input />
+					</Form.Item>
+					<Form.Item label="Comment" name={["clientInfo", "comment"]}>
+						<Input.TextArea />
+					</Form.Item>
+				</Card>
+				<Card key={Cards.Delivery}>
+					<Typography.Title level={3}>Delivery</Typography.Title>
+					<Form.Item label="Date">
+						<DatePicker
+							value={desiredDateDelivery}
+							onChange={setDesiredDateDelivery}
+							disabledDate={disabledDates}
+						/>
+					</Form.Item>
+					{
+						desiredDateDelivery ?
+						<Form.Item label="Time Intervals">
+							<Select
+								onChange={setDesiredTimeIntervals}
+								value={desiredTimeIntervals}
+								disabled={!timeIntervals?.quotas?.available}>
+								{timeIntervals?.timeInterval.map((i, idx) => {
+									const value = intervalsToString(i);
+									return <Select.Option key={idx} value={value}>
+										{value}
+									</Select.Option>
+								})}
+							</Select>
+						</Form.Item> :
+						null
+					}
+					<Form.Item label="Region" name={["deliveryAddress", "region"]}>
+						<Input readOnly />
+					</Form.Item>
+					<Form.Item label="City" name={["deliveryAddress", "city"]}>
+						<Input readOnly />
+					</Form.Item>
+					<Form.Item label="Zip" name={["deliveryAddress", "inCityAddress", "zipcode"]}>
+						<Input />
+					</Form.Item>
+					<Form.Item label="Address" name={["deliveryAddress", "inCityAddress", "address"]}>
+						<Input.TextArea />
+					</Form.Item>
+					<Form.Item label="Type" name={["deliveryType"]}>
+						<Select>
+							<Select.Option value="PICKUP">PICKUP</Select.Option>
+							<Select.Option value="COURIER">COURIER</Select.Option>
+						</Select>
+					</Form.Item>
+					{
+						watchDeliveryType === "PICKUP" ?
+						<Form.Item label="Pickup Point">
+							<Select value={pickupId} onChange={setPickupId}>
+								{pickupPoints.map(p => {
+									return (
+										<Select.Option key={p.locationId} value={p.locationId}>
+											{p.cityOfLocation} {p.addressOfLocation}
+										</Select.Option>
+									)
+								})}
+							</Select>
+						</Form.Item> : null
+					}
+				</Card>
+				<Card key={Cards.Order}>
+					<Typography.Title level={3}>Order</Typography.Title>
+					<Form.Item label="Order ID" name={["orderIdentity", "orderId"]}>
+						<Input readOnly />
+					</Form.Item>
+					<Form.Item label="Bar Code" name={["orderIdentity", "barcode"]}>
+						<Input readOnly />
+					</Form.Item>
+					<Form.Item label="In Market" name={["orderIdentity", "webshopNumber"]}>
+						<Input readOnly />
+					</Form.Item>
+					<Form.Item label="Status" name={["status", "name"]}>
+						<Input readOnly />
+					</Form.Item>
+					<Form.Item label="Work status" name={["workStatus", "name"]}>
+						<Input readOnly />
+					</Form.Item>
+					<Form.Item label="Market name" name={["orderUrl"]}>
+						<Input readOnly />
+					</Form.Item>
+					{
+						isWarningMarket ?
+						<Alert message="You should use other script for this market." type="warning" /> :
+						null
+					}
+					<Form.Item label="End of storage date">
+						<Input value={endOfStorageDate} readOnly />
+					</Form.Item>
+					<Form.Item label="Full order price">
+						<Input value={order.clientFullCost + " р."} readOnly/>
+					</Form.Item>
+					<Button 
+						target="_blank"
+						type="link" href={`https://is.topdelivery.ru/pages/order.php?id=${order.orderIdentity.orderId}`}>
+						Top Delivery
+					</Button>
+				</Card>
+				<Card key={Cards.History}>
+					<Typography.Title level={3}>History</Typography.Title>
+					<Table
+						columns={historyColumns}
+						dataSource={history?.[0]?.events || []}
+					/>
+				</Card>
+			</ResponsiveReactGridLayout>
+		</Form>
 	)
 }
-
-const Container = styled.div`
-	width: 100vw;
-	height: 100vh;
-	padding: ${padding}px;
-	overflow: auto;
-`
