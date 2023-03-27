@@ -181,7 +181,7 @@ export class TopDeliveryService implements OnModuleInit {
 		await this.callConfirm(user, { status: Call.Status.COMPLETED }, order);
 	}
 
-	private readonly denyReasons = Object.freeze({
+	readonly denyReasons = Object.freeze({
 		1: "Нарушен срок доставки",
 		2: "Нет денег в наличии",
 		3: "Передумал приобретать",

@@ -5,6 +5,10 @@ import { Provider } from "./types";
 export class TDApi {
 	api = new Api(`api/v1/${Provider.TOP_DELIVERY}`);
 
+	getDenyReasons = async () => {
+		return this.api.get('/deny-reasons', {});
+	}
+
 	getHistory = async (params: { orderId: string }): Promise<TDApi.History[]> => {
 		return this.api.get("/history", params);
 	}
@@ -33,7 +37,7 @@ export class TDApi {
 		return this.api.post("/undercall-order", { order })
 	}
 
-	replaceCall = async (order: TDApi.Order, replaceDate: number) => {
+	replaceCall = async (order: TDApi.Order, replaceDate: Date) => {
 		return this.api.post("replacedate-order", { order, replaceDate })
 	}
 }
@@ -74,6 +78,11 @@ export namespace TDApi {
 		addressOfLocation: string;
 	}
 
+	export enum PickupType {
+		PICKUP = "PICKUP",
+		COURIER = 'COURIER'
+	}
+
 	export interface Order {
 		clientFullCost: string;
 		endOfStorageDate: string;
@@ -84,7 +93,7 @@ export namespace TDApi {
 			webshopNumber: string;
 		},
 		accessCode: string;
-		deliveryType: object,
+		deliveryType: PickupType,
 		deliveryAddress: {
 			region: string;
 			inCityAddress: string;

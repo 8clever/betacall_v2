@@ -1,5 +1,5 @@
 import { TDApi, DatePicker } from "@betacall/ui-kit";
-import { Alert, Button, Card, Col, Form, Input, Row, Select, Space, Table, TableColumnType, Typography } from "antd";
+import { Alert, Button, Card, Col, Form, Input, Modal, Row, Select, Space, Table, TableColumnType, Typography } from "antd";
 import React from "react";
 import { useOrders } from "./OrderProvider"
 import ReactGridLayout, { Responsive, WidthProvider } from "react-grid-layout";
@@ -119,14 +119,18 @@ export function TopDelivery () {
 
 	const [ history, setHistory ] = React.useState<TDApi.History[]>([]);
 
+	const [ denyReasons, setDenyReasons ] = React.useState<Record<number, string>>({});
+
 	React.useEffect(() => {
 		const api = new TDApi();
 		Promise.all([
 			api.getNearDeliveryDatesIntervals({ id: id.toString() }),
-			api.getHistory({ orderId: id.toString() })
-		]).then(([ intervals, history ]) => {
+			api.getHistory({ orderId: id.toString() }),
+			api.getDenyReasons()
+		]).then(([ intervals, history, reasons ]) => {
 			setQuota(intervals);
 			setHistory(history);
+			setDenyReasons(reasons);
 		});
 	}, [ id ]);
 
@@ -168,7 +172,7 @@ export function TopDelivery () {
 		form.setFieldValue(['desiredDateDelivery', "timeInterval",], value);
 	}, [ desiredTimeIntervals, form ]);
 
-	const watchDeliveryType = Form.useWatch("deliveryType", form);
+	const watchDeliveryType: TDApi.PickupType = Form.useWatch("deliveryType", form);
 
 	const isWarningMarket = React.useMemo(() => {
 		return warningMarkets.includes(order.orderUrl);
@@ -180,9 +184,9 @@ export function TopDelivery () {
 	}, [ order.endOfStorageDate ]);
 
 	const doneOrder = React.useCallback(() => {
-		const order = form.getFieldsValue();
+		const order: TDApi.Order = form.getFieldsValue();
 		const api = new TDApi();
-		if (pickupId) {
+		if (order.deliveryType === TDApi.PickupType.PICKUP) {
 			api.doneOrderPickup(order, Number(pickupId)).then(() => {
 				orders.refresh()
 			});
@@ -193,6 +197,50 @@ export function TopDelivery () {
 			orders.refresh()
 		})
 	}, [ form, orders, pickupId ]);
+
+	const denyOrder = React.useCallback(() => {
+		const order: TDApi.Order = form.getFieldsValue();
+		const api = new TDApi();
+		api.denyOrder(order).then(() => {
+			orders.refresh()
+		});
+	}, []);
+
+	const [ denyModal, setDenyModal ] = React.useState(false);
+	const toggleDenyModal = React.useCallback(() => {
+		setDenyModal(state => !state);
+	}, []);
+
+	const watchDenyReasonId = Form.useWatch(['denyParams', 'reason', 'id'], form);
+
+	const undercallOrder = React.useCallback(() => {
+		const order: TDApi.Order = form.getFieldsValue();
+		const api = new TDApi();
+		api.underCall(order).then(() => {
+			orders.refresh();
+		})
+	}, [ form, orders ]);
+
+	const [ replaceCallDate, setReplaceDate ] = React.useState<Date | null>(null);
+
+	const replaceDate = React.useCallback(() => {
+		if (!replaceCallDate) return;
+		const order: TDApi.Order = form.getFieldsValue();
+		const api = new TDApi();
+		api.replaceCall(order, replaceCallDate).then(() => {
+			orders.refresh();
+		});
+	}, [ replaceCallDate, form, orders ]);
+
+	const disabledReplaceDates = React.useCallback((date: Date) => {
+		const now = new Date().valueOf();
+		return date.valueOf() < now;
+	}, []);
+
+	const [ replaceDateModal, setReplaceDateModal ] = React.useState(false);
+	const toggleReplaceDateModal = React.useCallback(() => {
+		setReplaceDateModal(state => !state);
+	}, []);
 
 	return (
 		<Form form={form} initialValues={order}>
@@ -205,9 +253,40 @@ export function TopDelivery () {
 						<Col>
 							<Space>
 								<Button type="primary" onClick={doneOrder}>Done</Button>
-								<Button danger>Deny</Button>
-								<Button>Undercall</Button>
-								<Button>Replace call</Button>
+								<Button danger onClick={toggleDenyModal}>Deny</Button>
+								<Modal 
+									title="Deny"
+									okText="Confirm"
+									okButtonProps={{ danger: true, disabled: !watchDenyReasonId }} 
+									open={denyModal} 
+									onOk={denyOrder} 
+									onCancel={toggleDenyModal}>
+									<Form.Item label="Cause" name={['denyParams', 'reason', 'id']}>
+										<Select>
+											<Select.Option value={0}>Empty</Select.Option>
+											{Object.entries(denyReasons).map(([ id, reason ]) => {
+												return <Select.Option key={Number(id)} value={Number(id)}>
+													{reason}
+												</Select.Option>
+											})}
+										</Select>
+									</Form.Item>
+								</Modal>
+								<Button onClick={undercallOrder}>Undercall</Button>
+								<Button onClick={toggleReplaceDateModal}>Replace call</Button>
+								<Modal
+									okButtonProps={{ disabled: !replaceCallDate }}
+									open={replaceDateModal}
+									onCancel={toggleReplaceDateModal}
+									onOk={replaceDate}
+									title={"Replace call"}>
+									<Form.Item label="Date">
+										<DatePicker
+											disabledDate={disabledReplaceDates}
+											value={replaceCallDate} 
+											onChange={setReplaceDate} />
+									</Form.Item>
+								</Modal>
 							</Space>
 						</Col>
 					</Row>
@@ -267,12 +346,15 @@ export function TopDelivery () {
 					</Form.Item>
 					<Form.Item label="Type" name={["deliveryType"]}>
 						<Select>
-							<Select.Option value="PICKUP">PICKUP</Select.Option>
-							<Select.Option value="COURIER">COURIER</Select.Option>
+							{Object.values(TDApi.PickupType).map(p => {
+								return <Select.Option key={p} value={p}>
+									{p}
+								</Select.Option>
+							})}
 						</Select>
 					</Form.Item>
 					{
-						watchDeliveryType === "PICKUP" ?
+						watchDeliveryType === TDApi.PickupType.PICKUP ?
 						<Form.Item label="Pickup Point">
 							<Select value={pickupId} onChange={setPickupId}>
 								{pickupPoints.map(p => {
