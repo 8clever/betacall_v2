@@ -10,7 +10,7 @@ export class CustomMqtt extends ClientMqtt {
 		for (;;) {
 			try {
 				const req = this.send(topic, payload);
-				const res = await promiseObservable(req, timeout);
+				const res = await promiseObservable(req, timeout, `Retry request, topic: ${topic}`);
 				return res;
 			} catch (e) {
 				Logger.log(e.message, e.stack);

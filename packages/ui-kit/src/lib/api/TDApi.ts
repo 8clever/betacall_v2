@@ -38,7 +38,7 @@ export class TDApi {
 	}
 
 	replaceCall = async (order: TDApi.Order, replaceDate: Date) => {
-		return this.api.post("replacedate-order", { order, replaceDate })
+		return this.api.post("/replacedate-order", { order, replaceDate })
 	}
 }
 

@@ -10,7 +10,7 @@ enum Statuses {
   CONNECTING_PROBLEM = 'connecting-problem'
 }
 
-enum Providers {
+export enum Providers {
   TOP_DELIVERY = "top-delivery",
   B2CPL = 'b2cpl'
 }
@@ -49,7 +49,7 @@ export class Call {
   history?: boolean;
 
   @Column({ nullable: true })
-  dtNextCall?: number;
+  dtNextCall?: Date;
 
   @Column({ nullable: true })
   callId?: string;

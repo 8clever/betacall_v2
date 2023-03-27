@@ -1,5 +1,5 @@
 import { Call, config, CustomMqtt, MQTT_TOKEN, Stats, User } from "@betacall/svc-common";
-import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { HttpException, HttpStatus, Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { createClientAsync, Client, BasicAuthSecurity } from 'soap'
 import { Order, Quota } from "./td.types";
 import { createHash } from 'crypto'
@@ -154,6 +154,21 @@ export class TopDeliveryService implements OnModuleInit {
 		await this.callConfirm(user, { status: Call.Status.COMPLETED }, order);
 	}
 
+	private handleResponse (response: { 
+		requestResult: { status: number, message: string }, 
+		editOrdersResult?: { message: string }[],
+		setOrdersFinalStatus?: { message: string }[]
+	}) {
+		if (response.requestResult.status === 1) {
+			const message = (
+				response.setOrdersFinalStatus?.[0]?.message ||
+				response.editOrdersResult?.[0]?.message || 
+				response.requestResult.message
+			);
+			throw new HttpException(message, HttpStatus.BAD_REQUEST);
+		}
+	}
+
 	doneOrder = async (user: User, params: { order: Order }) => {
 		const { order } = params;
 		const payload: Partial<Order> & { desireDateDelivery: object } = {
@@ -173,9 +188,7 @@ export class TopDeliveryService implements OnModuleInit {
 			editOrderParams: payload
 		});
 
-		if (response.requestResult.status === 1) {
-			throw new Error(response.requestResult.message);
-		}
+		this.handleResponse(response);
 
 		await this.addStats(user, { ...order, ...payload });
 		await this.callConfirm(user, { status: Call.Status.COMPLETED }, order);
@@ -213,13 +226,12 @@ export class TopDeliveryService implements OnModuleInit {
 			}
 		}
 
-		const [ response] = await this.tdClient.setOrdersFinalStatusAsync({
+		const [ response ] = await this.tdClient.setOrdersFinalStatusAsync({
 			auth: config.topdelivery.body,
 			finalStatusParams: payload
 		});
 
-		if (response.requestResult.status === 1) 
-			throw new Error(response.requestResult.message);
+		this.handleResponse(response);
 
 		await this.addStats(user, { ...order, ...payload });
 		await this.callConfirm(user, { status: Call.Status.COMPLETED }, order);
@@ -229,6 +241,7 @@ export class TopDeliveryService implements OnModuleInit {
 		const { order } = params;
 		const payload: Partial<Order> = {
 			accessCode: this.generateAccessCode(order),
+			orderIdentity: order.orderIdentity,
 			event: {
 				eventType: {
 					id: 20,
@@ -237,12 +250,12 @@ export class TopDeliveryService implements OnModuleInit {
 				comment: "Недоступен"
 			}
 		}
-		const [ response] = await this.tdClient.addOrderEventAsync({
+		const [ response ] = await this.tdClient.addOrderEventAsync({
 			auth: config.topdelivery.body,
 			orderEvent: payload
 		});
-		if (response.requestResult.status === 1) 
-			throw new Error(response.requestResult.message);
+
+		this.handleResponse(response);
 
 		await this.addStats(user, { ...order, ...payload });
 		await this.callConfirm(user, { status: Call.Status.UNDER_CALL }, order);
@@ -267,11 +280,10 @@ export class TopDeliveryService implements OnModuleInit {
 			orderEvent: payload
 		});
 		
-		if (response.requestResult.status === 1) 
-			throw new Error(response.requestResult.message);
+		this.handleResponse(response);
 
 		await this.addStats(user, { ...order, ...payload });
-		await this.callConfirm(user, { status: Call.Status.REPLACE_DATE, dtNextCall: replaceDate.valueOf() }, order);
+		await this.callConfirm(user, { status: Call.Status.REPLACE_DATE, dtNextCall: replaceDate }, order);
 	}
 
 	getNearDeliveryDatesIntervals = async (params: { orderId: string }) => {

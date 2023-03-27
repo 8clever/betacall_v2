@@ -4,6 +4,7 @@ import { config } from "./config";
 import { User } from "./entities/user.entity";
 import { Call } from './entities/call.entity'
 import { HelmMiddleware } from "./middlewares/helm.middleware";
+import { Stats } from "./entities/stats.entity";
 
 interface Options {
 	metadata: ModuleMetadata
@@ -21,7 +22,8 @@ export function createModule (options: Options) {
 				...config.pg,
 				entities: [
 					User,
-					Call
+					Call,
+					Stats
 				],
 				synchronize: true,
 			})

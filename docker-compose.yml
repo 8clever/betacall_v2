@@ -84,6 +84,8 @@ services:
       - traefik
       - postgres
       - mqtt
+      - svc-stats
+      - svc-caller
     environment:
       - PG_HOST=postgres
       - MQTT=mqtt://mqtt:1883

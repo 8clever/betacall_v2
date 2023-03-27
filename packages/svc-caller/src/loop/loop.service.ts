@@ -42,7 +42,7 @@ export class LoopService implements OnModuleInit {
       call.history ||
       call.status === Call.Status.COMPLETED ||
       call.status === Call.Status.OPERATOR ||
-      call.status === Call.Status.REPLACE_DATE && new Date().valueOf() < call.dtNextCall
+      call.status === Call.Status.REPLACE_DATE && new Date().valueOf() < new Date(call.dtNextCall).valueOf()
     ) return false;
 
     return true;

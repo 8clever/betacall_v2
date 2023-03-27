@@ -13,7 +13,7 @@ export class Stats<T extends object = object> {
 	user: Partial<User>
 
 	@Column({ enum: Call.Provider })
-	provider: Call.Provider;
+	provider: string
 
 	@Column('json')
 	data: T;

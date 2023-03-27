@@ -1,11 +1,13 @@
 import { Stats } from "@betacall/svc-common";
 import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
 @Injectable()
 export class StatsService {
 
 	constructor (
+		@InjectRepository(Stats)
 		private readonly repo: Repository<Stats>
 	) {
 
