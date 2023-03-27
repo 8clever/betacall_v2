@@ -8,3 +8,4 @@ export * from "./lib/api/TDApi"
 export * from "./lib/components/AuthProvider"
 export * from "./lib/components/Protected"
 export * from './lib/components/GlobalStyle'
+export * from "./lib/components/DatePicker"

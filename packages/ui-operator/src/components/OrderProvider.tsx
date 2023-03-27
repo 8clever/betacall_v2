@@ -1,6 +1,5 @@
 import { CallApi } from "@betacall/ui-kit";
 import React from "react";
-import { Navigate } from "react-router-dom";
 
 interface OrderContext {
 	list: CallApi.MyOrder[],

@@ -1,5 +1,5 @@
-import { TDApi } from "@betacall/ui-kit";
-import { Alert, Button, Card, Col, DatePicker, Form, Input, Row, Select, Space, Table, TableColumnType, TableProps, Typography } from "antd";
+import { TDApi, DatePicker } from "@betacall/ui-kit";
+import { Alert, Button, Card, Col, Form, Input, Row, Select, Space, Table, TableColumnType, Typography } from "antd";
 import React from "react";
 import styled from "styled-components";
 import { useOrders } from "./OrderProvider"
@@ -84,9 +84,17 @@ export function TopDelivery () {
 
 	const [ pickupPoints, setPickupPoints ] = React.useState<TDApi.PickupPoint[]>([]);
 
-	const [ desiredDateDelivery, setDesiredDateDelivery ] = React.useState<any>(order.desiredDateDelivery.date);
+	const [ desiredDateDelivery, setDesiredDateDelivery ] = React.useState<Date | null>( 
+		order.desiredDateDelivery?.date ?
+		new Date(order.desiredDateDelivery.date) :
+		null
+	);
 
-	const [ desiredTimeIntervals, setDesiredTimeIntervals ] = React.useState<string | null>(desiredDateDelivery ? null : intervalsToString(order.desiredDateDelivery.timeInterval));
+	const [ desiredTimeIntervals, setDesiredTimeIntervals ] = React.useState<string | null>(
+		desiredDateDelivery ? 
+		null : 
+		intervalsToString(order.desiredDateDelivery.timeInterval)
+	);
 
 	const [ pickupId, setPickupId ] = React.useState<string | null>(null);
 
@@ -110,8 +118,8 @@ export function TopDelivery () {
 		});
 	}, [ order.partnerExecutor.id ])
 
-	const disabledDates = React.useCallback((date: any) => {
-		const current = new Date(date.valueOf()).toLocaleDateString();
+	const disabledDates = React.useCallback((date: Date) => {
+		const current = date.toLocaleDateString();
 		for (const q of quota) {
 			const date = new Date(q.date).toLocaleDateString();
 			if (date === current) return false;
@@ -122,7 +130,7 @@ export function TopDelivery () {
 	const timeIntervals = React.useMemo(() => {
 		if (!desiredDateDelivery) return null;
 
-		const current = new Date(desiredDateDelivery.valueOf()).toLocaleDateString();
+		const current = desiredDateDelivery.toLocaleDateString();
 		for (const q of quota) {
 			const data = new Date(q.date).toLocaleDateString();
 			if (current === data)
@@ -134,12 +142,12 @@ export function TopDelivery () {
 	React.useEffect(() => {
 		const value = desiredDateDelivery ? new Date(desiredDateDelivery.valueOf()).toJSON() : null;
 		form.setFieldValue(["desiredDateDelivery", "date"], value);
-	}, [ desiredDateDelivery ])
+	}, [ desiredDateDelivery, form ])
 
 	React.useEffect(() => {
 		const value = desiredTimeIntervals ? intervalsParse(desiredTimeIntervals) : null;
 		form.setFieldValue(['desiredDateDelivery', "timeInterval",], value);
-	}, [ desiredTimeIntervals ]);
+	}, [ desiredTimeIntervals, form ]);
 
 	const watchDeliveryType = Form.useWatch("deliveryType", form);
 
@@ -192,7 +200,7 @@ export function TopDelivery () {
 						<Card style={{ marginBottom: padding }}>
 							<Typography.Title level={3}>Delivery</Typography.Title>
 							<Form.Item label="Date">
-								<DatePicker 
+								<DatePicker
 									value={desiredDateDelivery}
 									onChange={setDesiredDateDelivery}
 									disabledDate={disabledDates}

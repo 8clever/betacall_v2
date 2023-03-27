@@ -25,7 +25,7 @@ export function Main () {
 		const api = new CallApi();
 		await api.assignOrder(values);
 		orders.refresh()
-	}, [ orders.refresh ])
+	}, [ orders ])
 
 	if (orders.list.length)
 		return <Navigate to={`/provider/${orders.list[0].provider}`}/>
