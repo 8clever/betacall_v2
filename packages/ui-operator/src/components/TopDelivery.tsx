@@ -200,10 +200,16 @@ export function TopDelivery () {
 			return;
 		}
 
-		api.doneOrder(order).then(() => {
+		api.doneOrder({
+			...order,
+			desiredDateDelivery: {
+				date: desiredDateDelivery?.toJSON() as string,
+				timeInterval: intervalsParse(desiredTimeIntervals as string)
+			}
+		}).then(() => {
 			orders.refresh()
 		})
-	}, [ form, orders, pickupId ]);
+	}, [ form, orders, pickupId, desiredDateDelivery, desiredTimeIntervals ]);
 
 	const denyOrder = React.useCallback(() => {
 		const order: TDApi.Order = form.getFieldsValue();
