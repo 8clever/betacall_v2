@@ -91,10 +91,6 @@ export class TopDeliveryService implements OnModuleInit {
 		}
 
 		Logger.log(`Top Delivery loaded orders: ${this.orders.size}`)
-		if (config.testPhone) {
-			const orderid = [...this.orders.values()][0].orderIdentity.orderId;
-			Logger.log(`Test order ID: ${orderid}`)
-		}
 
 		await this.mqtt.paranoid("call-loop:push", {
 			messages: calls,
@@ -138,7 +134,9 @@ export class TopDeliveryService implements OnModuleInit {
 			accessCode: this.generateAccessCode(params.order),
 			orderIdentity: order.orderIdentity,
 			deliveryType: order.deliveryType,
-			pickupAddress: order.pickupAddress,
+			pickupAddress: {
+				id: params.pickupId
+			},
 			clientInfo: order.clientInfo
 		}
 
@@ -147,8 +145,7 @@ export class TopDeliveryService implements OnModuleInit {
 			deliveryTypeParams: payload
 		});
 
-		if (response.requestResult.status === 1) 
-			throw new Error(response.requestResult.message);
+		this.handleResponse(response)
 
 		await this.addStats(user, order);
 		await this.callConfirm(user, { status: Call.Status.COMPLETED }, order);

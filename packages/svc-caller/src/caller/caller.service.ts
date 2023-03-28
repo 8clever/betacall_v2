@@ -25,7 +25,6 @@ export class CallerService {
   async getOperatorOrders (user: User) {
     const calls: Call[] = await this.findLastOrderStatus(`"userId"='${user.id}' and status='${Call.Status.OPERATOR}'`);
     const callsByProviders: Map<Call.Provider, Call[]> = new Map();
-
     for (const call of calls) {
       const arr = callsByProviders.get(call.provider) || [];
       arr.push(call);
