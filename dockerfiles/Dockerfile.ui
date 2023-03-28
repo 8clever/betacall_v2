@@ -1,7 +1,9 @@
 from ghcr.io/8clever/betacall_v2/system:main as build
+arg project
 copy . .
 run npm ci --legacy-peer-deps
-run npx nx build ${PROJECT}
+run npx nx build $project
 
 from steebchen/nginx-spa:stable
-copy --from=build /app/dist/packages/${PROJECT} /app
+arg project
+copy --from=build /app/dist/packages/$project /app
