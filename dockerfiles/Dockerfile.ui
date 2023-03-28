@@ -1,7 +1,7 @@
 from ghcr.io/8clever/betacall_v2/system:main as build
 arg project
-arg base-url
-env BASE_URL=$base-url
+arg base_url
+env BASE_URL=$base_url
 copy . .
 run npm ci --legacy-peer-deps
 run npx nx build $project
