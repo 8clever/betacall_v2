@@ -269,7 +269,7 @@ export class TopDeliveryService implements OnModuleInit {
 					id: 20,
 					name: "edit_by_cc"
 				},
-				comment: `Просит перезвонить позднее %${replaceDate.toLocaleDateString()}%`
+				comment: `Просит перезвонить позднее %${replaceDate.toLocaleDateString('ru')}%`
 			}
 		}
 		const [ response ] = await this.tdClient.addOrderEventAsync({

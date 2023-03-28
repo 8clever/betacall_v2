@@ -13,13 +13,22 @@ export class StatsService {
 
 	}
 
-	find (query: Partial<Stats> | string, options: Partial<StatsService.FindOptions>) {
-		let builder = this.repo.createQueryBuilder().where(query);
+	async find (query: Partial<Stats> | string, options: Partial<StatsService.FindOptions>) {
+		let builder = this.repo.createQueryBuilder('stats')
+			.leftJoinAndSelect(`stats.user`, 'user')
+			.orderBy('stats.dt', 'DESC')
+			.where(query);
+
 		if (options.limit)
 			builder = builder.take(options.limit);
 		if (options.skip)
 			builder = builder.skip(options.skip);
-		return builder.getManyAndCount();
+		
+		const [ list, count ] = await builder.getManyAndCount();
+		return {
+			list,
+			count
+		}
 	}
 
 	add (stats: Partial<Stats>) {

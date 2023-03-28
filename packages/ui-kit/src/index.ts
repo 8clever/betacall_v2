@@ -3,6 +3,7 @@ export * from "./lib/api/Api"
 export * from "./lib/api/UserApi"
 export * from "./lib/api/CallApi"
 export * from "./lib/api/TDApi"
+export * from "./lib/api/StatsApi"
 
 /** components */
 export * from "./lib/components/AuthProvider"
