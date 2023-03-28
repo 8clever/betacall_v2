@@ -1,10 +1,10 @@
 from ghcr.io/8clever/betacall_v2/system:main as build
 copy . .
 run npm ci --legacy-peer-deps
-run npx nx build ${PROJECT}
+run npx nx build $PROJECT
 
 from node:gallium-alpine
 workdir /app
-copy --from=build /app/dist/packages/${PROJECT} .
+copy --from=build /app/dist/packages/$PROJECT
 copy --from=build /app/node_modules ./node_modules
 cmd node main
