@@ -8,7 +8,7 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <Layout>
+  <>
     <GlobalStyle />
     <AuthProvider>
       <Protected role={UserApi.Role.ADMIN}>
@@ -20,5 +20,5 @@ root.render(
         </BrowserRouter>
       </Protected>
     </AuthProvider>
-  </Layout>
+  </>
 );
