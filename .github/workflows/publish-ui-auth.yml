@@ -77,4 +77,7 @@ jobs:
           build-args: project=${{ env.PROJECT }}
           secrets: |
             BASE_URL=${{ env.BASE_URL }}
+        env:
+          BASE_URL: ${{ env.BASE_URL }}
+          
 
