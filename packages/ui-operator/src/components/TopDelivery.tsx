@@ -81,12 +81,19 @@ enum Cards {
 }
 
 const layout: ReactGridLayout.Layouts = {
+	"md": [
+		{ i: Cards.Actions,  x: 0, y: 0, w: 12, h: 1, static: true },
+		{ i: Cards.Client,   x: 0, y: 1, w: 12,  h: 4, static: true },
+		{ i: Cards.Delivery, x: 0, y: 5, w: 12,  h: 4, static: true },
+		{ i: Cards.Order,    x: 0, y: 9, w: 12,  h: 4, static: true },
+		{ i: Cards.History,  x: 0, y: 13, w: 12, h: 4, static: true }
+	],
 	"lg": [
 		{ i: Cards.Actions,  x: 0, y: 0, w: 12, h: 1, static: true },
-		{ i: Cards.Client,   x: 0, y: 1, w: 4,  h: 4, isResizable: true },
-		{ i: Cards.Delivery, x: 4, y: 1, w: 4,  h: 4, isResizable: true },
-		{ i: Cards.Order,    x: 8, y: 1, w: 4,  h: 4, isResizable: true },
-		{ i: Cards.History,  x: 0, y: 5, w: 12, h: 3 }
+		{ i: Cards.Client,   x: 0, y: 1, w: 4,  h: 4, static: true },
+		{ i: Cards.Delivery, x: 4, y: 1, w: 4,  h: 4, static: true },
+		{ i: Cards.Order,    x: 8, y: 1, w: 4,  h: 4, static: true },
+		{ i: Cards.History,  x: 0, y: 5, w: 12, h: 4, static: true }
 	]
 };
 
@@ -408,8 +415,9 @@ export function TopDelivery () {
 				<Card key={Cards.History}>
 					<Typography.Title level={3}>History</Typography.Title>
 					<Table
+						scroll={{ x: true, y: 400 }}
 						columns={historyColumns}
-						dataSource={history?.[0]?.events || []}
+						dataSource={(history?.[0]?.events || []).concat().reverse()}
 					/>
 				</Card>
 			</ResponsiveReactGridLayout>

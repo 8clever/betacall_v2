@@ -1,6 +1,7 @@
 import { Call, config, CustomMqtt, MQTT_TOKEN, User } from "@betacall/svc-common";
-import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
+import { Inject, Injectable, OnModuleInit, Query } from "@nestjs/common";
 import { Server } from "net";
+import { In, IsNull, Not } from "typeorm";
 import { AsteriskService } from "../asterisk/asterisk.service";
 import { CallerService } from "../caller/caller.service";
 import { Loop } from "./loop.parallel"
@@ -52,11 +53,16 @@ export class LoopService implements OnModuleInit {
 
   private readonly processNextCall = async (queue: Queue) => {
     const orderId = await queue.lPop();
-    if (orderId === null) {
+    if (orderId === null) return;
+
+    const list = await this.callsvc.findLastOrderStatus(`"orderId"='${orderId}'`);
+    const dto = list[0];
+
+    if (!dto) {
+      queue.delete(orderId);
       return;
     }
 
-    const dto = await this.callsvc.findLastOrderStatus().where({ orderId }).getOne();
     const canProcess = this.filter(dto);
 
     if (!canProcess) {
@@ -118,7 +124,8 @@ export class LoopService implements OnModuleInit {
 		
     if (!calls.length) return;
 
-    const listCall: Call[] = await this.callsvc.findLastOrderStatus().where(this.callsvc.queryList(providerName, calls)).getMany();
+    const orderIds = calls.map(c => c.orderId);
+    const listCall: Call[] = await this.callsvc.findLastOrderStatus(`"orderId" IN (${orderIds.map(id => `'${id}'`).join(", ")})`)
     const queueList = await provider.queue.list();
     const list = new Map(listCall.map(c => [ c.orderId, c ]));
 
@@ -144,7 +151,11 @@ export class LoopService implements OnModuleInit {
     await this.callsvc.repo.createQueryBuilder()
       .update(Call)
       .set({ history: true })
-      .where(this.callsvc.queryList(providerName, calls, true))
+      .where({
+        provider,
+        orderId: Not(In(orderIds)),
+        history: IsNull()
+      })
       .execute();
   }
 }

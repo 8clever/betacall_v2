@@ -23,11 +23,7 @@ export class CallerService {
   }
 
   async getOperatorOrders (user: User) {
-    const calls: Call[] = await this.findLastOrderStatus().where({ 
-      user,
-      status: Call.Status.OPERATOR,
-      history: IsNull()
-    }).getMany();
+    const calls: Call[] = await this.findLastOrderStatus(`"userId"='${user.id}' and status='${Call.Status.OPERATOR}'`);
     const callsByProviders: Map<Call.Provider, Call[]> = new Map();
 
     for (const call of calls) {
@@ -52,20 +48,16 @@ export class CallerService {
     return orders;
   }
 
-  findLastOrderStatus() {
-    return this.repo
-      .createQueryBuilder('call')
-      .distinctOn(['call.orderId'])
-      .orderBy('call.orderId, dt desc, id')
-  }
-
-  queryList = (provider: Call.Provider, calls: Pick<Call, 'orderId' | 'provider'>[], not = false) => {
-    const orderids = calls.map(c => c.orderId);
-    return {
-      orderId: not ? Not(In(orderids)) : In(orderids),
-      provider,
-      history: IsNull()
-    }
+  findLastOrderStatus(where: string): Promise<Call[]> {
+    return this.repo.query(`
+      WITH last_call AS (
+        SELECT *, ROW_NUMBER() OVER(PARTITION BY "orderId" ORDER BY "dt" desc) as idx 
+        FROM call
+        WHERE history ISNULL
+      )
+      SELECT * FROM last_call
+      WHERE idx=1 AND ${where}
+    `)
   }
 
   find(where: Partial<Call>) {
