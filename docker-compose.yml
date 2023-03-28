@@ -1,6 +1,23 @@
 version: '3.9'
 services:
 
+  ui-admin:
+    build:
+      dockerfile: ./dockerfiles/Dockerfile.system
+    command: npx nx serve ui-admin
+    environment:
+      - BASE_URL=/admin
+    volumes:
+      - ./:/app
+    depends_on:
+      - svc-stats
+      - ui-auth
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ui-admin.rule=PathPrefix(`/admin`)"
+      - "traefik.http.routers.ui-admin.entrypoints=web"
+      - traefik.http.services.ui-admin.loadbalancer.server.port=3000
+
   ui-operator:
     build:
       dockerfile: ./dockerfiles/Dockerfile.system
