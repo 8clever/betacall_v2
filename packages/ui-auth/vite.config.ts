@@ -7,6 +7,8 @@ const port = 3000;
 const host = '0.0.0.0'
 const base = process.env.BASE_URL || "/"
 
+console.log("BASE_URL: ", base);
+
 export default defineConfig({
   cacheDir: '../../node_modules/.vite/ui-auth',
 
