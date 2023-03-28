@@ -1,0 +1,7 @@
+from ghcr.io/8clever/betacall_v2/system:main as build
+copy . .
+run npm ci
+run npx nx build ${PROJECT}
+
+from steebchen/nginx-spa:stable
+copy --from=build /app/dist/packages/${PROJECT} /app
