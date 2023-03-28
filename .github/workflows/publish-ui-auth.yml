@@ -75,7 +75,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            base-url=${{ env.BASE_URL }}
+            base_url=${{ env.BASE_URL }}
             project=${{ env.PROJECT }}
           
 
