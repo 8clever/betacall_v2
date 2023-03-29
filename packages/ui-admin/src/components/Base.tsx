@@ -1,7 +1,7 @@
 import { Layout, Menu, MenuProps } from "antd";
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { LineChartOutlined } from '@ant-design/icons'
+import { LineChartOutlined, UserOutlined } from '@ant-design/icons'
 import { MenuInfo } from "rc-menu/lib/interface";
 
 interface IProps {
@@ -15,6 +15,11 @@ const items: MenuItem[] = [
 		icon: <LineChartOutlined />,
 		key: "/",
 		label: "Statistics"
+	},
+	{
+		icon: <UserOutlined />,
+		key: "/users",
+		label: "Users"
 	}
 ]
 

@@ -22,6 +22,18 @@ export class UserApi {
 		const me = await this.users.get('/me', {});
 		return me;
 	}
+
+	async edit (user: UserApi.User) {
+		return this.users.post("/edit", user);
+	}
+
+	async list (query: Partial<UserApi.User> & { limit?: number, skip?: number }) {
+		return this.users.get("", query);
+	}
+
+	async delete (id: string) {
+		return this.users.delete("/" + id);
+	}
 }
 
 export namespace UserApi {

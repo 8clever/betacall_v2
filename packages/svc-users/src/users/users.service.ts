@@ -39,10 +39,18 @@ export class UsersService implements OnModuleInit {
       });
   }
 
-  findAll(where: Partial<User>): Promise<User[]> {
-    return this.usersRepository.find({
-      where
+  async findMany(where: Partial<User>, options: { skip?: number, limit?: number }) {
+
+
+    const [ list, count ] = await this.usersRepository.findAndCount({
+      where,
+      take: options.limit,
+      skip: options.skip
     });
+    return {
+      list,
+      count
+    }
   }
 
   findOne(where: Partial<User>): Promise<User> {
