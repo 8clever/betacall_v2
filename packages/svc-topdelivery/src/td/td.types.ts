@@ -51,5 +51,11 @@ export interface Order {
 		},
 		comment: string;
 	},
-	desiredDateDelivery: object;
+	desiredDateDelivery: {
+		date: string;
+		timeInterval: {
+			bTime: string;
+			eTime: string;
+		}
+	};
 }

@@ -11,6 +11,33 @@ export class TopDeliveryController {
 		private tdsvc: TopDeliveryService
 	) {}
 
+	@MessagePattern(`${Call.Provider.TOP_DELIVERY}:getNearDeliveryDatesIntervals`)
+	getIntervals(@Payload() orderId: number) {
+		return this.tdsvc.getNearDeliveryDatesIntervals({ orderId });
+	}
+
+	@MessagePattern(`${Call.Provider.TOP_DELIVERY}:getOrderByPhone`)
+	getOrderByPhone(@Payload() phone: string) {
+		const orderid = this.tdsvc.phones.get(phone);
+		if (!orderid) return null;
+		return this.tdsvc.orders.get(orderid) || null;
+  }
+
+	@MessagePattern(`${Call.Provider.TOP_DELIVERY}:getOrder`)
+	getOrder (@Payload() orderId: string) {
+		return this.tdsvc.orders.get(Number(orderId)) || null;
+	}
+
+	@MessagePattern(`${Call.Provider.TOP_DELIVERY}:orderDoneRobot`)
+	doneRobot (@Payload() params: { orderId: number, callId: string, robotDeliveryDate: string }) {
+		return this.tdsvc.doneRobot(params);
+	}
+
+	@MessagePattern(`${Call.Provider.TOP_DELIVERY}:orderRecallLater`)
+	recallLater(@Payload() params: { orderId: number, callId: string }) {
+		return this.tdsvc.replaceDateRobot(params);
+	}
+
 	@MessagePattern(`${Call.Provider.TOP_DELIVERY}:getOrdersByIds`)
 	getOrdersByID(@Payload() ids: string[] ) {
 		return this.tdsvc.getOrdersByIds(ids);
@@ -41,7 +68,7 @@ export class TopDeliveryController {
 	@UseGuards(AuthGuard)
 	@Get('/near-delivery-dates-intervals')
 	getNearDeliveryDatesIntervals (@Query() query: { id: string }) {
-		return this.tdsvc.getNearDeliveryDatesIntervals({ orderId: query.id });
+		return this.tdsvc.getNearDeliveryDatesIntervals({ orderId: Number(query.id) });
 	}
 
 	@Roles(User.Roles.OPERATOR)

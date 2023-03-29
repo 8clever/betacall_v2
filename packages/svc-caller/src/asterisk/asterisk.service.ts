@@ -213,6 +213,7 @@ export class AsteriskService implements OnModuleInit {
 			status: Call.Status.COMPLETED,
 			id: callId
 		});
+		return true;
 	}
 
 	private getGateawayByDefault = function (gateawayName = "default") {

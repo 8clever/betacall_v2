@@ -18,9 +18,14 @@ export class TopDeliveryService implements OnModuleInit {
 
 	orders: Map<Order['orderIdentity']['orderId'], Order> = new Map();
 
+	phones: Map<string, Order['orderIdentity']['orderId']> = new Map();
+
 	pickupPoints: Map<string, typeof pickupPoints> = new Map();
 
+	robot: User;
+
 	async onModuleInit() {
+		this.robot = await this.mqtt.paranoid("users:robot", {});
 		this.tdClient = await createClientAsync(config.topdelivery.url);
 		this.tdClient.setSecurity(new BasicAuthSecurity(
 			config.topdelivery.basic.user,
@@ -76,11 +81,13 @@ export class TopDeliveryService implements OnModuleInit {
 			throw new Error(data.requestResult.message)
 
 		this.orders = new Map();
+		this.phones = new Map();
 		const orders: Order[] = data.orderInfo;
 		const calls: Omit<Call, "id" | "dt" | "user">[] = [];
 
 		for (const order of orders) {
 			this.orders.set(order.orderIdentity.orderId, order);
+			this.phones.set(order.clientInfo.phone, order.orderIdentity.orderId);
 			calls.push({
 				orderId: order.orderIdentity.orderId.toString(),
 				phone: order.clientInfo.phone,
@@ -197,6 +204,47 @@ export class TopDeliveryService implements OnModuleInit {
 		await this.callConfirm(user, { status: Call.Status.COMPLETED }, order);
 	}
 
+	doneRobot = async (params: { orderId: number, callId: string, robotDeliveryDate: string }) => {
+		const intervals = [
+      { from: "10:00:00", to: "18:00:00" },
+      { from: "10:00:00", to: "22:00:00" }
+    ]
+
+    const order = this.orders.get(params.orderId);
+
+    for (const i of intervals) {
+      const payload: Order = {
+				...order,
+				desiredDateDelivery: {
+					date: params.robotDeliveryDate,
+					timeInterval: {
+						bTime: i.from,
+						eTime: i.to
+					}
+				}
+			}
+
+      try {
+          await this.doneOrder(this.robot, { order: payload });
+					await this.mqtt.paranoid("asterisk:release-call", params.callId);
+          return true;
+      } catch (e) {
+				Logger.error(e.message, e.stack);
+      }
+    }
+
+		return false;
+	}
+
+	replaceDateRobot = async (params: { callId: string, orderId: number }) => {
+		const day = 1000 * 60 * 60 * 24;
+		const replaceDate = new Date(new Date().valueOf() + day).toJSON();
+		const order = this.orders.get(params.orderId);
+		await this.replaceCallDate(this.robot, { order, replaceDate })
+		await this.mqtt.paranoid("asterisk:release-call", params.callId);
+		return true;
+	}
+
 	readonly denyReasons = Object.freeze({
 		1: "Нарушен срок доставки",
 		2: "Нет денег в наличии",
@@ -289,7 +337,7 @@ export class TopDeliveryService implements OnModuleInit {
 		await this.callConfirm(user, { status: Call.Status.REPLACE_DATE, dtNextCall: replaceDate }, order);
 	}
 
-	getNearDeliveryDatesIntervals = async (params: { orderId: string }) => {
+	getNearDeliveryDatesIntervals = async (params: { orderId: number }) => {
 		const [ response ] = await this.tdClient.getNearDeliveryDatesIntervalsAsync({
 				auth: config.topdelivery.body,
 				orderIdentity: {
