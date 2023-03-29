@@ -55,7 +55,7 @@ export class LoopService implements OnModuleInit {
     const orderId = await queue.lPop();
     if (orderId === null) return;
 
-    const list = await this.callsvc.findLastOrderStatus(`"orderId"='${orderId}'`);
+    const list = await this.callsvc.findLastOrderStatus({ where1: `"orderId"='${orderId}'` });
     const dto = list[0];
 
     if (!dto) {
@@ -125,7 +125,7 @@ export class LoopService implements OnModuleInit {
     if (!calls.length) return;
 
     const orderIds = calls.map(c => c.orderId);
-    const listCall: Call[] = await this.callsvc.findLastOrderStatus(`"orderId" IN (${orderIds.map(id => `'${id}'`).join(", ")})`)
+    const listCall: Call[] = await this.callsvc.findLastOrderStatus({ where1: `"orderId" IN (${orderIds.map(id => `'${id}'`).join(", ")})` })
     const queueList = await provider.queue.list();
     const list = new Map(listCall.map(c => [ c.orderId, c ]));
 

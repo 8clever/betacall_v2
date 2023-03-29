@@ -91,6 +91,12 @@ export class TopDeliveryService implements OnModuleInit {
 		}
 
 		Logger.log(`Top Delivery loaded orders: ${this.orders.size}`)
+		if (this.orders.size) {
+			for (const [ id ] of this.orders) {
+				Logger.log(`Order ID: ` + id)
+				break;
+			}
+		}
 
 		await this.mqtt.paranoid("call-loop:push", {
 			messages: calls,

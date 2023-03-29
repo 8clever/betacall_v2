@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm'
 import { Call, CustomMqtt, MQTT_TOKEN, User } from "@betacall/svc-common"
-import { In, IsNull, Not, Repository } from 'typeorm'
+import { Repository } from 'typeorm'
 
 @Injectable()
 export class CallerService {
@@ -23,7 +23,7 @@ export class CallerService {
   }
 
   async getOperatorOrders (user: User) {
-    const calls: Call[] = await this.findLastOrderStatus(`"userId"='${user.id}' and status='${Call.Status.OPERATOR}'`);
+    const calls: Call[] = await this.findLastOrderStatus({ where2: `"userId"='${user.id}' and status='${Call.Status.OPERATOR}'` });
     const callsByProviders: Map<Call.Provider, Call[]> = new Map();
     for (const call of calls) {
       const arr = callsByProviders.get(call.provider) || [];
@@ -47,15 +47,19 @@ export class CallerService {
     return orders;
   }
 
-  findLastOrderStatus(where: string): Promise<Call[]> {
+  private getWhereAnd (str = "") {
+    return str ? `AND ${str}` : "";
+  }
+
+  findLastOrderStatus(params: { where1?: string, where2?: string }): Promise<Call[]> {
     return this.repo.query(`
       WITH last_call AS (
         SELECT *, ROW_NUMBER() OVER(PARTITION BY "orderId" ORDER BY "dt" desc) as idx 
         FROM call
-        WHERE history ISNULL
+        WHERE history ISNULL ${this.getWhereAnd(params.where1)}
       )
       SELECT * FROM last_call
-      WHERE idx=1 AND ${where}
+      WHERE idx=1 ${this.getWhereAnd(params.where2)}
     `)
   }
 
