@@ -12,7 +12,7 @@ export class LoopController {
 
 	@MessagePattern("call-loop:listeners")
 	getListeners(@Payload() provider: Call.Provider) {
-		return this.loopsvc.providers.get(provider)?.getListeners() || 0
+		return this.loopsvc.providers.get(provider)?.getListeners() || []
 	}
 
 	@MessagePattern("call-loop:push")
