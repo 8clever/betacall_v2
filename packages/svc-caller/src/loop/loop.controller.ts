@@ -10,6 +10,11 @@ export class LoopController {
 		private loopsvc: LoopService
 	) {}
 
+	@MessagePattern("call-loop:listeners")
+	getListeners(@Payload() provider: Call.Provider) {
+		return this.loopsvc.providers.get(provider)?.getListeners() || 0
+	}
+
 	@MessagePattern("call-loop:push")
   async push(@Payload() payload: { messages: Call[], provider: Call.Provider }) {
     await this.loopsvc.push(payload.provider, payload.messages);

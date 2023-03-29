@@ -73,4 +73,8 @@ export class Loop {
     if (!this.listeners.has(id)) return;
     this.listeners.delete(id);
   }
+
+  getListeners = () => {
+    return [...this.listeners];
+  }
 }
