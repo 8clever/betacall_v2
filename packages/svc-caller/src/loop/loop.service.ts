@@ -55,7 +55,7 @@ export class LoopService implements OnModuleInit {
     const orderId = await queue.lPop();
     if (orderId === null) return;
 
-    const list = await this.callsvc.findLastOrderStatus({ where1: `"orderId"='${orderId}'` });
+    const list = await this.callsvc.findLastOrderStatus({ where1: `"orderId"='${orderId}' AND provider='${queue.name}'` });
     const dto = list[0];
 
     if (!dto) {
