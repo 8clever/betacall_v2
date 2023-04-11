@@ -3,7 +3,7 @@ import { Button, Form, Input, Select, Space, Typography } from "antd"
 import React from "react";
 import styled from "styled-components"
 import { useSocket } from "./SocketProvider";
-import { LinkOutlined, DisconnectOutlined, LogoutOutlined } from "@ant-design/icons"
+import { LinkOutlined, DisconnectOutlined, LogoutOutlined, StepForwardOutlined } from "@ant-design/icons"
 import { useOrders } from "./OrderProvider";
 import { Navigate } from "react-router-dom";
 
@@ -15,7 +15,8 @@ export function Main () {
 	const { providers, toggleProvider } = useSocket();
 
 	const connect: React.MouseEventHandler<HTMLButtonElement & HTMLAnchorElement> = React.useCallback((e) => {
-		const provider = e.currentTarget.getAttribute('data-provider');
+		const provider = e.currentTarget?.closest('[data-provider]')?.getAttribute('data-provider');
+		if (!provider) return;
 		toggleProvider(provider as Provider);
 	}, [ toggleProvider ])
 
@@ -25,7 +26,15 @@ export function Main () {
 		const api = new CallApi();
 		await api.assignOrder(values);
 		orders.refresh()
-	}, [ orders ])
+	}, [ orders ]);
+
+	const assignNextOrder = React.useCallback(async (e: React.MouseEvent) => {
+		const provider = e.currentTarget?.closest('[data-provider]')?.getAttribute('data-provider') as Provider;
+		if (!provider) return;
+		const api = new CallApi();
+		await api.assignNextOrder({ provider });
+		orders.refresh();
+	}, [ orders ]);
 
 	if (orders.list.length)
 		return <Navigate to={`/provider/${orders.list[0].provider}`}/>
@@ -39,19 +48,29 @@ export function Main () {
 				<Typography.Text>
 					Firstly you need connect to provider and wait until you receive order
 				</Typography.Text>
-				<Space>
+				<Space size="large">
 					{Object.values(Provider).map(p => {
 						const isConnected = providers.has(p);
 						return (
-							<Button 
-								key={p}
-								type={isConnected ? 'primary' : "ghost" }
-								icon={isConnected ? <LinkOutlined /> : <DisconnectOutlined />}
-								onClick={connect}
-								data-provider={p} 
-								danger={!isConnected}>
-								{p}
-							</Button>
+							<Space data-provider={p} key={p}>
+								<Typography.Text>
+									{p}
+								</Typography.Text>
+								{
+									p.includes("manual") ? null :
+									<Button 
+										type={isConnected ? 'primary' : "ghost" }
+										icon={isConnected ? <LinkOutlined /> : <DisconnectOutlined />}
+										onClick={connect}
+										danger={!isConnected} /> 
+								}
+								<Button 
+									onClick={assignNextOrder}
+									icon={<StepForwardOutlined />} 
+									shape="circle" 
+								/>
+							</Space>
+
 						)
 					})}
 				</Space>

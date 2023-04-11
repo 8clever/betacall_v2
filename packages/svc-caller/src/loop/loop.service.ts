@@ -30,13 +30,27 @@ export class LoopService implements OnModuleInit {
     this.robot = await this.mqtt.paranoid('users:robot', "");
 
     for (const provider of Object.values(Call.Provider)) {
-      const parallels = config.providers[provider].slots;
+      const parallels = config.providers[provider]?.slots || 0;
       const loop = new Loop(provider, parallels);
       loop.fn = this.processNextCall;
       await loop.init();
 			this.providers.set(provider, loop);
 		}
 	}
+
+  async assignNextOrder (user: User, provider: Call.Provider) {
+    const p = this.providers.get(provider);
+    if (!p) throw new Error("Provider not found: " + provider);
+
+    const orderId = await p.queue.lPop();
+    if (!orderId) return;
+
+    return this.callsvc.assignOrder({
+      orderId,
+      provider,
+      user
+    });
+  }
 
   private filter (call: Call) {
     if (

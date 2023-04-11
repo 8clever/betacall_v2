@@ -12,6 +12,10 @@ export class CallApi {
 	assignOrder = async (params: { id: string, provider: Provider }) => {
 		return this.api.get('/assign-order', params);
 	}
+
+	assignNextOrder = async (params: { provider: Provider }) => {
+		return this.api.get('/assign-next-order', params);
+	}
 }
 
 export namespace CallApi {

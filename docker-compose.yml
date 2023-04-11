@@ -29,6 +29,7 @@ services:
     depends_on:
       - svc-stats
       - svc-topdelivery
+      - svc-b2cpl
       - svc-caller
       - ui-auth
     labels:

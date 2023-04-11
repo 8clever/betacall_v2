@@ -1,5 +1,5 @@
-import { Call } from "@betacall/svc-common";
-import { Controller } from "@nestjs/common";
+import { AuthGuard, Call, Roles, User } from "@betacall/svc-common";
+import { Controller, Get, Query, Req, UseGuards } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { LoopService } from "./loop.service";
 
@@ -9,6 +9,13 @@ export class LoopController {
 	constructor (
 		private loopsvc: LoopService
 	) {}
+
+	@Roles(User.Roles.OPERATOR)
+  @UseGuards(AuthGuard)
+  @Get('/assign-next-order')
+  async assignNextOrder(@Req() req: { user: User }, @Query() query: { provider: Call.Provider }) {
+    return this.loopsvc.assignNextOrder(req.user, query.provider);
+  }
 
 	@MessagePattern("call-loop:listeners")
 	getListeners(@Payload() provider: Call.Provider) {
