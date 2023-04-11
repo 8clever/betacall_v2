@@ -46,6 +46,11 @@ export const config = {
 		password: process.env.ADMIN_PASSWORD || "123"
 	},
 
+	/** for b2cpl */
+	b2cpl: {
+		apiKey: process.env.B2CPL_API_KEY || "b2c-test"
+	},
+
 	/** for TopDelivery  */
 	topdelivery: {
 		url: process.env.TD_URL || "https://is.topdelivery.ru/api/soap/c/2.0/?WSDL",
