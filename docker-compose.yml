@@ -91,6 +91,27 @@ services:
       - "traefik.http.routers.svc-users.entrypoints=web"
       - traefik.http.services.svc-users.loadbalancer.server.port=3000
 
+  svc-b2cpl:
+    build:
+      dockerfile: ./dockerfiles/Dockerfile.system
+    command: npx nx serve svc-b2cpl
+    volumes:
+      - ./:/app
+    depends_on:
+      - traefik
+      - postgres
+      - mqtt
+      - svc-stats
+      - svc-caller
+    environment:
+      - PG_HOST=postgres
+      - MQTT=mqtt://mqtt:1883
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.svc-b2cpl.rule=PathPrefix(`/api/v1/b2cpl`)"
+      - "traefik.http.routers.svc-b2cpl.entrypoints=web"
+      - traefik.http.services.svc-b2cpl.loadbalancer.server.port=3000
+
   svc-topdelivery:
     build:
       dockerfile: ./dockerfiles/Dockerfile.system

@@ -1,4 +1,4 @@
-import { Call, config, CustomMqtt, MQTT_TOKEN, Stats, User } from "@betacall/svc-common";
+import { Call, config, CustomMqtt, MQTT_TOKEN, ProviderController, Stats, User } from "@betacall/svc-common";
 import { HttpException, HttpStatus, Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { createClientAsync, Client, BasicAuthSecurity } from 'soap'
 import { Order, Quota } from "./td.types";
@@ -6,7 +6,7 @@ import { createHash } from 'crypto'
 import { pickupPoints } from './td.pickup.points'
 
 @Injectable()
-export class TopDeliveryService implements OnModuleInit {
+export class TopDeliveryService implements OnModuleInit, ProviderController {
 	private tdClient: Client
 
 	constructor(

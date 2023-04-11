@@ -13,3 +13,6 @@ export * from "./lib/entities/stats.entity"
 /** guards */
 export * from "./lib/guards/auth.guard"
 export * from "./lib/guards/auth.roles"
+
+/** interfaces */
+export * from "./lib/interfaces/ProviderController"

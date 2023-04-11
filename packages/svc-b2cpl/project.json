@@ -1,0 +1,64 @@
+{
+  "name": "svc-b2cpl",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/svc-b2cpl/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/packages/svc-b2cpl",
+        "main": "packages/svc-b2cpl/src/main.ts",
+        "tsConfig": "packages/svc-b2cpl/tsconfig.app.json",
+        "assets": ["packages/svc-b2cpl/src/assets"],
+        "isolatedConfig": true,
+        "webpackConfig": "packages/svc-b2cpl/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "svc-b2cpl:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "svc-b2cpl:build:development"
+        },
+        "production": {
+          "buildTarget": "svc-b2cpl:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/svc-b2cpl/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "packages/svc-b2cpl/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": []
+}
