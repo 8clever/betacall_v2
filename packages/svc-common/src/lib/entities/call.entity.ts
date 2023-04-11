@@ -40,6 +40,12 @@ export class Call {
   @Column({ enum: Providers })
   provider: Providers;
 
+  @Column({ default: 3 })
+  utcOffset?: number;
+
+  @Column({ default: false })
+  manualOnly?: boolean;
+
   /** MAIN RELATION WITH ORDERS */
   @Index()
   @Column()

@@ -83,7 +83,7 @@ export class TopDeliveryService implements OnModuleInit {
 		this.orders = new Map();
 		this.phones = new Map();
 		const orders: Order[] = data.orderInfo;
-		const calls: Omit<Call, "id" | "dt" | "user">[] = [];
+		const calls: Omit<Call, "id" | "dt" | "user" | "utcOffset">[] = [];
 
 		for (const order of orders) {
 			this.orders.set(order.orderIdentity.orderId, order);
