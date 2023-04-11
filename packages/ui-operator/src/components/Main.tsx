@@ -1,12 +1,11 @@
 import { useAuth, UserApi, Provider, CallApi } from "@betacall/ui-kit"
-import { Button, Form, Input, Select, Space, Typography, notification } from "antd"
+import { Button, Space, Typography, notification } from "antd"
 import React from "react";
 import styled from "styled-components"
 import { useSocket } from "./SocketProvider";
 import { LinkOutlined, DisconnectOutlined, LogoutOutlined, StepForwardOutlined } from "@ant-design/icons"
 import { useOrders } from "./OrderProvider";
 import { Navigate } from "react-router-dom";
-import { DirectlyAssignOrder } from "./DirectlyAssignOrder";
 
 export function Main () {
 	const auth = useAuth();
@@ -43,6 +42,9 @@ export function Main () {
 				<Typography.Title level={3}>
 					Hello {auth.user?.login}
 				</Typography.Title>
+				<Typography.Text>
+					Subscribe to provider channel or start calling manually
+				</Typography.Text>
 				<Space size="large">
 					{Object.values(Provider).map(p => {
 						const isConnected = providers.has(p);
