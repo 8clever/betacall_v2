@@ -1,18 +1,18 @@
 import { mqttRegister } from "@betacall/svc-common";
 import { Module } from "@nestjs/common";
 import { ClientsModule } from "@nestjs/microservices";
-import { B2CPLService } from "./b2cpl.service";
-import { B2CPLController } from "./b2cpl.controller";
+import { B2CPLManualService } from "./b2cpl_manual.service";
+import { B2CPLManualController } from "./b2cpl_manual.controller";
 
 @Module({
 	imports: [
 		ClientsModule.register([ mqttRegister ])
 	],
 	providers: [
-		B2CPLService
+		B2CPLManualService
 	],
 	controllers: [
-		B2CPLController
+		B2CPLManualController
 	]
 })
-export class B2CPLModule {}
+export class B2CPLManualModule {}

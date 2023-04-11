@@ -12,7 +12,8 @@ enum Statuses {
 
 export enum Providers {
   TOP_DELIVERY = "top-delivery",
-  B2CPL = 'b2cpl'
+  B2CPL = 'b2cpl',
+  B2CPL_MANUAL = 'b2cpl-manual'
 }
 
 @Entity()
@@ -42,9 +43,6 @@ export class Call {
 
   @Column({ default: 3 })
   utcOffset?: number;
-
-  @Column({ default: false })
-  manualOnly?: boolean;
 
   /** MAIN RELATION WITH ORDERS */
   @Index()
