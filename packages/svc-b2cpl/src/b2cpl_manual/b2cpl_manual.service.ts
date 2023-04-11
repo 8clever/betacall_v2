@@ -1,7 +1,7 @@
 import { Call, CustomMqtt, MQTT_TOKEN, User, config } from "@betacall/svc-common";
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import axios from 'axios';
-import { Order } from "./b2cpl_manual.types";
+import { DeliveryDayNearest, DeliveryDayNearestParams, Order } from "./b2cpl_manual.types";
 @Injectable()
 export class B2CPLManualService {
 
@@ -29,8 +29,10 @@ export class B2CPLManualService {
 		return orders;
 	}
 
-	setDeliveryState () {
-		
+	async getDeliveryDayNearest (params: DeliveryDayNearestParams) {
+		const url = `${this.baseUrl}/api/CallFlow/deliverydaynearest`;
+		const res = await axios.post<DeliveryDayNearest[]>(url, params);
+		return res.data;
 	}
 
 	getNextOrder = async () => {

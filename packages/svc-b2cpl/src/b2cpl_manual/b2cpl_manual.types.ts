@@ -1,4 +1,19 @@
 
+export interface DeliveryDayNearestParams {
+	"code": string;
+	"delivery_zip": string;
+}
+
+export interface DeliveryDayNearestTime {
+	"time_from": string;
+	"time_to": string;
+}
+
+export interface DeliveryDayNearest {
+	"delivery_date": string;
+	"delivery_time": DeliveryDayNearestTime[];
+}
+
 export interface DeliveryFlow {
 	"code": string,
 	"delivery_number": number,
