@@ -20,6 +20,7 @@ export class CallerService {
       phone: "",
       region: ""
     });
+    return true;
   }
 
   async getOperatorOrders (user: User) {

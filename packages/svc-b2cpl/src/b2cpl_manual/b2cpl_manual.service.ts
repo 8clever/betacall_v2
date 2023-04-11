@@ -3,7 +3,7 @@ import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import axios from 'axios';
 import { Order } from "./b2cpl_manual.types";
 @Injectable()
-export class B2CPLManualService implements OnModuleInit {
+export class B2CPLManualService {
 
 	constructor (
 		@Inject(MQTT_TOKEN)
@@ -20,8 +20,6 @@ export class B2CPLManualService implements OnModuleInit {
 
 	private orders: Map<string, Order> = new Map();
 
-	private robot: User;
-
 	getOrdersByIds (ids: string[]) {
 		const orders: Order[] = [];
 		for (const id of ids) {
@@ -31,32 +29,23 @@ export class B2CPLManualService implements OnModuleInit {
 		return orders;
 	}
 
-	async onModuleInit() {
-		this.robot = await this.client.paranoid('users:robot', {});
-		await this.loadActualOders();
-		setInterval(this.loadActualOders, 1000 * 60 * 15)
-	}
-	
-	loadActualOders = async () => {
-		const url = `${this.baseUrl}/api/CallFlow/deliverycall`;
-		const res = await axios<{ payload: Order[] }>(url, {
-			headers: this.authHeader
-		});
-		this.orders = new Map(res.data.payload.map(o => [ o.callid, o ]));
-		const calls: Call[] = res.data.payload.map(o => {
-			return {
-				orderId: o.callid,
-				phone: o.phone,
-				provider: Call.Provider.B2CPL_MANUAL,
-				status: Call.Status.NOT_PROCESSED,
-				user: this.robot
-			}
-		});
-		await this.client.paranoid('call-loop:push', {
-			messages: calls,
-			provider: Call.Provider.B2CPL_MANUAL
-		});
+	setDeliveryState () {
+		
 	}
 
+	getNextOrder = async () => {
+		const url = `${this.baseUrl}/api/CallFlow/deliverycall`;
+		const res = await axios<{ payload: Order[] }>(url, {
+			headers: this.authHeader,
+			params: {
+				qty: 1
+			}
+		});
+		for (const o of res.data.payload) {
+			this.orders.set(o.callid, o);
+			return o.callid;
+		}
+		return null;
+	}
 
 }

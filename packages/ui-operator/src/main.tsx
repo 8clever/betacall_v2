@@ -8,6 +8,7 @@ import { SocketProvider } from './components/SocketProvider';
 import { TopDelivery } from './components/TopDelivery';
 import { OrderProvider } from './components/OrderProvider';
 import { ProtectProvider } from './components/ProtectProvider';
+import { B2CPLManual } from './components/B2CPLManual';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -28,6 +29,11 @@ root.render(
                     <Route path={Provider.TOP_DELIVERY} element={
                       <ProtectProvider provider={Provider.TOP_DELIVERY}>
                         <TopDelivery />
+                      </ProtectProvider>
+                    } />
+                    <Route path={Provider.B2CPL_MANUAL} element={
+                      <ProtectProvider provider={Provider.B2CPL_MANUAL}>
+                        <B2CPLManual />
                       </ProtectProvider>
                     } />
                   </Route>

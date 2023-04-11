@@ -14,8 +14,9 @@ export class LoopController {
   @UseGuards(AuthGuard)
   @Get('/assign-next-order')
   async assignNextOrder(@Req() req: { user: User }, @Query() query: { provider: Call.Provider }) {
-    return this.loopsvc.assignNextOrder(req.user, query.provider);
-  }
+    const result = await this.loopsvc.assignNextOrder(req.user, query.provider);
+		return { result };
+	}
 
 	@MessagePattern("call-loop:listeners")
 	getListeners(@Payload() provider: Call.Provider) {

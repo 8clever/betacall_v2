@@ -42,8 +42,11 @@ export class LoopService implements OnModuleInit {
     const p = this.providers.get(provider);
     if (!p) throw new Error("Provider not found: " + provider);
 
-    const orderId = await p.queue.lPop();
-    if (!orderId) return;
+    const orderId: string = 
+      (await p.queue.lPop()) ||
+      (await this.mqtt.paranoid(`${provider}:getNextOrder`, {}));
+      
+    if (!orderId) return false;
 
     return this.callsvc.assignOrder({
       orderId,

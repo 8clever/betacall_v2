@@ -1,11 +1,12 @@
 import { useAuth, UserApi, Provider, CallApi } from "@betacall/ui-kit"
-import { Button, Form, Input, Select, Space, Typography } from "antd"
+import { Button, Form, Input, Select, Space, Typography, notification } from "antd"
 import React from "react";
 import styled from "styled-components"
 import { useSocket } from "./SocketProvider";
 import { LinkOutlined, DisconnectOutlined, LogoutOutlined, StepForwardOutlined } from "@ant-design/icons"
 import { useOrders } from "./OrderProvider";
 import { Navigate } from "react-router-dom";
+import { DirectlyAssignOrder } from "./DirectlyAssignOrder";
 
 export function Main () {
 	const auth = useAuth();
@@ -20,20 +21,17 @@ export function Main () {
 		toggleProvider(provider as Provider);
 	}, [ toggleProvider ])
 
-	const [ form ] = Form.useForm();
-
-	const assignOrder = React.useCallback(async (values: { provider: Provider, id: string }) => {
-		const api = new CallApi();
-		await api.assignOrder(values);
-		orders.refresh()
-	}, [ orders ]);
-
 	const assignNextOrder = React.useCallback(async (e: React.MouseEvent) => {
 		const provider = e.currentTarget?.closest('[data-provider]')?.getAttribute('data-provider') as Provider;
 		if (!provider) return;
 		const api = new CallApi();
-		await api.assignNextOrder({ provider });
-		orders.refresh();
+		const data = await api.assignNextOrder({ provider });
+		if (data.result)
+			return orders.refresh();
+
+		notification.warning({
+			message: `${provider}: Queue is empty`,
+		})
 	}, [ orders ]);
 
 	if (orders.list.length)
@@ -45,9 +43,6 @@ export function Main () {
 				<Typography.Title level={3}>
 					Hello {auth.user?.login}
 				</Typography.Title>
-				<Typography.Text>
-					Firstly you need connect to provider and wait until you receive order
-				</Typography.Text>
 				<Space size="large">
 					{Object.values(Provider).map(p => {
 						const isConnected = providers.has(p);
@@ -70,38 +65,9 @@ export function Main () {
 									shape="circle" 
 								/>
 							</Space>
-
 						)
 					})}
 				</Space>
-				<Typography.Text>
-					You can directly assign order if need
-				</Typography.Text>
-				<Form form={form} onFinish={assignOrder} layout='inline'>
-					<Form.Item 
-						name="provider"
-						label="Provider"
-						rules={[{ required: true }]}>
-						<Select style={{ minWidth: 150 }}>
-							{Object.values(Provider).map(p => {
-								return (
-									<Select.Option key={p} value={p}>
-										{p}
-									</Select.Option>
-								)
-							})}
-						</Select>
-					</Form.Item>
-					<Form.Item 
-						name="id"
-						label='Order ID'
-						rules={[{ required: true }]}>
-						<Input />
-					</Form.Item>
-					<Form.Item>
-						<Button type="primary" htmlType="submit">Send</Button>
-					</Form.Item>
-				</Form>
 				<Button 
 					icon={<LogoutOutlined />}
 					size="large"

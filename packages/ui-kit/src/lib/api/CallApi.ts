@@ -13,7 +13,7 @@ export class CallApi {
 		return this.api.get('/assign-order', params);
 	}
 
-	assignNextOrder = async (params: { provider: Provider }) => {
+	assignNextOrder = async (params: { provider: Provider }): Promise<{ result: boolean }> => {
 		return this.api.get('/assign-next-order', params);
 	}
 }
