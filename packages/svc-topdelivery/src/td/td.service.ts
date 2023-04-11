@@ -99,8 +99,8 @@ export class TopDeliveryService implements OnModuleInit {
 
 		Logger.log(`Top Delivery loaded orders: ${this.orders.size}`)
 		if (this.orders.size) {
-			for (const [ id ] of this.orders) {
-				Logger.log(`Order ID: ` + id)
+			for (const [ id, order ] of this.orders) {
+				Logger.log(`Order ID: ` + id, order)
 				break;
 			}
 		}
