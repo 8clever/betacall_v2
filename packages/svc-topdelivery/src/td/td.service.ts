@@ -6,7 +6,7 @@ import { createHash } from 'crypto'
 import { pickupPoints } from './td.pickup.points'
 
 @Injectable()
-export class TopDeliveryService implements OnModuleInit, ProviderController {
+export class TopDeliveryService implements OnModuleInit {
 	private tdClient: Client
 
 	constructor(
