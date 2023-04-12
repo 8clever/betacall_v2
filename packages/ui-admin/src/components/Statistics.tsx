@@ -1,6 +1,6 @@
-import { InfoOutlined } from "@ant-design/icons";
-import { B2CPLManualApi, Provider, StatsApi, TDApi } from "@betacall/ui-kit"
-import { Button, Modal, Table } from "antd";
+import { InfoOutlined, SearchOutlined } from "@ant-design/icons";
+import { B2CPLManualApi, DatePicker, Provider, StatsApi, TDApi } from "@betacall/ui-kit"
+import { Button, Form, Modal, Select, Table } from "antd";
 import { ColumnsType } from "antd/es/table";
 import React from "react"
 import styled from "styled-components"
@@ -95,7 +95,10 @@ export function Statistics () {
 		count: 0
 	});
 
-	const [ filter, setFilter ] = React.useState({
+	const [ filter, setFilter ] = React.useState<
+		Required<Pick<StatsApi.GetListParams, "skip" | "limit">> &
+		StatsApi.GetListParams
+	>({
 		skip: 0,
 		limit: 10
 	})
@@ -115,9 +118,55 @@ export function Statistics () {
 			}
 		});
 	}, []);
+
+	const [form] = Form.useForm();
+
+	const submit = React.useCallback((values: {
+		'range-picker'?: Date[],
+		'provider': Provider
+	}) => {
+		const from = values['range-picker']?.[0];
+		const to = values['range-picker']?.[1];
+		setFilter(state => {
+			return {
+				...state,
+				provider: values.provider,
+				from: from ? DatePicker.StartOfDay(from)?.toJSON() : "",
+				to: to ? DatePicker.EndOfDay(to)?.toJSON() : ""
+			}
+		})
+	}, []);
 	
 	return (
 		<Container>
+			<FilterContainer>
+				<Form layout="inline" onFinish={submit} form={form}>
+					<Form.Item name="range-picker" label="Date">
+						<DatePicker.RangePicker 
+							allowEmpty={[true, true]}
+						/>
+					</Form.Item>
+					<Form.Item name="provider" label="Provider">
+						<Select allowClear style={{ minWidth: 150 }}>
+							{Object.values(Provider).map(p => {
+								return (
+									<Select.Option key={p} value={p}>
+										{p}
+									</Select.Option>
+								)
+							})}
+						</Select>
+					</Form.Item>
+					<Form.Item>
+						<Button 
+							type="primary"
+							htmlType="submit" 
+							icon={<SearchOutlined />}>
+							Search
+						</Button>
+					</Form.Item>
+				</Form>
+			</FilterContainer>
 			<Table
 				columns={columns}
 				pagination={{
@@ -131,6 +180,10 @@ export function Statistics () {
 		</Container>
 	)
 }
+
+const FilterContainer = styled.div`
+	margin-bottom: 10px;
+`
 
 const Container = styled.div`
 	padding: 10px;

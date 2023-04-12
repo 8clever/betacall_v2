@@ -1,7 +1,7 @@
 import { Stats } from "@betacall/svc-common";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { ObjectLiteral, Repository } from "typeorm";
 
 @Injectable()
 export class StatsService {
@@ -13,7 +13,7 @@ export class StatsService {
 
 	}
 
-	async find (query: Partial<Stats> | string, options: Partial<StatsService.FindOptions>) {
+	async find (query: ObjectLiteral, options: Partial<StatsService.FindOptions>) {
 		let builder = this.repo.createQueryBuilder('stats')
 			.leftJoinAndSelect(`stats.user`, 'user')
 			.orderBy('stats.dt', 'DESC')
