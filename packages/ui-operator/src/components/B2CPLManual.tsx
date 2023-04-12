@@ -80,8 +80,8 @@ export function B2CPLManual () {
 		const api = new B2CPLManualApi();
 		api.deliverySetState({
 			callid: order.callid,
-			time_start: timeStart,
-			time_end: new Date().toJSON(),
+			date_start: timeStart,
+			date_end: new Date().toJSON(),
 			call_statuses: [
 				{
 					...values,
@@ -165,7 +165,7 @@ export function B2CPLManual () {
 									To Pay: {p.price_topay}
 								</Typography.Paragraph>
 								<Typography.Paragraph>
-									{p.script_text}
+									Script: {p.script_text}
 								</Typography.Paragraph>
 							</React.Fragment>
 						)
@@ -190,7 +190,7 @@ export function B2CPLManual () {
 							if (state === "REJECT") {
 								return (
 									<>
-										<Form.Item name={['additional_data', 'reject_data', 'reject_reason']} label="Cause">
+										<Form.Item name={['additional_data', 'reject_data', 'reject_reason']} label="Cause" rules={[{ required: true }]}>
 											<Select>
 												{denyReasons.map(d => {
 													return (

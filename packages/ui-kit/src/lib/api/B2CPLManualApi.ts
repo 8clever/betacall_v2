@@ -33,8 +33,8 @@ export namespace B2CPLManualApi {
 	}
 	export interface DeliverySetState {
 		"callid": string;
-		"time_start": string;
-		"time_end": string;
+		"date_start": string;
+		"date_end": string;
   	"call_statuses": DeliverySetStatus[]
 	}
 	export interface DenyReason {

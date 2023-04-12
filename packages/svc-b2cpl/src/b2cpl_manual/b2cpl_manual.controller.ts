@@ -1,8 +1,8 @@
 import { AuthGuard, ProviderController, Providers, Roles, User } from "@betacall/svc-common";
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { B2CPLManualService } from "./b2cpl_manual.service";
-import { DeliveryDayNearestParams } from "./b2cpl_manual.types";
+import { DeliveryDayNearestParams, DeliverySetState } from "./b2cpl_manual.types";
 
 @Controller('/manual')
 export class B2CPLManualController implements ProviderController {
@@ -31,6 +31,13 @@ export class B2CPLManualController implements ProviderController {
 	@Post('/delivery-day-nearest')
 	deliveryDayNearest(@Body() body: DeliveryDayNearestParams) {
 		return this.b2cplManualSvc.getDeliveryDayNearest(body);
+	}
+
+	@Roles(User.Roles.OPERATOR)
+	@UseGuards(AuthGuard)
+	@Post('/delivery-set-state')
+	deliverySetState(@Body() body: DeliverySetState, @Req() req: { user: User }) {
+		return this.b2cplManualSvc.deliverySetState(req.user, body);
 	}
 
 	@MessagePattern(`${Providers.B2CPL_MANUAL}:getNextOrder`)

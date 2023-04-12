@@ -1,3 +1,14 @@
+export interface DeliverySetStatus {
+	"state": string;
+	"additional_data": object;
+	"codes": string[];
+}
+export interface DeliverySetState {
+	"callid": string;
+	"date_start": string;
+	"date_end": string;
+	"call_statuses": DeliverySetStatus[]
+}
 
 export interface DenyReason {
 	"reject_reason": string;
