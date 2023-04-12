@@ -3,16 +3,69 @@ import { Api } from "./Api";
 export class B2CPLManualApi {
 	private api = new Api('/api/v1/b2cpl/manual');
 
-	deliverySetState() {
-
+	getCallStatusList(): Promise<B2CPLManualApi.CallStatusType[]> {
+		const url = '/call-status-list';
+		return this.api.get(url, {});
 	}
 
-	deliveryDayNearest(params: { code: string, delivery_zip: string }) {
-		
+	getDenyReasonList(): Promise<B2CPLManualApi.DenyReason[]> {
+		const url = '/deny-reason-list';
+		return this.api.get(url, {});
+	}
+
+	deliveryDayNearest(params: { code: string, delivery_zip: string }): Promise<B2CPLManualApi.DeliveryDayNearest[]> {
+		const url = '/delivery-day-nearest';
+		return this.api.post(url, params);
+	}
+
+	deliverySetState(params: B2CPLManualApi.DeliverySetState) {
+		const url = '/delivery-set-state'
+		return this.api.post(url, params);
 	}
 }
 
 export namespace B2CPLManualApi {
+
+	export interface DeliverySetStatus {
+		"state": string;
+		"additional_data": object;
+		"codes": string[];
+	}
+	export interface DeliverySetState {
+		"callid": string;
+		"time_start": string;
+		"time_end": string;
+  	"call_statuses": DeliverySetStatus[]
+	}
+	export interface DenyReason {
+		"reject_reason": string;
+		"reject_description": string;
+		"required_comment": boolean
+	}
+	
+	export interface CallStatus {
+		"state": string;
+		"status_name": string;
+	}
+	export interface CallStatusType {
+		"call_type_id": number;
+		"call_type": string;
+		"call_status": CallStatus[]
+	}
+	export interface DeliveryDayNearestParams {
+		"code": string;
+		"delivery_zip": string;
+	}
+	
+	export interface DeliveryDayNearestTime {
+		"time_from": string;
+		"time_to": string;
+	}
+	
+	export interface DeliveryDayNearest {
+		"delivery_date": string;
+		"delivery_time": DeliveryDayNearestTime[];
+	}
 
 	export interface DeliveryFlow {
 		"code": string,

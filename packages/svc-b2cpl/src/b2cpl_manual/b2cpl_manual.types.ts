@@ -1,4 +1,19 @@
 
+export interface DenyReason {
+	"reject_reason": string;
+	"reject_description": string;
+	"required_comment": boolean
+}
+
+export interface CallStatus {
+	"state": string;
+	"status_name": string;
+}
+export interface CallStatusType {
+	"call_type_id": number;
+	"call_type": string;
+	"call_status": CallStatus[]
+}
 export interface DeliveryDayNearestParams {
 	"code": string;
 	"delivery_zip": string;

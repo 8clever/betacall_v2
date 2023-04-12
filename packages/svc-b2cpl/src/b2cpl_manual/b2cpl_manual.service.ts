@@ -1,7 +1,7 @@
 import { Call, CustomMqtt, MQTT_TOKEN, User, config } from "@betacall/svc-common";
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import axios from 'axios';
-import { DeliveryDayNearest, DeliveryDayNearestParams, Order } from "./b2cpl_manual.types";
+import { CallStatusType, DeliveryDayNearest, DeliveryDayNearestParams, DenyReason, Order } from "./b2cpl_manual.types";
 @Injectable()
 export class B2CPLManualService {
 
@@ -29,10 +29,28 @@ export class B2CPLManualService {
 		return orders;
 	}
 
+	async getCallStatusList () {
+		const url = `${this.baseUrl}/api/CallStatus/callstatuslist`;
+		const res = await axios.get<{ payload: CallStatusType[] }>(url, {
+			headers: this.authHeader
+		});
+		return res.data.payload;
+	}
+
+	async getDenyReasonList () {
+		const url = `${this.baseUrl}/api/CallStatus/callrejectreason`
+		const res = await axios.get<{ payload: DenyReason[] }>(url, {
+			headers: this.authHeader
+		});
+		return res.data.payload;
+	}
+
 	async getDeliveryDayNearest (params: DeliveryDayNearestParams) {
 		const url = `${this.baseUrl}/api/CallFlow/deliverydaynearest`;
-		const res = await axios.post<DeliveryDayNearest[]>(url, params);
-		return res.data;
+		const res = await axios.post<{ payload: DeliveryDayNearest[] }>(url, params, {
+			headers: this.authHeader
+		});
+		return res.data.payload;
 	}
 
 	getNextOrder = async () => {
