@@ -75,6 +75,7 @@ export class B2CPLManualService {
 		};
 		await this.client.paranoid('call:add', call);
 		await this.client.paranoid('stats:add', stats);
+		this.orders.delete(params.callid);
 	}
 
 	getNextOrder = async () => {
