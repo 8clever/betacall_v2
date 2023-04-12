@@ -1,5 +1,5 @@
 import { InfoOutlined } from "@ant-design/icons";
-import { Provider, StatsApi, TDApi } from "@betacall/ui-kit"
+import { B2CPLManualApi, Provider, StatsApi, TDApi } from "@betacall/ui-kit"
 import { Button, Modal, Table } from "antd";
 import { ColumnsType } from "antd/es/table";
 import React from "react"
@@ -42,6 +42,10 @@ const columns: ColumnsType<StatsApi.Stat> = [
 				const order = _.data as TDApi.Order;
 				return order.orderIdentity.orderId
 			}
+			if (_.provider === Provider.B2CPL_MANUAL) {
+				const order = _.data as B2CPLManualApi.DeliverySetState;
+				return order.callid;
+			}
 			return ''
 		}
 	},
@@ -52,6 +56,10 @@ const columns: ColumnsType<StatsApi.Stat> = [
 			if (_.provider === Provider.TOP_DELIVERY) {
 				const order = _.data as TDApi.Order;
 				return order.workStatus.name;
+			}
+			if (_.provider === Provider.B2CPL_MANUAL) {
+				const order = _.data as B2CPLManualApi.DeliverySetState;
+				return order.call_statuses[0].state;
 			}
 			return ""
 		}
