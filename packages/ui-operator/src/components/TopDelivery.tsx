@@ -217,7 +217,7 @@ export function TopDelivery () {
 		api.denyOrder(order).then(() => {
 			orders.refresh()
 		});
-	}, []);
+	}, [ form, orders ]);
 
 	const [ denyModal, setDenyModal ] = React.useState(false);
 	const toggleDenyModal = React.useCallback(() => {

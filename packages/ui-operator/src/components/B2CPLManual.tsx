@@ -1,4 +1,4 @@
-import { Button, Card, Col, DatePicker, Form, Input, Row, Select, Space, Typography } from "antd";
+import { Button, Card, Col, Form, Input, Row, Select, Space, Typography } from "antd";
 import ReactGridLayout, { Responsive, WidthProvider } from "react-grid-layout";
 import './style.css';
 import { useOrders } from "./OrderProvider";
@@ -91,7 +91,7 @@ export function B2CPLManual () {
 		}).then(() => {
 			orders.refresh();
 		});
-	}, [ order, timeStart ]);
+	}, [ order, orders, timeStart ]);
 
 	const watchDenyReason = Form.useWatch(['additional_data', 'reject_data', 'reject_reason'], form);
 	const requiredComment = React.useMemo(() => {
