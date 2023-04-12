@@ -8,4 +8,5 @@ run npx nx build $project
 
 from steebchen/nginx-spa:stable
 arg project
-copy --from=build /app/dist/packages/$project /app
+copy --from=build /app/dist/packages/$project /app$base_url
+copy --from=build /app/dist/packages/$project/index.html /app/index.html
