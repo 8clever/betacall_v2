@@ -4,6 +4,7 @@ export * from "./lib/api/UserApi"
 export * from "./lib/api/CallApi"
 export * from "./lib/api/TDApi"
 export * from "./lib/api/StatsApi"
+export * from "./lib/api/B2CPLManualApi"
 
 /** components */
 export * from "./lib/components/AuthProvider"
