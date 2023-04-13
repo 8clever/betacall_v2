@@ -1,3 +1,13 @@
+
+export interface PvzInfo {
+	"pvz_city": string,
+	"pvz_time": string,
+	"pvz_metro": string,
+	"pvz_address": string,
+	"pvz_address_comment": string,
+	"pvz_phone": string,
+	"pvz_id": number;
+}
 export interface DeliverySetStatus {
 	"state": string;
 	"additional_data": object;

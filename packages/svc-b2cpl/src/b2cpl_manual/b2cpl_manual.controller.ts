@@ -1,5 +1,5 @@
 import { AuthGuard, ProviderController, Providers, Roles, User } from "@betacall/svc-common";
-import { Body, Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { B2CPLManualService } from "./b2cpl_manual.service";
 import { DeliveryDayNearestParams, DeliverySetState } from "./b2cpl_manual.types";
@@ -10,6 +10,13 @@ export class B2CPLManualController implements ProviderController {
 	constructor(
 		private b2cplManualSvc: B2CPLManualService
 	) {}
+
+	@Roles(User.Roles.OPERATOR)
+	@UseGuards(AuthGuard)
+	@Get('/pvz-info')
+	getPvzInfo (@Query() query: { code: string }) {
+		return this.b2cplManualSvc.getPvzInfo(query.code);
+	}
 	
 	@Roles(User.Roles.OPERATOR)
 	@UseGuards(AuthGuard)

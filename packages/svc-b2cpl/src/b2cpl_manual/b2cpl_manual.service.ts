@@ -1,7 +1,7 @@
 import { Call, CustomMqtt, MQTT_TOKEN, Stats, User, config } from "@betacall/svc-common";
 import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import axios from 'axios';
-import { CallStatusType, DeliveryDayNearest, DeliveryDayNearestParams, DeliverySetState, DenyReason, Order } from "./b2cpl_manual.types";
+import { CallStatusType, DeliveryDayNearest, DeliveryDayNearestParams, DeliverySetState, DenyReason, Order, PvzInfo } from "./b2cpl_manual.types";
 @Injectable()
 export class B2CPLManualService {
 
@@ -91,6 +91,17 @@ export class B2CPLManualService {
 			return o.callid;
 		}
 		return null;
+	}
+
+	async getPvzInfo (code: string) {
+		const url = `${this.baseUrl}/api/CallFlow/callpvzinfo`;
+		const res = await axios.get<{ payload: PvzInfo[] }>(url, {
+			params: {
+				code
+			},
+			headers: this.authHeader
+		});
+		return res.data.payload;
 	}
 
 }

@@ -3,6 +3,11 @@ import { Api } from "./Api";
 export class B2CPLManualApi {
 	private api = new Api('/api/v1/b2cpl/manual');
 
+	getPvzInfo(params: { code: string }): Promise<B2CPLManualApi.PvzInfo[]> {
+		const url = '/pvz-info';
+		return this.api.get(url, params);
+	}
+
 	getCallStatusList(): Promise<B2CPLManualApi.CallStatusType[]> {
 		const url = '/call-status-list';
 		return this.api.get(url, {});
@@ -25,6 +30,18 @@ export class B2CPLManualApi {
 }
 
 export namespace B2CPLManualApi {
+
+	export interface PvzInfo {
+		"pvz_city": string,
+		"pvz_time": string,
+		"pvz_metro": string,
+		"pvz_address": string,
+		"pvz_address_comment": string,
+		"pvz_phone": string,
+		"pvz_id": number;
+	}
+
+	export type DeliveryStatus = "PVZ" | "DELIVERY" | "CALLBACK" | "PAYMENTLINK" | "REJECT"
 
 	export interface DeliverySetStatus {
 		"state": string;

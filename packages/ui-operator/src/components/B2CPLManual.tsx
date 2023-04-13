@@ -1,4 +1,4 @@
-import { Button, Card, Checkbox, Col, Form, Input, InputNumber, Row, Select, Space, Typography } from "antd";
+import { Button, Card, Checkbox, Col, DatePicker, Form, Input, InputNumber, Row, Select, Space, Typography } from "antd";
 import ReactGridLayout, { Responsive, WidthProvider } from "react-grid-layout";
 import './style.css';
 import { useOrders } from "./OrderProvider";
@@ -18,8 +18,8 @@ const layout: ReactGridLayout.Layouts = {
 	"md": [
 		{ i: Cards.Actions,  x: 0, y: 0, w: 12, h: 1, static: true },
 		{ i: Cards.Info,   x: 0, y: 1, w: 12,  h: 4, static: true },
-		{ i: Cards.Packages, x: 0, y: 4, w: 12,  h: 4, static: true },
-		{ i: Cards.Form,  x: 0, y: 7, w: 12, h: 4, static: true }
+		{ i: Cards.Packages, x: 0, y: 5, w: 12,  h: 4, static: true },
+		{ i: Cards.Form,  x: 0, y: 9, w: 12, h: 4, static: true }
 	],
 	"lg": [
 		{ i: Cards.Actions,  x: 0, y: 0, w: 12, h: 1, static: true },
@@ -43,6 +43,7 @@ export function B2CPLManual () {
 	const [ deliveryDays, setDeliveryDays ] = React.useState<B2CPLManualApi.DeliveryDayNearest[]>([]);
 	const [ denyReasons, setDenyReasons ] = React.useState<B2CPLManualApi.DenyReason[]>([]);
 	const [ statusList, setStatusList ] = React.useState<B2CPLManualApi.CallStatus[]>([]);
+	const [ pvzInfo, setPvzInfo ] = React.useState<B2CPLManualApi.PvzInfo[]>([]);
 
 	const { delivery_zip } = order;
 	const code = order.packages[0].code;
@@ -122,13 +123,36 @@ export function B2CPLManual () {
 		return false;
 	}, [ order ]);
 
+	const watchDeliveryState: B2CPLManualApi.DeliveryStatus = Form.useWatch("state", form);
+	React.useEffect(() => {
+		if (watchDeliveryState === "PVZ") {
+			const api = new B2CPLManualApi();
+			api.getPvzInfo({ code }).then(data => {
+				setPvzInfo(data);
+			})
+		}
+	}, [ watchDeliveryState, code ]);
+
+	const allowPaymentLink = React.useMemo(() => {
+		for (const p of order.packages) {
+			if (p.flag_paymentlink) 
+				return true;
+		}
+		return false;
+	}, [ order ]);
+
 	return (
 		<Form form={form} onFinish={submit} initialValues={{
-			delivery_person: order.delivery_fio,
-			delivery_zip: order.delivery_zip,
-			delivery_city: order.delivery_city,
-			delivery_street: order.delivery_street,
-			flag_lifting: false
+			additional_data: {
+				delivery_data: {
+					delivery_person: order.delivery_fio,
+					delivery_zip: order.delivery_zip,
+					delivery_city: order.delivery_city,
+					delivery_street: order.delivery_street,
+					flag_lifting: false
+				},
+				phone: order.phone
+			}
 		}}>
 			<ResponsiveReactGridLayout autoSize layouts={layout}>
 				<Card key={Cards.Actions}>
@@ -193,6 +217,10 @@ export function B2CPLManual () {
 					<Form.Item name='state' label="Status" rules={[{ required: true }]}>
 						<Select showSearch>
 							{statusList.map(s => {
+								const state = s.state as B2CPLManualApi.DeliveryStatus;
+								if (state === "PAYMENTLINK" && !allowPaymentLink)
+									return null;
+									
 								return (
 									<Select.Option key={s.status_name} value={s.state}>
 										{s.status_name} ({s.state})
@@ -203,7 +231,42 @@ export function B2CPLManual () {
 					</Form.Item>
 					<Form.Item shouldUpdate noStyle>
 						{() => {
-							const state = form.getFieldValue('state');
+							const state: B2CPLManualApi.DeliveryStatus = form.getFieldValue('state');
+							if (state === "PAYMENTLINK") {
+								return (
+									<Form.Item name={['additional_data', 'phone']} label="Phone" rules={[{ required: true }]}>
+										<Input />
+									</Form.Item>
+								)
+							}
+							if (state === "CALLBACK") {
+								return (
+									<>
+										<Form.Item name={['additional_data', 'callback_data', 'callback_date']} label="Date" rules={[{ required: true }]}>
+											<DatePicker />
+										</Form.Item>
+										<Form.Item name={['additional_data', 'callback_data', 'callback_reason']} label="Reason" rules={[{ required: true }]}>
+											<Input.TextArea />
+										</Form.Item>
+									</>
+								)
+							}
+							if (state === "PVZ") {
+								return (
+									<Form.Item name={['additional_data', 'pvz_id']} label="PVZ" rules={[{ required: true }]}>
+										<Select>
+											{pvzInfo.map(p => {
+												return (
+													<Select.Option value={p.pvz_id}>
+														{p.pvz_city} {p.pvz_address}
+													</Select.Option>
+												)
+											})}
+										</Select>
+									</Form.Item>
+								)
+							}
+							
 							if (state === "REJECT") {
 								return (
 									<>
@@ -277,25 +340,25 @@ export function B2CPLManual () {
 												})}
 											</Select>
 										</Form.Item>
-										<Form.Item name="delivery_person" label="Delivery Person" rules={[{ required: true }]}>
+										<Form.Item name={['additional_data', 'delivery_data', "delivery_person"]} label="Delivery Person" rules={[{ required: true }]}>
 											<Input />
 										</Form.Item>
-										<Form.Item name="delivery_city" label="Delivery City" rules={[{ required: true }]}>
+										<Form.Item name={['additional_data', 'delivery_data', "delivery_city"]} label="Delivery City" rules={[{ required: true }]}>
 											<Input />
 										</Form.Item>
-										<Form.Item name="delivery_street" label="Delivery Street" rules={[{ required: true }]}>
+										<Form.Item name={['additional_data', 'delivery_data', "delivery_street"]} label="Delivery Street" rules={[{ required: true }]}>
 											<Input />
 										</Form.Item>
-										<Form.Item name="delivery_zip" label="Delivery Zip" rules={[{ required: true }]}>
+										<Form.Item name={['additional_data', 'delivery_data', "delivery_zip"]} label="Delivery Zip" rules={[{ required: true }]}>
 											<Input />
 										</Form.Item>
 										{
 											oversized ?
 											<>
-												<Form.Item name="floor" label="Floor" rules={[{ required: true, type: "number" }]}>
+												<Form.Item name={['additional_data', 'delivery_data', "floor"]} label="Floor" rules={[{ required: true, type: "number" }]}>
 													<InputNumber/>
 												</Form.Item>
-												<Form.Item name="lift_type" label="Lift Type" rules={[{ required: true }]}>
+												<Form.Item name={['additional_data', 'delivery_data', "lift_type"]} label="Lift Type" rules={[{ required: true }]}>
 													<Select>
 														{liftTypes.map(l => {
 															return (
@@ -308,7 +371,7 @@ export function B2CPLManual () {
 												</Form.Item>
 												<Form.Item 
 													valuePropName="checked"
-													name="flag_lifting" 
+													name={['additional_data', 'delivery_data', "flag_lifting"]} 
 													label="Lifting" 
 													rules={[{ required: true, type: "boolean" }]}>
 													<Checkbox />
