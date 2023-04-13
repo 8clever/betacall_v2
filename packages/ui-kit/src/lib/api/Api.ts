@@ -27,7 +27,7 @@ export class Api {
 			const data = await res.json();
 			if (data.message)
 				message = data.message;
-			if (data.error)
+			else if (data.error)
 				message = data.error;
 		}
 		notification.error({ message });

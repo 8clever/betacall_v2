@@ -1,5 +1,5 @@
 import { Call, CustomMqtt, MQTT_TOKEN, Stats, User, config } from "@betacall/svc-common";
-import { Inject, Injectable } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import axios from 'axios';
 import { CallStatusType, DeliveryDayNearest, DeliveryDayNearestParams, DeliverySetState, DenyReason, Order } from "./b2cpl_manual.types";
 @Injectable()
@@ -59,7 +59,7 @@ export class B2CPLManualService {
 			headers: this.authHeader
 		});
 		if (res.data.status_code !== 200) {
-			throw new Error(res.data.payload[0].message);
+			throw new BadRequestException(res.data.payload[0].message);
 		}
 		const call: Call = {
 			orderId: params.callid,

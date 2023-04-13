@@ -1,4 +1,4 @@
-import { Button, Card, Col, Form, Input, Row, Select, Space, Typography } from "antd";
+import { Button, Card, Checkbox, Col, Form, Input, InputNumber, Row, Select, Space, Typography } from "antd";
 import ReactGridLayout, { Responsive, WidthProvider } from "react-grid-layout";
 import './style.css';
 import { useOrders } from "./OrderProvider";
@@ -17,25 +17,28 @@ enum Cards {
 const layout: ReactGridLayout.Layouts = {
 	"md": [
 		{ i: Cards.Actions,  x: 0, y: 0, w: 12, h: 1, static: true },
-		{ i: Cards.Info,   x: 0, y: 1, w: 12,  h: 3, static: true },
-		{ i: Cards.Packages, x: 0, y: 4, w: 12,  h: 3, static: true },
-		{ i: Cards.Form,  x: 0, y: 7, w: 12, h: 3, static: true }
+		{ i: Cards.Info,   x: 0, y: 1, w: 12,  h: 4, static: true },
+		{ i: Cards.Packages, x: 0, y: 4, w: 12,  h: 4, static: true },
+		{ i: Cards.Form,  x: 0, y: 7, w: 12, h: 4, static: true }
 	],
 	"lg": [
 		{ i: Cards.Actions,  x: 0, y: 0, w: 12, h: 1, static: true },
-		{ i: Cards.Info,   x: 0, y: 1, w: 4,  h: 3, static: true },
-		{ i: Cards.Packages, x: 4, y: 1, w: 4,  h: 3, static: true },
-		{ i: Cards.Form,  x: 8, y: 1, w: 4, h: 3, static: true }
+		{ i: Cards.Info,   x: 0, y: 1, w: 4,  h: 4, static: true },
+		{ i: Cards.Packages, x: 4, y: 1, w: 4,  h: 4, static: true },
+		{ i: Cards.Form,  x: 8, y: 1, w: 4, h: 4, static: true }
 	]
 };
 
 const timeFromPath = ['additional_data', 'delivery_data', 'time_from'];
 const timeToPath = ['additional_data', 'delivery_data', 'time_to']
+const liftTypes =  ["грузовой", "пассажирский", "нет"]
 
 export function B2CPLManual () {
 
 	const orders = useOrders();
-	const order = orders.list[0].order as B2CPLManualApi.Order;
+	const order = React.useMemo(() => {
+		return orders.list[0].order as B2CPLManualApi.Order;
+	}, [ orders ]);
 
 	const [ deliveryDays, setDeliveryDays ] = React.useState<B2CPLManualApi.DeliveryDayNearest[]>([]);
 	const [ denyReasons, setDenyReasons ] = React.useState<B2CPLManualApi.DenyReason[]>([]);
@@ -111,8 +114,22 @@ export function B2CPLManual () {
 		form.setFieldValue(timeToPath, i.time_to);
 	}, [ form ]);
 
+	const oversized = React.useMemo(() => {
+		for (const p of order.packages) {
+			if (p.flag_oversized)
+				return true;
+		}
+		return false;
+	}, [ order ]);
+
 	return (
-		<Form form={form} onFinish={submit}>
+		<Form form={form} onFinish={submit} initialValues={{
+			delivery_person: order.delivery_fio,
+			delivery_zip: order.delivery_zip,
+			delivery_city: order.delivery_city,
+			delivery_street: order.delivery_street,
+			flag_lifting: false
+		}}>
 			<ResponsiveReactGridLayout autoSize layouts={layout}>
 				<Card key={Cards.Actions}>
 					<Row justify='space-between' align="middle">
@@ -171,7 +188,7 @@ export function B2CPLManual () {
 						)
 					})}
 				</Card>
-				<Card key={Cards.Form}>
+				<Card key={Cards.Form} style={{ overflow: "auto" }}>
 					<Typography.Title level={3}>Form</Typography.Title>
 					<Form.Item name='state' label="Status" rules={[{ required: true }]}>
 						<Select showSearch>
@@ -260,6 +277,45 @@ export function B2CPLManual () {
 												})}
 											</Select>
 										</Form.Item>
+										<Form.Item name="delivery_person" label="Delivery Person" rules={[{ required: true }]}>
+											<Input />
+										</Form.Item>
+										<Form.Item name="delivery_city" label="Delivery City" rules={[{ required: true }]}>
+											<Input />
+										</Form.Item>
+										<Form.Item name="delivery_street" label="Delivery Street" rules={[{ required: true }]}>
+											<Input />
+										</Form.Item>
+										<Form.Item name="delivery_zip" label="Delivery Zip" rules={[{ required: true }]}>
+											<Input />
+										</Form.Item>
+										{
+											oversized ?
+											<>
+												<Form.Item name="floor" label="Floor" rules={[{ required: true, type: "number" }]}>
+													<InputNumber/>
+												</Form.Item>
+												<Form.Item name="lift_type" label="Lift Type" rules={[{ required: true }]}>
+													<Select>
+														{liftTypes.map(l => {
+															return (
+																<Select.Option value={l} key={l}>
+																	{l}
+																</Select.Option>
+															)
+														})}
+													</Select>
+												</Form.Item>
+												<Form.Item 
+													valuePropName="checked"
+													name="flag_lifting" 
+													label="Lifting" 
+													rules={[{ required: true, type: "boolean" }]}>
+													<Checkbox />
+												</Form.Item>
+											</> :
+											null
+										}
 									</>
 								)
 							}
