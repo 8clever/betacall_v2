@@ -3,6 +3,11 @@ import { Api } from "./Api";
 export class B2CPLManualApi {
 	private api = new Api('/api/v1/b2cpl/manual');
 
+	getPackageItems (params: { code: string }): Promise<B2CPLManualApi.PackageItem[]> {
+		const url = '/package-items'
+		return this.api.get(url, params);
+	}
+
 	getPvzInfo(params: { code: string }): Promise<B2CPLManualApi.PvzInfo[]> {
 		const url = '/pvz-info';
 		return this.api.get(url, params);
@@ -30,6 +35,13 @@ export class B2CPLManualApi {
 }
 
 export namespace B2CPLManualApi {
+
+	export interface PackageItem {
+		"part_code": string;
+		"part_name": string;
+		"quantity": number;
+		"amount": number;
+	}
 
 	export interface PvzInfo {
 		"pvz_city": string,

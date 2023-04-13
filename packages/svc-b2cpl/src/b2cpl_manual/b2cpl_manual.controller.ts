@@ -13,6 +13,13 @@ export class B2CPLManualController implements ProviderController {
 
 	@Roles(User.Roles.OPERATOR)
 	@UseGuards(AuthGuard)
+	@Get('/package-items')
+	getPackageItems (@Query() query: { code: string }) {
+		return this.b2cplManualSvc.getPackageItems(query.code);
+	}
+
+	@Roles(User.Roles.OPERATOR)
+	@UseGuards(AuthGuard)
 	@Get('/pvz-info')
 	getPvzInfo (@Query() query: { code: string }) {
 		return this.b2cplManualSvc.getPvzInfo(query.code);

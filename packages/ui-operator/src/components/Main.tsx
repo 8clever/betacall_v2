@@ -14,6 +14,8 @@ export function Main () {
 
 	const { providers, toggleProvider } = useSocket();
 
+	const [ manualLoading, setManualLoading ] = React.useState("");
+
 	const connect: React.MouseEventHandler<HTMLButtonElement & HTMLAnchorElement> = React.useCallback((e) => {
 		const provider = e.currentTarget?.closest('[data-provider]')?.getAttribute('data-provider');
 		if (!provider) return;
@@ -23,6 +25,8 @@ export function Main () {
 	const assignNextOrder = React.useCallback(async (e: React.MouseEvent) => {
 		const provider = e.currentTarget?.closest('[data-provider]')?.getAttribute('data-provider') as Provider;
 		if (!provider) return;
+
+		setManualLoading(provider);
 		const api = new CallApi();
 		const data = await api.assignNextOrder({ provider });
 		if (data.result)
@@ -30,7 +34,8 @@ export function Main () {
 
 		notification.warning({
 			message: `${provider}: Queue is empty`,
-		})
+		});
+		setManualLoading("");
 	}, [ orders ]);
 
 	if (orders.list.length)
@@ -62,6 +67,7 @@ export function Main () {
 										danger={!isConnected} /> 
 								}
 								<Button 
+									loading={manualLoading === p}
 									onClick={assignNextOrder}
 									icon={<StepForwardOutlined />} 
 									shape="circle" 

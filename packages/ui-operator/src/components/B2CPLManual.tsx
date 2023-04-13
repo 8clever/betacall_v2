@@ -1,9 +1,11 @@
-import { Button, Card, Checkbox, Col, DatePicker, Form, Input, InputNumber, Row, Select, Space, Typography } from "antd";
+import { Button, Card, Checkbox, Col, DatePicker, Form, Input, InputNumber, Modal, Row, Select, Space, Table, Typography } from "antd";
 import ReactGridLayout, { Responsive, WidthProvider } from "react-grid-layout";
 import './style.css';
 import { useOrders } from "./OrderProvider";
 import { B2CPLManualApi } from '@betacall/ui-kit';
 import React from "react";
+import { EyeOutlined } from "@ant-design/icons";
+import { ColumnsType } from "antd/es/table";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -30,8 +32,23 @@ const layout: ReactGridLayout.Layouts = {
 };
 
 const timeFromPath = ['additional_data', 'delivery_data', 'time_from'];
-const timeToPath = ['additional_data', 'delivery_data', 'time_to']
-const liftTypes =  ["грузовой", "пассажирский", "нет"]
+const timeToPath = ['additional_data', 'delivery_data', 'time_to'];
+const liftTypes =  ["грузовой", "пассажирский", "нет"];
+
+const pacakgeTableColumns: ColumnsType<B2CPLManualApi.PackageItem> = [
+	{
+		title: "Name",
+		dataIndex: "part_name"
+	},
+	{
+		title: "Quantity",
+		dataIndex: "quantity"
+	},
+	{
+		title: "Amount",
+		dataIndex: "amount"
+	}
+]
 
 export function B2CPLManual () {
 
@@ -44,6 +61,7 @@ export function B2CPLManual () {
 	const [ denyReasons, setDenyReasons ] = React.useState<B2CPLManualApi.DenyReason[]>([]);
 	const [ statusList, setStatusList ] = React.useState<B2CPLManualApi.CallStatus[]>([]);
 	const [ pvzInfo, setPvzInfo ] = React.useState<B2CPLManualApi.PvzInfo[]>([]);
+	const [ loading, setLoading ] = React.useState(false);
 
 	const { delivery_zip } = order;
 	const code = order.packages[0].code;
@@ -81,6 +99,7 @@ export function B2CPLManual () {
 		state: string,
 		additional_data: object
 	}) => {
+		setLoading(true);
 		const api = new B2CPLManualApi();
 		api.deliverySetState({
 			callid: order.callid,
@@ -94,6 +113,8 @@ export function B2CPLManual () {
 			]
 		}).then(() => {
 			orders.refresh();
+		}).catch(() => {
+			setLoading(false);
 		});
 	}, [ order, orders, timeStart ]);
 
@@ -141,6 +162,33 @@ export function B2CPLManual () {
 		return false;
 	}, [ order ]);
 
+	const showItems = React.useCallback((e: React.MouseEvent) => {
+		const code = e.currentTarget.getAttribute('data-code');
+		if (!code) return;
+		const api = new B2CPLManualApi();
+		const renderTable = (data: B2CPLManualApi.PackageItem[], loading: boolean) => {
+			return (
+				<Table
+					loading={loading}
+					size="small"
+					columns={pacakgeTableColumns} 
+					dataSource={data} 
+				/>
+			)
+		}
+		const modal = Modal.info({
+			width: 600,
+			mask: true,
+			title: "Box: " + code,
+			content: renderTable([], true)
+		})
+		api.getPackageItems({ code }).then(data => {
+			modal.update({
+				content: renderTable(data, false)
+			});
+		});
+	}, [])
+
 	return (
 		<Form form={form} onFinish={submit} initialValues={{
 			additional_data: {
@@ -162,7 +210,7 @@ export function B2CPLManual () {
 						</Col>
 						<Col>
 							<Space>
-								<Button htmlType="submit" type="primary">Submit</Button>
+								<Button htmlType="submit" type="primary" loading={loading}>Submit</Button>
 							</Space>
 						</Col>
 					</Row>
@@ -208,6 +256,12 @@ export function B2CPLManual () {
 								<Typography.Paragraph>
 									Script: {p.script_text}
 								</Typography.Paragraph>
+								<Button 
+									data-code={p.code}
+									onClick={showItems} 
+									icon={<EyeOutlined />}>
+									Items
+								</Button>
 							</React.Fragment>
 						)
 					})}
@@ -319,6 +373,7 @@ export function B2CPLManual () {
 											label="Delivery Interval" 
 											required>
 											<Select
+												disabled={!watchDeliveryDate}
 												value={
 													form.getFieldValue(timeFromPath) && 
 													form.getFieldValue(timeToPath) ?
