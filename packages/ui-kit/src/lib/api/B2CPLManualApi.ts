@@ -57,7 +57,7 @@ export namespace B2CPLManualApi {
 
 	export interface DeliverySetStatus {
 		"state": string;
-		"additional_data": object;
+		"additional_data"?: object;
 		"codes": string[];
 	}
 	export interface DeliverySetState {

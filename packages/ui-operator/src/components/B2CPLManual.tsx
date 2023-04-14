@@ -97,8 +97,15 @@ export function B2CPLManual () {
 
 	const submit = React.useCallback((values: {
 		state: string,
-		additional_data: object
+		additional_data?: {
+			delivery_data?: {
+				floor?: string | number
+			}
+		}
 	}) => {
+		if (values.additional_data?.delivery_data?.floor)
+			values.additional_data.delivery_data.floor = String(values.additional_data.delivery_data.floor);
+
 		setLoading(true);
 		const api = new B2CPLManualApi();
 		api.deliverySetState({
