@@ -64,7 +64,7 @@ export function B2CPLManual () {
 	const [ loading, setLoading ] = React.useState(false);
 
 	const { delivery_zip } = order;
-	const code = order.packages[0].code;
+	const code = order.packages[0]?.code;
 
 	React.useEffect(() => {
 		const api = new B2CPLManualApi();
