@@ -3,8 +3,6 @@ import { UA } from 'jssip';
 import https from 'https';
 import NodeWebSocket from 'jssip-node-websocket';
 
-console.log(NodeWebSocket)
-
 const switchConfig = {
 	url: 'wss://192.168.1.30:7443',
 	user: 'sip:9999@test.lan',
@@ -36,7 +34,7 @@ export class SipService implements OnModuleInit {
 	handleRegistered = () => {
 		this.log('registered');
 		this.ua.call('sip:89585005602@freesw1', {
-			
+
 		})
 	}
 
