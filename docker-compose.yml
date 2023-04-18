@@ -21,6 +21,7 @@ services:
       - ./:/app
     depends_on:
       - svc-stats
+      - svc-export
       - ui-auth
     labels:
       - "traefik.enable=true"
@@ -82,6 +83,25 @@ services:
       - "traefik.http.routers.svc-sip.rule=PathPrefix(`/api/v1/sip`)"
       - "traefik.http.routers.svc-sip.entrypoints=web"
       - traefik.http.services.svc-sip.loadbalancer.server.port=3000
+
+  svc-export:
+    build:
+      dockerfile: ./dockerfiles/Dockerfile.system
+    command: npx nx serve svc-export
+    volumes:
+      - ./:/app
+    environment:
+      - PG_HOST=postgres
+      - MQTT=mqtt://mqtt:1883
+    depends_on:
+      - traefik
+      - postgres
+      - mqtt
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.svc-export.rule=PathPrefix(`/api/v1/export`)"
+      - "traefik.http.routers.svc-export.entrypoints=web"
+      - traefik.http.services.svc-export.loadbalancer.server.port=3000
 
   svc-stats:
     build:

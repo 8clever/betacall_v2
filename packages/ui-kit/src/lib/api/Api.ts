@@ -20,7 +20,7 @@ export class Api {
 		if (res.status === 200 || res.status === 201) {
 			if (isjson)
 				return res.json();
-			return;
+			return res;
 		}
 		let message = res.statusText || res.status;
 		if (isjson) {

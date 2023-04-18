@@ -1,5 +1,5 @@
-import { InfoOutlined, SearchOutlined } from "@ant-design/icons";
-import { B2CPLManualApi, DatePicker, Provider, StatsApi, TDApi } from "@betacall/ui-kit"
+import { DownloadOutlined, InfoOutlined, SearchOutlined } from "@ant-design/icons";
+import { B2CPLManualApi, DatePicker, ExportApi, Provider, StatsApi, TDApi } from "@betacall/ui-kit"
 import { Button, Form, Modal, Select, Table } from "antd";
 import { ColumnsType } from "antd/es/table";
 import React from "react"
@@ -136,6 +136,27 @@ export function Statistics () {
 			}
 		})
 	}, []);
+
+	const exportSearch = React.useCallback(() => {
+		form.validateFields()
+		const fieldsError = form.getFieldsError();
+		
+		for (const f of fieldsError) {
+			if (f.errors.length)
+				return;
+		}
+
+		const values = form.getFieldsValue();
+		const provider = values['provider'];
+		const from = DatePicker.StartOfDay(values['range-picker']?.[0])?.toJSON() || "";
+		const to = DatePicker.EndOfDay(values['range-picker']?.[1])?.toJSON() || "";
+		const api = new ExportApi();
+		api.stats({
+			provider,
+			from,
+			to
+		})
+	}, [ form ])
 	
 	return (
 		<Container>
@@ -163,6 +184,13 @@ export function Statistics () {
 							htmlType="submit" 
 							icon={<SearchOutlined />}>
 							Search
+						</Button>
+					</Form.Item>
+					<Form.Item>
+						<Button
+							onClick={exportSearch}
+							icon={<DownloadOutlined />}>
+							Export
 						</Button>
 					</Form.Item>
 				</Form>
