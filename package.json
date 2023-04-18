@@ -19,8 +19,6 @@
     "antd": "^5.3.2",
     "axios": "^1.0.0",
     "helmet": "^6.0.1",
-    "jssip": "^3.10.0",
-    "jssip-node-websocket": "^3.0.0",
     "mqtt": "^4.3.7",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
