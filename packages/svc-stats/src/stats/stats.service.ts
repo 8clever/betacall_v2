@@ -42,5 +42,6 @@ export namespace StatsService {
 	export interface FindOptions {
 		skip: number;
 		limit: number;
+		withRelations?: boolean
 	}
 }
