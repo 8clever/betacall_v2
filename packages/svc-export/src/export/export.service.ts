@@ -1,7 +1,6 @@
 import { Call, CustomMqtt, MQTT_TOKEN, Stats } from "@betacall/svc-common";
 import { Inject, Injectable } from "@nestjs/common";
-import { ObjectLiteral } from "typeorm";
-import { WorkBook, WorkSheet, writeXLSX, utils } from 'xlsx';
+import { writeXLSX, utils } from 'xlsx';
 
 @Injectable()
 export class ExportService {
