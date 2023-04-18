@@ -62,5 +62,14 @@ export const config = {
 			login: process.env.BODY_LOGIN || "u",
     	password: process.env.BODY_PASS || "p"
 		}
+	},
+
+	/** for SIP */
+	sip: {
+		url: process.env.SIP_URL || "",
+		user: {
+			name: process.env.SIP_USERNAME || "9999",
+			password: process.env.SIP_USERPASSWORD || "9999"
+		}
 	}
 }
