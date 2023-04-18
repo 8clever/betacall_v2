@@ -18,6 +18,12 @@ export class StatsController {
 		return this.statssvc.add(payload);
 	}
 
+	@MessagePattern("stats:list")
+	list(@Payload() payload: { where: ObjectLiteral, options: StatsService.FindOptions}) {
+		const { where = {}, options = {} } = payload;
+		return this.statssvc.find(where, options);
+	}
+
 	@Roles(User.Roles.ADMIN)
 	@UseGuards(AuthGuard)
 	@Get()

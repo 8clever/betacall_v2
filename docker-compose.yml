@@ -70,9 +70,9 @@ services:
       - mqtt
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.svc-stats.rule=PathPrefix(`/api/v1/export`)"
-      - "traefik.http.routers.svc-stats.entrypoints=web"
-      - traefik.http.services.svc-stats.loadbalancer.server.port=3000
+      - "traefik.http.routers.svc-export.rule=PathPrefix(`/api/v1/export`)"
+      - "traefik.http.routers.svc-export.entrypoints=web"
+      - traefik.http.services.svc-export.loadbalancer.server.port=3000
 
   svc-stats:
     build:
