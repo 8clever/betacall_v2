@@ -83,6 +83,8 @@ services:
       - "traefik.http.routers.svc-sip.rule=PathPrefix(`/api/v1/sip`)"
       - "traefik.http.routers.svc-sip.entrypoints=web"
       - traefik.http.services.svc-sip.loadbalancer.server.port=3000
+    ports:
+      - 8085:8085
 
   svc-export:
     build:

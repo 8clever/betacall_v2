@@ -66,10 +66,8 @@ export const config = {
 
 	/** for SIP */
 	sip: {
-		url: process.env.SIP_URL || "",
-		user: {
-			name: process.env.SIP_USERNAME || "9999",
-			password: process.env.SIP_USERPASSWORD || "9999"
-		}
+		host: process.env.SIP_HOST || "test.lan",
+		port: Number(process.env.SIP_PORT || 8021),
+		password: process.env.SIP_PASSWORD || "ClueCon"
 	}
 }
