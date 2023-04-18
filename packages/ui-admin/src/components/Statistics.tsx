@@ -147,13 +147,14 @@ export function Statistics () {
 		}
 
 		const values = form.getFieldsValue();
-		const from = values['range-picker']?.[0];
-		const to = values['range-picker']?.[1];
+		const provider = values['provider'];
+		const from = DatePicker.StartOfDay(values['range-picker']?.[0])?.toJSON() || "";
+		const to = DatePicker.EndOfDay(values['range-picker']?.[1])?.toJSON() || "";
 		const api = new ExportApi();
 		api.stats({
-			...values,
-			from: from ? DatePicker.StartOfDay(from)?.toJSON() : "",
-			to: to ? DatePicker.EndOfDay(to)?.toJSON() : ""
+			provider,
+			from,
+			to
 		})
 	}, [ form ])
 	

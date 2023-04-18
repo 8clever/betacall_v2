@@ -19,6 +19,7 @@ export class ExportApi {
 		from: string;
 		to: string;
 	}) {
+		console.log(query.from, query.to)
 		const res = await this.api.get('/stats', query);
 		const blob = await res.blob();
 		const filename = `stats-${Object.values(query).join("-")}.xlsx`;

@@ -1,7 +1,7 @@
-import { Stats } from "@betacall/svc-common";
+import { Call, Stats } from "@betacall/svc-common";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { ObjectLiteral, Repository } from "typeorm";
+import { Between, LessThan, MoreThan, ObjectLiteral, Repository } from "typeorm";
 
 @Injectable()
 export class StatsService {
@@ -11,6 +11,19 @@ export class StatsService {
 		private readonly repo: Repository<Stats>
 	) {
 
+	}
+
+	async findByQuery (query: StatsService.QueryOptions) {
+		const options: Partial<StatsService.FindOptions> = {}
+		const where: ObjectLiteral = {};
+		if (query.user) where.user = { id: query.user };
+		if (query.skip) options.skip = Number(query.skip);
+		if (query.limit) options.limit = Number(query.limit);
+		if (query.from) where.dt = MoreThan(query.from);
+		if (query.to) where.dt = LessThan(query.to);
+		if (query.from && query.to) where.dt = Between(query.from, query.to);
+		if (query.provider) where.provider = query.provider;
+		return this.find(where, options);
 	}
 
 	async find (query: ObjectLiteral, options: Partial<StatsService.FindOptions>) {
@@ -39,6 +52,15 @@ export class StatsService {
 }
 
 export namespace StatsService {
+
+	export interface QueryOptions {
+		skip?: string, 
+		limit?: string, 
+		user?: string,
+		from?: string,
+		to?: string,
+		provider?: Call.Provider 
+	}
 	export interface FindOptions {
 		skip: number;
 		limit: number;

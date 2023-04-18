@@ -46,11 +46,8 @@ export class ExportService {
 		return null;
 	}
 
-	async exoprtStats (where: ObjectLiteral) {
-		const stats: { list: Stats[], count: number } = await this.client.paranoid('stats:list', {
-			where
-		});
-
+	async exoprtStats (query: object) {
+		const stats: { list: Stats[], count: number } = await this.client.paranoid('stats:list', query);
 		const header: (string | null)[][] = [["ID", "PROVIDER", "DATE", "OPERATOR", "STATUS"]];
 		const data: (string | null)[][] = stats.list.map(i => {
 			return [

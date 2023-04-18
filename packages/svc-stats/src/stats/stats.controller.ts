@@ -19,31 +19,14 @@ export class StatsController {
 	}
 
 	@MessagePattern("stats:list")
-	list(@Payload() payload: { where: ObjectLiteral, options: StatsService.FindOptions}) {
-		const { where = {}, options = {} } = payload;
-		return this.statssvc.find(where, options);
+	list(@Payload() payload: StatsService.QueryOptions) {
+		return this.statssvc.findByQuery(payload);
 	}
 
 	@Roles(User.Roles.ADMIN)
 	@UseGuards(AuthGuard)
 	@Get()
-	getStats (@Query() query: { 
-		skip?: string, 
-		limit?: string, 
-		user?: string,
-		from?: string,
-		to?: string,
-		provider?: Call.Provider 
-	}) {
-		const options: Partial<StatsService.FindOptions> = {}
-		const where: ObjectLiteral = {};
-		if (query.user) where.user = { id: query.user };
-		if (query.skip) options.skip = Number(query.skip);
-		if (query.limit) options.limit = Number(query.limit);
-		if (query.from) where.dt = MoreThan(query.from);
-		if (query.to) where.dt = LessThan(query.to);
-		if (query.from && query.to) where.dt = Between(query.from, query.to);
-		if (query.provider) where.provider = query.provider;
-		return this.statssvc.find(where, options);
+	getStats (@Query() query: StatsService.QueryOptions) {
+		return this.statssvc.findByQuery(query);
 	}
 }

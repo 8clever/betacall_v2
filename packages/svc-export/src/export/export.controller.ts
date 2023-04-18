@@ -13,19 +13,8 @@ export class ExportController {
 	@Roles(User.Roles.ADMIN)
 	@UseGuards(AuthGuard)
 	@Get('/stats')
-	async getStats (@Query() query: {
-		user?: string,
-		from?: string,
-		to?: string,
-		provider?: Call.Provider 
-	}, @Res() res) {
-		const where: ObjectLiteral = {};
-		if (query.user) where.user = { id: query.user };
-		if (query.from) where.dt = MoreThan(query.from);
-		if (query.to) where.dt = LessThan(query.to);
-		if (query.from && query.to) where.dt = Between(query.from, query.to);
-		if (query.provider) where.provider = query.provider;
-		const buff = await this.exportsvc.exoprtStats(where);
+	async getStats (@Query() query: object, @Res() res) {
+		const buff = await this.exportsvc.exoprtStats(query);
 		res.send(buff);
 	}
 }
