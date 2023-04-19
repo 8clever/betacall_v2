@@ -58,7 +58,6 @@ export class LoopService implements OnModuleInit {
   private readonly zoneOffset = 3;
   private readonly fromHour = 7;
   private readonly toHour = 21;
-  private readonly h1 = 1000 * 60 * 60;
 
   private getRegionHours (offsetHour: number) {
     const date = new Date();
