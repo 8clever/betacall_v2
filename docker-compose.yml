@@ -1,6 +1,16 @@
 version: '3.9'
 services:
 
+  freeswitch:
+    image: safarov/freeswitch
+    network_mode: host
+    environment:
+      - SOUND_RATES=8000:16000
+      - SOUND_TYPES=music:ru-RU-elena
+    volumes:
+      - ./freeswitch-sounds:/usr/share/freeswitch/sounds
+      - ./freeswitch:/etc/freeswitch
+
   ui-admin:
     build:
       dockerfile: ./dockerfiles/Dockerfile.system
@@ -54,6 +64,27 @@ services:
       - "traefik.http.routers.ui-auth.rule=PathPrefix(`/auth`)"
       - "traefik.http.routers.ui-auth.entrypoints=web"
       - traefik.http.services.ui-auth.loadbalancer.server.port=3000
+
+  svc-sip:
+    build:
+      dockerfile: ./dockerfiles/Dockerfile.system
+    command: npx nx serve svc-sip
+    volumes:
+      - ./:/app
+    environment:
+      - PG_HOST=postgres
+      - MQTT=mqtt://mqtt:1883
+    depends_on:
+      - traefik
+      - postgres
+      - mqtt
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.svc-sip.rule=PathPrefix(`/api/v1/sip`)"
+      - "traefik.http.routers.svc-sip.entrypoints=web"
+      - traefik.http.services.svc-sip.loadbalancer.server.port=3000
+    ports:
+      - 8085:8085
 
   svc-export:
     build:
