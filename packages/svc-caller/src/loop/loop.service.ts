@@ -60,10 +60,9 @@ export class LoopService implements OnModuleInit {
   private readonly toHour = 21;
   private readonly h1 = 1000 * 60 * 60;
 
-  private getRegionHours (offset: number) {
+  private getRegionHours (offsetHour: number) {
     const date = new Date();
-    date.setTime(date.valueOf() + (this.h1 * offset));
-    return date.getUTCHours();
+    return date.getUTCHours() + offsetHour;
   }
 
   private filter (call: Call) {
