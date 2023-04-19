@@ -17,8 +17,7 @@ export class CallerService {
     await this.add({
       ...params,
       status: Call.Status.OPERATOR,
-      phone: "",
-      region: ""
+      phone: ""
     });
     return true;
   }

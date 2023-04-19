@@ -57,9 +57,6 @@ export class Call {
 
   @Column({ nullable: true })
   callId?: string;
-
-  @Column({ nullable: true })
-  region?: string;
 }
 
 export namespace Call {

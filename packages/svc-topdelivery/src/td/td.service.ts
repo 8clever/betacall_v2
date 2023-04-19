@@ -1,13 +1,25 @@
-import { Call, config, CustomMqtt, MQTT_TOKEN, ProviderController, Stats, User } from "@betacall/svc-common";
+import { Call, config, CustomMqtt, MQTT_TOKEN, Stats, User } from "@betacall/svc-common";
 import { HttpException, HttpStatus, Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { createClientAsync, Client, BasicAuthSecurity } from 'soap'
-import { Order, Quota } from "./td.types";
+import { Market, Order, Quota, Region } from "./td.types";
 import { createHash } from 'crypto'
 import { pickupPoints } from './td.pickup.points'
+import { CsvParser } from "./csv.parser";
 
 @Injectable()
 export class TopDeliveryService implements OnModuleInit {
+	
 	private tdClient: Client
+
+	private csv = new CsvParser();
+
+	private markets: Map<string, Market> = new Map();
+
+	private regions: Map<string, Region> = new Map();
+
+	private blockPhones: string[] = ['8800','8940']
+
+	private blockMarkets: Set<string> = new Set(['erborian.ru', 'loccitane.ru', 'elemis.ru']);
 
 	constructor(
 		@Inject(MQTT_TOKEN)
@@ -25,6 +37,12 @@ export class TopDeliveryService implements OnModuleInit {
 	robot: User;
 
 	async onModuleInit() {
+		const markets = await this.csv.parse<Market>('assets/market_name.csv', ['orgin', 'translate']);
+		const regions = await this.csv.parse<Region>('assets/regions.csv', ['name', 'utfOffset']);
+
+		this.markets = new Map(markets.map(m => [m.orgin, m]));
+		this.regions = new Map(regions.map(r => [r.name, r]));
+
 		this.robot = await this.mqtt.paranoid("users:robot", {});
 		this.tdClient = await createClientAsync(config.topdelivery.url);
 		this.tdClient.setSecurity(new BasicAuthSecurity(
@@ -83,18 +101,37 @@ export class TopDeliveryService implements OnModuleInit {
 		this.orders = new Map();
 		this.phones = new Map();
 		const orders: Order[] = data.orderInfo;
-		const calls: Omit<Call, "id" | "dt" | "user" | "utcOffset">[] = [];
+		const calls: Omit<Call, "id" | "dt" | "user">[] = [];
 
 		for (const order of orders) {
+			let isBlock = false;
+			for (const blockPhone of this.blockPhones) {
+				if (order.clientInfo.phone.includes(blockPhone)) {
+					isBlock = true;
+					break;
+				}
+			}
+
+			if (this.blockMarkets.has(order.orderUrl)) {
+				isBlock = true;
+			}
+
+			order.robot = !isBlock;
+			order.marketName = this.markets.get(order.orderUrl)?.translate ?? order.orderUrl;
+
 			this.orders.set(order.orderIdentity.orderId, order);
 			this.phones.set(order.clientInfo.phone, order.orderIdentity.orderId);
-			calls.push({
-				orderId: order.orderIdentity.orderId.toString(),
-				phone: order.clientInfo.phone,
-				provider: Call.Provider.TOP_DELIVERY,
-				status: Call.Status.NOT_PROCESSED,
-				region: order.deliveryAddress.region
-			});
+
+			if (order.robot) {
+				const region = this.regions.get(order.deliveryAddress.region);
+				calls.push({
+					orderId: order.orderIdentity.orderId.toString(),
+					phone: order.clientInfo.phone,
+					provider: Call.Provider.TOP_DELIVERY,
+					status: Call.Status.NOT_PROCESSED,
+					utcOffset: Number(region?.utfOffset || 3)
+				});
+			}
 		}
 
 		Logger.log(`Top Delivery loaded orders: ${this.orders.size}`)
