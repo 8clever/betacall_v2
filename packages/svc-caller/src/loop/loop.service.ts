@@ -55,7 +55,20 @@ export class LoopService implements OnModuleInit {
     });
   }
 
+  private readonly zoneOffset = 3;
+  private readonly fromHour = 7;
+  private readonly toHour = 21;
+
+  private getRegionHours (offsetHour: number) {
+    const date = new Date();
+    return date.getUTCHours() + offsetHour;
+  }
+
   private filter (call: Call) {
+    const regionHour = this.getRegionHours(call.utcOffset || this.zoneOffset);
+    if (!(regionHour > this.fromHour && regionHour < this.toHour))
+      return false;
+
     if (
       call.history ||
       call.status === Call.Status.COMPLETED ||

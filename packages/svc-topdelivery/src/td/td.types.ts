@@ -1,4 +1,14 @@
 
+export interface Market {
+	orgin: string;
+	translate: string;
+}
+
+export interface Region {
+	name: string;
+	utfOffset: string;
+}
+
 export interface TimeInterval {
 	bTime: string; // HH:mm:ss time from
 	eTime: string; // HH:mm:ss time to
@@ -13,9 +23,15 @@ export interface Quota {
 }
 
 export interface Order {
+	/** our fields */
+	marketName: string;
+	robot: boolean;
+
+	/** TD fields */
 	partnerExecutor: {
 		id: string;
 	}
+	orderUrl: string;
 	orderIdentity: {
 		orderId: number;
 		barcode: string;
