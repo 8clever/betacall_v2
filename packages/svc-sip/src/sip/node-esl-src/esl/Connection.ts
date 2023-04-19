@@ -251,7 +251,7 @@ export class Connection extends EventEmitter2
      *
      * NOTE: This is a FAF method of sending a command
      */
-    send(command: string, args?: IDictionary<string>): void
+    send(command: string, args?: IDictionary<string>): void 
     {
         try
         {

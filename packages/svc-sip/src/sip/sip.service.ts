@@ -17,7 +17,7 @@ export class SipService implements OnModuleInit {
 			"BACKGROUND_JOB"
 		], () => {
 			this.log("Ready");
-			this.callUser('1000');
+			this.callExternal('89585005602');
 		})
 	}
 
@@ -26,7 +26,7 @@ export class SipService implements OnModuleInit {
 		return {
 			status,
 			isError: status === "-ERR" || status === "-USAGE:",
-			data: data.join(' ')
+			data: data.join(' ').replace('\n', '')
 		}
 	}
 
