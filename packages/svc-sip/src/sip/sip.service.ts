@@ -3,6 +3,9 @@ import { Connection, Event } from "./node-esl-src"
 import { config } from "@betacall/svc-common";
 import { EventEmitter } from "stream";
 import { v4 as uid } from 'uuid';
+import { WebSocket } from 'ws';
+import { createReadStream } from "fs";
+import path from "path";
 
 interface HandleCallEvents {
 	callid: string;
@@ -57,21 +60,6 @@ export class SipService implements OnModuleInit {
 
 	private handleReady = async () => {
 		this.log("Ready");
-
-		const callid = await this.call('89266321723');
-		this.handleCallEvents({
-			callid,
-			answer: async () => {
-				const userid = await this.call("1000");
-				await this.playRecord(callid);
-				this.handleCallEvents({
-					callid: userid,
-					answer: async () => {
-						await this.bridge(callid, userid);
-					}
-				})
-			}
-		})
 	}
 
 	private getMessage = (e: Event) => {
@@ -151,7 +139,38 @@ export class SipService implements OnModuleInit {
 		this.fs.on('esl::**', this.handleAllEvents)
 	}
 
+	private vosk = new WebSocket('ws://192.168.1.26:2700/asr/ru');
+	private rtmp = new WebSocket('ws://192.168.1.30:1935')
+
+	private streamAudio () {
+
+	}
+
+	private handleVoskConnected = () => {
+		this.log('Vosk connected');
+		const readStream = createReadStream(path.join(__dirname, 'assets/sokol.wav'));
+		readStream.on('data', (buff) => {
+			this.vosk.send(buff);
+		})
+		readStream.on('end', () => {
+			const data = { eof: 1 }
+			this.vosk.send(JSON.stringify(data));
+		})
+	}
+
+	private handleRTMPConnected = () => {
+		this.log('RTMP connected');
+	}
+
+	private handleVoskMessage = (evt: Buffer) => {
+		const text = evt.toString();
+		console.log(text)
+	}
+
 	onModuleInit() {
 		this.connect();
+		this.vosk.on('open', this.handleVoskConnected);
+		this.vosk.on('message', this.handleVoskMessage);
+		this.rtmp.on('open', this.handleRTMPConnected);
 	}
 }
