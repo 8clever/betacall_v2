@@ -1,15 +1,16 @@
 version: '3.9'
 services:
 
+  fs:
+    build:
+      dockerfile: ./dockerfiles/Dockerfile.freeswitch
+
   freeswitch:
     image: safarov/freeswitch
     network_mode: host
     environment:
       - SOUND_RATES=8000:16000
       - SOUND_TYPES=music:ru-RU-elena
-    volumes:
-      - ./freeswitch-sounds:/usr/share/freeswitch/sounds
-      - ./freeswitch:/etc/freeswitch
 
   ui-admin:
     build:
