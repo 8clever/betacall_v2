@@ -1,17 +1,6 @@
 version: '3.9'
 services:
 
-  fs:
-    build:
-      dockerfile: ./dockerfiles/Dockerfile.freeswitch
-
-  freeswitch:
-    image: safarov/freeswitch
-    network_mode: host
-    environment:
-      - SOUND_RATES=8000:16000
-      - SOUND_TYPES=music:ru-RU-elena
-
   ui-admin:
     build:
       dockerfile: ./dockerfiles/Dockerfile.system
@@ -85,7 +74,7 @@ services:
       - "traefik.http.routers.svc-sip.entrypoints=web"
       - traefik.http.services.svc-sip.loadbalancer.server.port=3000
     ports:
-      - 8085:8085
+      - 2700:2700
 
   svc-export:
     build:

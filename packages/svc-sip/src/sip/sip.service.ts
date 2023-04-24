@@ -60,6 +60,26 @@ export class SipService implements OnModuleInit {
 
 	private handleReady = async () => {
 		this.log("Ready");
+		this.originate(`user/1000 1000 xml asr`)
+		
+		// const id = await this.call('89585005602', {
+		// 	answer: async () => {
+		// 		const res = await this.playRecord(id);
+		// 		const recid = await this.call("1000", {
+		// 			answer: async () => {
+		// 				await this.bridge(id, recid);
+		// 			}
+		// 		});
+		// 	}
+		// })
+
+	}
+
+	private bgapi = async (api: string, cmd: string) => {
+		const id = uid();
+		this.fs.bgapi(api, cmd, id);
+		const evt = await this.result(id);
+		return this.getMessage(evt);
 	}
 
 	private getMessage = (e: Event) => {
@@ -94,17 +114,19 @@ export class SipService implements OnModuleInit {
 		}
 	}
 
-	private async originate (url: string, phone: string = '') {
+	private async originate (url: string) {
 		const id = uid();
 		this.log(`Originate: ${id}`);
-		this.fs.bgapi('originate', `[origination_uuid=${id}]${url} ${phone} &park()`, id);
+		this.fs.bgapi('originate', `[origination_uuid=${id}]${url}`, id);
 		return id;
 	}
+
+	private readonly soundsDir = '/usr/local/freeswitch/sounds/';
 
 	private async playRecord (uuid: string) {
 		const id = uid();
 		const app = 'uuid_broadcast'
-		const cmd = `${uuid} /usr/share/freeswitch/sounds/transfer1.wav both`
+		const cmd = `${uuid} ${this.soundsDir}transfer1.wav both`
 		this.fs.bgapi(app, cmd, id);
 		const evt = await this.result(id);
 		return this.getMessage(evt);
@@ -116,10 +138,17 @@ export class SipService implements OnModuleInit {
 		});
 	}
 
-	private call = (phone: string) => {
+	private call = async (phone: string, handlers: Omit<HandleCallEvents, 'callid'> = {}) => {
+		let id: string;
 		if (phone.length > 4)
-			return this.callExternal(phone);
-		return this.callUser(phone);
+			id = await this.callExternal(phone);
+		else 
+			id = await this.callUser(phone);
+		this.handleCallEvents({
+			callid: id,
+			...handlers
+		});
+		return id;
 	}
 
 	private callUser = async (phone: string) => {
@@ -140,7 +169,6 @@ export class SipService implements OnModuleInit {
 	}
 
 	private vosk = new WebSocket('ws://192.168.1.26:2700/asr/ru');
-	private rtmp = new WebSocket('ws://192.168.1.30:1935')
 
 	private streamAudio () {
 
@@ -148,14 +176,14 @@ export class SipService implements OnModuleInit {
 
 	private handleVoskConnected = () => {
 		this.log('Vosk connected');
-		const readStream = createReadStream(path.join(__dirname, 'assets/sokol.wav'));
-		readStream.on('data', (buff) => {
-			this.vosk.send(buff);
-		})
-		readStream.on('end', () => {
-			const data = { eof: 1 }
-			this.vosk.send(JSON.stringify(data));
-		})
+		// const readStream = createReadStream(path.join(__dirname, 'assets/sokol.wav'));
+		// readStream.on('data', (buff) => {
+		// 	this.vosk.send(buff);
+		// })
+		// readStream.on('end', () => {
+		// 	const data = { eof: 1 }
+		// 	this.vosk.send(JSON.stringify(data));
+		// })
 	}
 
 	private handleRTMPConnected = () => {
@@ -167,10 +195,27 @@ export class SipService implements OnModuleInit {
 		console.log(text)
 	}
 
+	private voskServer = new WebSocket.Server({
+		port: 2700
+	})
+
+	private handleVoskConnection = (client: WebSocket) => {
+		const handleMessage = (buf: Buffer) => {
+			console.log(buf);
+		}
+
+		const close = () => {
+			client.off('message', handleMessage);
+		}
+
+		client.on('message', handleMessage);
+		client.on('close', close);
+	}
+
 	onModuleInit() {
 		this.connect();
 		this.vosk.on('open', this.handleVoskConnected);
 		this.vosk.on('message', this.handleVoskMessage);
-		this.rtmp.on('open', this.handleRTMPConnected);
+		this.voskServer.on('connection', this.handleVoskConnection)
 	}
 }
