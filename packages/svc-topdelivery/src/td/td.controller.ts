@@ -21,7 +21,7 @@ export class TopDeliveryController implements ProviderController {
 	}
 
 	@MessagePattern(`${Call.Provider.TOP_DELIVERY}:getNextOrder`)
-	getNextOrder(): object {
+	getNextOrder(): Promise<Call> {
 		return null;
 	}
 

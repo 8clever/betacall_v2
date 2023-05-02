@@ -42,14 +42,24 @@ export class LoopService implements OnModuleInit {
 		}
 	}
 
-  async assignNextOrder (user: User, provider: Call.Provider) {
+  private async getNextOrder (provider: Call.Provider) {
     const p = this.providers.get(provider);
     if (!p) throw new Error("Provider not found: " + provider);
 
-    const orderId: string = 
-      (await p.queue.lPop()) ||
-      (await this.mqtt.paranoid(this.getProviderTopic(provider, 'getNextOrder'), {}));
-      
+    const internal = await p.queue.lPop();
+    if (internal) return internal;
+
+    const external: Call = await this.mqtt.paranoid(this.getProviderTopic(provider, 'getNextOrder'), {});
+    if (external) {
+      await this.callsvc.add(external);
+      return external.callId;
+    }
+
+    return null;
+  }
+
+  async assignNextOrder (user: User, provider: Call.Provider) {
+    const orderId = await this.getNextOrder(provider);
     if (!orderId) return false;
 
     return this.callsvc.assignOrder({
@@ -86,7 +96,7 @@ export class LoopService implements OnModuleInit {
   private readonly callRound: Map<string, number> = new Map();
 
   private readonly processNextCall = async (queue: Queue) => {
-    const orderId = await queue.lPop();
+    const orderId = await this.getNextOrder(queue.name as Call.Provider);
     if (orderId === null) return;
 
     const list = await this.callsvc.findLastOrderStatus({ 

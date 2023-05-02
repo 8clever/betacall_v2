@@ -9,7 +9,7 @@ export class B2CPLController implements ProviderController {
 	}
 
 	@MessagePattern(`${Call.Provider.B2CPL}:getNextOrder`)
-	getNextOrder(): object {
+	async getNextOrder(): Promise<Call> {
 		return null;
 	}
 

@@ -102,7 +102,7 @@ export class B2CPLManualService implements OnModuleInit {
 		this.orders.delete(params.callid);
 	}
 
-	getNextOrder = async () => {
+	getNextOrder = async (): Promise<Call> => {
 		const url = `${this.baseUrl}/api/CallFlow/deliverycall`;
 		const res = await axios<{ payload: Order[] }>(url, {
 			headers: this.authHeader,
@@ -112,7 +112,14 @@ export class B2CPLManualService implements OnModuleInit {
 		});
 		for (const o of res.data.payload) {
 			this.orders.set(o.callid, o);
-			return o.callid;
+			const call: Call = {
+				orderId: o.callid,
+				phone: o.phone,
+				provider: Call.Provider.B2CPL_MANUAL,
+				status: Call.Status.NOT_PROCESSED,
+				user: this.robot
+			}
+			return call;
 		}
 		return null;
 	}

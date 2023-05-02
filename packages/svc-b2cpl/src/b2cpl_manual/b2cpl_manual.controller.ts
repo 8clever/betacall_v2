@@ -17,6 +17,16 @@ export class B2CPLManualController implements ProviderController {
 		return null;
 	}
 
+	@MessagePattern(`${Providers.B2CPL_MANUAL}:getNextOrder`)
+	async getNextOrder(): Promise<Call> {
+		return this.b2cplManualSvc.getNextOrder();
+	}
+
+	@MessagePattern(`${Providers.B2CPL_MANUAL}:getOrdersByIds`)
+	getOrdersByIds(@Payload() ids: string[]): object[] {
+		return this.b2cplManualSvc.getOrdersByIds(ids);
+	}
+
 	@Roles(User.Roles.OPERATOR)
 	@UseGuards(AuthGuard)
 	@Get('/package-items')
@@ -58,16 +68,6 @@ export class B2CPLManualController implements ProviderController {
 	@Post('/delivery-set-state')
 	deliverySetState(@Body() body: DeliverySetState, @Req() req: { user: User }) {
 		return this.b2cplManualSvc.deliverySetState(req.user, body);
-	}
-
-	@MessagePattern(`${Providers.B2CPL_MANUAL}:getNextOrder`)
-	getNextOrder(): object {
-		return this.b2cplManualSvc.getNextOrder();
-	}
-
-	@MessagePattern(`${Providers.B2CPL_MANUAL}:getOrdersByIds`)
-	getOrdersByIds(@Payload() ids: string[]): object[] {
-		return this.b2cplManualSvc.getOrdersByIds(ids);
 	}
 	
 }
