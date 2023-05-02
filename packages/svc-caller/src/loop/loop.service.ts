@@ -126,7 +126,8 @@ export class LoopService implements OnModuleInit {
 
     if (call.status === Call.Status.UNDER_CALL) {
       this.mqtt.emit(this.getProviderTopic(queue.name as Call.Provider, "undercall"), orderId);
-      return queue.rPush(orderId);
+      queue.delete(orderId);
+      return;
     }
 
     if (call.status === Call.Status.OPERATOR) {
