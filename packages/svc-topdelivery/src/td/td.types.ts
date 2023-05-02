@@ -73,5 +73,8 @@ export interface Order {
 			bTime: string;
 			eTime: string;
 		}
-	};
+	},
+	regionAndCity: {
+		regionUtcOffset: number;
+	}
 }

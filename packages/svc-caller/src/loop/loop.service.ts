@@ -79,10 +79,12 @@ export class LoopService implements OnModuleInit {
   }
 
   private filter (call: Call) {
-    const regionHour = this.getRegionHours(call.utcOffset || this.zoneOffset);
-    if (!(regionHour > this.fromHour && regionHour < this.toHour))
-      return false;
-
+    if (call.utcOffset) {
+      const regionHour = this.getRegionHours(call.utcOffset || this.zoneOffset);
+      if (!(regionHour > this.fromHour && regionHour < this.toHour))
+        return false;
+    }
+    
     if (
       call.history ||
       call.status === Call.Status.COMPLETED ||

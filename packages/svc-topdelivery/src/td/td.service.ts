@@ -15,8 +15,6 @@ export class TopDeliveryService implements OnModuleInit {
 
 	private markets: Map<string, Market> = new Map();
 
-	private regions: Map<string, Region> = new Map();
-
 	private blockPhones: string[] = ['8800','8940']
 
 	private blockMarkets: Set<string> = new Set(['erborian.ru', 'loccitane.ru', 'elemis.ru']);
@@ -38,10 +36,8 @@ export class TopDeliveryService implements OnModuleInit {
 
 	async onModuleInit() {
 		const markets = await this.csv.parse<Market>('assets/market_name.csv', ['orgin', 'translate']);
-		const regions = await this.csv.parse<Region>('assets/regions.csv', ['name', 'utfOffset']);
 
 		this.markets = new Map(markets.map(m => [m.orgin, m]));
-		this.regions = new Map(regions.map(r => [r.name, r]));
 
 		this.robot = await this.mqtt.paranoid("users:robot", {});
 		this.tdClient = await createClientAsync(config.topdelivery.url);
@@ -123,13 +119,12 @@ export class TopDeliveryService implements OnModuleInit {
 			this.phones.set(order.clientInfo.phone, order.orderIdentity.orderId);
 
 			if (order.robot) {
-				const region = this.regions.get(order.deliveryAddress.region);
 				calls.push({
 					orderId: order.orderIdentity.orderId.toString(),
 					phone: order.clientInfo.phone,
 					provider: Call.Provider.TOP_DELIVERY,
 					status: Call.Status.NOT_PROCESSED,
-					utcOffset: Number(region?.utfOffset || 3)
+					utcOffset: order.regionAndCity.regionUtcOffset
 				});
 			}
 		}

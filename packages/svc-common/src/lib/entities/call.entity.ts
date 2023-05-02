@@ -41,7 +41,7 @@ export class Call {
   @Column({ enum: Providers })
   provider: Providers;
 
-  @Column({ default: 3 })
+  @Column({ nullable: true })
   utcOffset?: number;
 
   /** MAIN RELATION WITH ORDERS */
