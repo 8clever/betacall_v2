@@ -30,6 +30,9 @@ export const config = {
 		},
 		[Call.Provider.B2CPL]: {
 			slots: Number(process.env.B2CPL_SLOTS || 0)
+		},
+		[Call.Provider.B2CPL_MANUAL]: {
+			slots: Number(process.env.B2CPL_MANUAL_SLOTS || 0)
 		}
 	},
 	gateaways: {
