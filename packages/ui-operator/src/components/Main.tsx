@@ -58,14 +58,11 @@ export function Main () {
 								<Typography.Text>
 									{p}
 								</Typography.Text>
-								{
-									p.includes("manual") ? null :
-									<Button 
-										type={isConnected ? 'primary' : "ghost" }
-										icon={isConnected ? <LinkOutlined /> : <DisconnectOutlined />}
-										onClick={connect}
-										danger={!isConnected} /> 
-								}
+								<Button 
+									type={isConnected ? 'primary' : "ghost" }
+									icon={isConnected ? <LinkOutlined /> : <DisconnectOutlined />}
+									onClick={connect}
+									danger={!isConnected} /> 
 								<Button 
 									loading={manualLoading === p}
 									onClick={assignNextOrder}

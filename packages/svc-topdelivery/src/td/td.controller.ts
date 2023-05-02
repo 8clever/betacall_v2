@@ -11,6 +11,15 @@ export class TopDeliveryController implements ProviderController {
 		private tdsvc: TopDeliveryService
 	) {}
 
+	@MessagePattern(`${Call.Provider.TOP_DELIVERY}:undercall`)
+	async undercall(@Payload() id: string): Promise<null> {
+		const order = this.tdsvc.orders.get(Number(id));
+		if (!order) return null;
+
+		await this.tdsvc.underCall(this.tdsvc.robot, { order });
+		return null;
+	}
+
 	@MessagePattern(`${Call.Provider.TOP_DELIVERY}:getNextOrder`)
 	getNextOrder(): object {
 		return null;

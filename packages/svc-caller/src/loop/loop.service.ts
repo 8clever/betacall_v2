@@ -26,6 +26,10 @@ export class LoopService implements OnModuleInit {
 		
 	}
 
+  private getProviderTopic = (provider: Call.Provider, topic: string) => {
+    return `${provider}:${topic}`;
+  }
+
 	async onModuleInit() {
     this.robot = await this.mqtt.paranoid('users:robot', "");
 
@@ -44,7 +48,7 @@ export class LoopService implements OnModuleInit {
 
     const orderId: string = 
       (await p.queue.lPop()) ||
-      (await this.mqtt.paranoid(`${provider}:getNextOrder`, {}));
+      (await this.mqtt.paranoid(this.getProviderTopic(provider, 'getNextOrder'), {}));
       
     if (!orderId) return false;
 
@@ -121,11 +125,7 @@ export class LoopService implements OnModuleInit {
     this.callRound.set(dto.orderId, round + 1);
 
     if (call.status === Call.Status.UNDER_CALL) {
-      await this.callsvc.add({
-        ...dto,
-        status: Call.Status.UNDER_CALL,
-        callId: call.id
-      });
+      this.mqtt.emit(this.getProviderTopic(queue.name as Call.Provider, "undercall"), orderId);
       return queue.rPush(orderId);
     }
 

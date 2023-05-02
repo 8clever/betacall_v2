@@ -1,4 +1,4 @@
-import { AuthGuard, ProviderController, Providers, Roles, User } from "@betacall/svc-common";
+import { AuthGuard, Call, ProviderController, Providers, Roles, User } from "@betacall/svc-common";
 import { Body, Controller, Get, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { B2CPLManualService } from "./b2cpl_manual.service";
@@ -10,6 +10,12 @@ export class B2CPLManualController implements ProviderController {
 	constructor(
 		private b2cplManualSvc: B2CPLManualService
 	) {}
+
+	@MessagePattern(`${Call.Provider.B2CPL_MANUAL}:undercall`)
+	async undercall(id: string): Promise<null> {
+		await this.b2cplManualSvc.undercall(id);
+		return null;
+	}
 
 	@Roles(User.Roles.OPERATOR)
 	@UseGuards(AuthGuard)

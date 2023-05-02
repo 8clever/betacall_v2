@@ -4,6 +4,9 @@ import { MessagePattern } from "@nestjs/microservices";
 
 @Controller()
 export class B2CPLController implements ProviderController {
+	undercall(id: string): Promise<null> {
+		throw new Error("Method not implemented.");
+	}
 
 	@MessagePattern(`${Call.Provider.B2CPL}:getNextOrder`)
 	getNextOrder(): object {

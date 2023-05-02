@@ -1,14 +1,20 @@
 import { Call, CustomMqtt, MQTT_TOKEN, Stats, User, config } from "@betacall/svc-common";
-import { BadRequestException, Inject, Injectable } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import axios from 'axios';
 import { CallStatusType, DeliveryDayNearest, DeliveryDayNearestParams, DeliverySetState, DenyReason, Order, PackageItem, PvzInfo } from "./b2cpl_manual.types";
 @Injectable()
-export class B2CPLManualService {
+export class B2CPLManualService implements OnModuleInit {
 
 	constructor (
 		@Inject(MQTT_TOKEN)
 		private client: CustomMqtt
 	) {}
+
+	private robot: User;
+
+	async onModuleInit() {
+		this.robot = await this.client.paranoid('users:robot', {});
+	}
 
 	private baseUrl = "https://callapi.b2cpl.ru";
 
@@ -19,6 +25,24 @@ export class B2CPLManualService {
 	}
 
 	private orders: Map<string, Order> = new Map();
+
+	async undercall (id: string) {
+		const order = this.orders.get(id);
+		if (!order) return;
+
+		const dt = new Date().toJSON();
+		const payload: DeliverySetState = {
+			"callid": order.callid,
+			"date_start": dt,
+			"date_end": dt,
+			"call_statuses":[
+				{
+					"state":"NOT_ANSWERING",
+					"codes": order.packages.map(p => p.code)
+				}
+			]}
+		return this.deliverySetState(this.robot, payload);
+	}
 
 	getOrdersByIds (ids: string[]) {
 		const orders: Order[] = [];

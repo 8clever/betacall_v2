@@ -170,7 +170,7 @@ export class TopDeliveryService implements OnModuleInit {
 	) => {
 		const payload: Call = {
 			...call,
-			phone: "",
+			phone: order.clientInfo.phone,
 			orderId: order.orderIdentity.orderId.toString(),
 			provider: Call.Provider.TOP_DELIVERY,
 			user
