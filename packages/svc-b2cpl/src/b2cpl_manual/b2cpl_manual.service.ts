@@ -110,6 +110,7 @@ export class B2CPLManualService implements OnModuleInit {
 				qty: 1
 			}
 		});
+		console.log(res.data.payload);
 		for (const o of res.data.payload) {
 			this.orders.set(o.callid, o);
 			const call: Call = {
@@ -119,6 +120,7 @@ export class B2CPLManualService implements OnModuleInit {
 				status: Call.Status.NOT_PROCESSED,
 				user: this.robot
 			}
+			console.log(call);
 			return call;
 		}
 		return null;
