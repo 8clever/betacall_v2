@@ -52,7 +52,7 @@ export class LoopService implements OnModuleInit {
     const external: Call = await this.mqtt.paranoid(this.getProviderTopic(provider, 'getNextOrder'), {});
     if (external) {
       await this.callsvc.add(external);
-      return external.callId;
+      return external.orderId;
     }
 
     return null;
