@@ -1,5 +1,17 @@
 import { Call } from "./entities/call.entity";
 
+const providers = {
+	[Call.Provider.TOP_DELIVERY]: {
+		slots: Number(process.env.TD_SLOTS || 0)
+	},
+	[Call.Provider.B2CPL]: {
+		slots: Number(process.env.B2CPL_SLOTS || 0)
+	},
+	[Call.Provider.B2CPL_MANUAL]: {
+		slots: Number(process.env.B2CPL_MANUAL_SLOTS || 0)
+	}
+}
+
 export const config = {
 	/** for ALL */
 	mqttUrl: process.env.MQTT || "mqtt://localhost:1883",
@@ -25,20 +37,13 @@ export const config = {
 	},
 	testPhone: process.env.TEST_PHONE || "",
 	providers: {
-		[Call.Provider.TOP_DELIVERY]: {
-			slots: Number(process.env.TD_SLOTS || 0)
-		},
-		[Call.Provider.B2CPL]: {
-			slots: Number(process.env.B2CPL_SLOTS || 0)
-		},
-		[Call.Provider.B2CPL_MANUAL]: {
-			slots: Number(process.env.B2CPL_MANUAL_SLOTS || 0)
-		}
+		...providers
 	},
 	gateaways: {
 		default: {
 			channel: process.env.ASTERISK_CHANNEL || "Local/<phone>@voip1/n",
-			context: process.env.ASTERISK_CTX || "testt"
+			context: process.env.ASTERISK_CTX || "testt",
+			slots: Object.values(providers).reduce((m, p) => m + p.slots, 0)
 		}
 	},
 

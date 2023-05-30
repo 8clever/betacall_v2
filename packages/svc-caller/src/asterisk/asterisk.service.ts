@@ -131,7 +131,7 @@ export class AsteriskService implements OnModuleInit {
 	}
 
 	isOn() {
-		return this.asteriskON;
+		return true;
 	}
 
 	call = async ({ phone, gateawayName, texts = [], vars = {} }: {
