@@ -74,12 +74,23 @@ export class TopDeliveryService implements OnModuleInit {
 			}
     });
     return response.orderEventsInfo;
-}
+	}
+
+	getOrderById = (id: number | string, options: { throwError?: boolean } = {}) => {
+		const order = this.orders.get(Number(id))
+		if (order) 
+			return order;
+
+		if (options.throwError)
+			throw new Error(`Order not found: ${id}`)
+
+		return null;
+	}
 
 	getOrdersByIds (ids: (string | number)[]) {
 		const orders: Order[] = [];
 		for (const id of ids) {
-			const order = this.orders.get(Number(id));
+			const order = this.getOrderById(id);
 			if (order)
 				orders.push(order)
 		}
@@ -242,7 +253,7 @@ export class TopDeliveryService implements OnModuleInit {
       { from: "10:00:00", to: "22:00:00" }
     ]
 
-    const order = this.orders.get(params.orderId);
+    const order = this.getOrderById(params.orderId, { throwError: true });
 
     for (const i of intervals) {
       const payload: Order = {
@@ -271,7 +282,7 @@ export class TopDeliveryService implements OnModuleInit {
 	replaceDateRobot = async (params: { callId: string, orderId: number }) => {
 		const day = 1000 * 60 * 60 * 24;
 		const replaceDate = new Date(new Date().valueOf() + day).toJSON();
-		const order = this.orders.get(params.orderId);
+		const order = this.getOrderById(params.orderId, { throwError: true });
 		await this.replaceCallDate(this.robot, { order, replaceDate })
 		await this.mqtt.paranoid("asterisk:release-call", params.callId);
 		return true;

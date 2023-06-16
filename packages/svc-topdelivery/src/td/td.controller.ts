@@ -13,7 +13,7 @@ export class TopDeliveryController implements ProviderController {
 
 	@MessagePattern(`${Call.Provider.TOP_DELIVERY}:undercall`)
 	async undercall(@Payload() id: string): Promise<null> {
-		const order = this.tdsvc.orders.get(Number(id));
+		const order = this.tdsvc.getOrderById(id);
 		if (!order) return null;
 
 		await this.tdsvc.underCall(this.tdsvc.robot, { order });
@@ -34,12 +34,12 @@ export class TopDeliveryController implements ProviderController {
 	getOrderByPhone(@Payload() phone: string) {
 		const orderid = this.tdsvc.phones.get(phone);
 		if (!orderid) return null;
-		return this.tdsvc.orders.get(orderid) || null;
+		return this.tdsvc.getOrderById(orderid);
   }
 
 	@MessagePattern(`${Call.Provider.TOP_DELIVERY}:getOrder`)
 	getOrder (@Payload() orderId: string) {
-		return this.tdsvc.orders.get(Number(orderId)) || null;
+		return this.tdsvc.getOrderById(orderId);
 	}
 
 	@MessagePattern(`${Call.Provider.TOP_DELIVERY}:orderDoneRobot`)
