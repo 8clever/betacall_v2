@@ -108,6 +108,8 @@ export class AsteriskService implements OnModuleInit {
 				this.asteriskON = true;
 				resolve(null);
 			});
+
+			ami.connect();
 		})
 	}
 
@@ -131,7 +133,7 @@ export class AsteriskService implements OnModuleInit {
 	}
 
 	isOn() {
-		return true;
+		return this.asteriskON;
 	}
 
 	call = async ({ phone, gateawayName, texts = [], vars = {} }: {

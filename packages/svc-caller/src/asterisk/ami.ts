@@ -187,9 +187,17 @@ export class AMI extends EventEmitter {
 		this.socket.pipe(this.parser);
 	}
 
-	constructor(hostname: string, port: number, private username: string, private password: string) {
+	constructor(
+		private hostname: string, 
+		private port: number, 
+		private username: string, 
+		private password: string
+	) {
 		super()
-		this.socket = net.connect(port, hostname);
+	}
+
+	connect = () => {
+		this.socket = net.connect(this.port, this.hostname);
 		process.nextTick(() => {
 			this.run()
 		});
