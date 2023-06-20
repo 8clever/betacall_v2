@@ -18,7 +18,7 @@ export class UsersController {
 
   @MessagePattern("users:find")
   find(@Payload() user: Partial<User>) {
-    return this.find(user);
+    return this.usersvc.findOne(user);
   }
 
   @MessagePattern('users:robot')
