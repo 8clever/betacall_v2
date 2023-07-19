@@ -55,7 +55,7 @@ const columns: ColumnsType<StatsApi.Stat> = [
 		render: (_: StatsApi.Stat) => {
 			if (_.provider === Provider.TOP_DELIVERY) {
 				const order = _.data as TDApi.Order;
-				return order.workStatus.name;
+				return order.status;
 			}
 			if (_.provider === Provider.B2CPL_MANUAL) {
 				const order = _.data as B2CPLManualApi.DeliverySetState;

@@ -37,7 +37,7 @@ export class ExportService {
 
 	private getOrderStatus = (stat: Stats) => {
 		if (stat.provider === Call.Provider.TOP_DELIVERY) {
-			return this.getValueByPath('workStatus.name', stat.data);
+			return this.getValueByPath('status', stat.data);
 		}
 		if (stat.provider === Call.Provider.B2CPL_MANUAL) {
 			return this.getValueByPath('call_statuses.0.state', stat.data)

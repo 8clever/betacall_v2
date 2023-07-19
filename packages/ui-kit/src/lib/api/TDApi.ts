@@ -84,6 +84,7 @@ export namespace TDApi {
 	}
 
 	export interface Order {
+		status: string;
 		clientFullCost: string;
 		endOfStorageDate: string;
 		orderUrl: string;
@@ -133,9 +134,6 @@ export namespace TDApi {
 				eTime: string;
 			}
 		};
-		pickupPoints: PickupPoint[],
-		status: {
-			name: string;
-		}
+		pickupPoints: PickupPoint[]
 	}
 }

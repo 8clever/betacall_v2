@@ -203,7 +203,10 @@ export class TopDeliveryService implements OnModuleInit {
 
 		this.handleResponse(response)
 
-		await this.addStats(user, order);
+		await this.addStats(user, {
+			...payload,
+			status: "done_pickup"
+		});
 		await this.callConfirm(user, { status: Call.Status.COMPLETED }, order);
 	}
 
@@ -243,7 +246,11 @@ export class TopDeliveryService implements OnModuleInit {
 
 		this.handleResponse(response);
 
-		await this.addStats(user, { ...order, ...payload });
+		await this.addStats(user, { 
+			...payload,
+			status: "done"
+		});
+
 		await this.callConfirm(user, { status: Call.Status.COMPLETED }, order);
 	}
 
@@ -327,7 +334,10 @@ export class TopDeliveryService implements OnModuleInit {
 
 		this.handleResponse(response);
 
-		await this.addStats(user, { ...order, ...payload });
+		await this.addStats(user, { 
+			...payload,
+			status: "deny" 
+		});
 		await this.callConfirm(user, { status: Call.Status.COMPLETED }, order);
 	}
 
@@ -351,7 +361,10 @@ export class TopDeliveryService implements OnModuleInit {
 
 		this.handleResponse(response);
 
-		await this.addStats(user, { ...order, ...payload });
+		await this.addStats(user, { 
+			...payload,
+			status: "under_call" 
+		});
 		await this.callConfirm(user, { status: Call.Status.UNDER_CALL }, order);
 	}
 
@@ -376,7 +389,10 @@ export class TopDeliveryService implements OnModuleInit {
 		
 		this.handleResponse(response);
 
-		await this.addStats(user, { ...order, ...payload });
+		await this.addStats(user, { 
+			...payload,
+			status: "replace_date"
+		});
 		await this.callConfirm(user, { status: Call.Status.REPLACE_DATE, dtNextCall: replaceDate }, order);
 	}
 

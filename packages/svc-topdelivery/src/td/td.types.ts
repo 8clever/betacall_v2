@@ -22,8 +22,16 @@ export interface Quota {
 	timeInterval: TimeInterval[];
 }
 
+export type Status = 
+"done" |
+"done_pickup" |
+"deny" |
+"under_call" |
+"replace_date"
+
 export interface Order {
 	/** our fields */
+	status: Status;
 	marketName: string;
 	robot: boolean;
 
