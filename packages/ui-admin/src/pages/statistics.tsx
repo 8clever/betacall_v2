@@ -216,3 +216,5 @@ const FilterContainer = styled.div`
 const Container = styled.div`
 	padding: 10px;
 `
+
+export default Statistics;

@@ -3,7 +3,7 @@ import { UserApi } from "@betacall/ui-kit"
 import { Button, Modal, Space, Table, TableColumnsType } from "antd"
 import React from "react"
 import styled from "styled-components"
-import { UserEdit } from "./UserEdit"
+import { UserEdit } from "../components/UserEdit"
 
 export function Users () {
 
@@ -156,3 +156,5 @@ const Header = styled.div`
 const Container = styled.div`
 	padding: 10px;
 `
+
+export default Users;
