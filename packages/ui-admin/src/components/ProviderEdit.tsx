@@ -22,15 +22,17 @@ export function ProviderEdit (props: IProps) {
 	}, [ toggle, onSave ]);
 
 	React.useEffect(() => {
-		if (visible)
-			form.resetFields([ 'key', 'name', 'apiKey' ]);
-	}, [ visible, item, form.resetFields ]);
-
-	console.log(visible, item)
+		if (visible) {
+			form.resetFields();
+			if (item?.id)
+				form.setFieldsValue(item)
+		}
+	}, [ visible, form.setFieldsValue, item ])
 
 	return (
 		<Modal open={visible} title="Provider Edit" onOk={form.submit} onCancel={props.toggle}>
-			<Form form={form} initialValues={item || {}} onFinish={submit}>
+			<Form form={form} onFinish={submit}>
+				<Form.Item name="id"/>
 				<Form.Item label="Key" name="key" rules={[{ required: true }]}>
 					<Input disabled={item?.internal} />
 				</Form.Item>
