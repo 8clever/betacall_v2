@@ -16,6 +16,6 @@ export class Provider {
 	@Column({ default: false })
 	internal: boolean
 
-	@Column({ nullable: true })
+	@Column({ nullable: true, unique: true })
 	apiKey: string;
 }

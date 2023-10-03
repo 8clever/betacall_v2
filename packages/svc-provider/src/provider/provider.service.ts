@@ -16,6 +16,14 @@ export class ProviderService implements OnModuleInit {
 
 	}
 
+	async deleteProvider (id: string) {
+		return this.repo.delete(id);
+	}
+
+	async saveProvider (provider: Provider) {
+		return this.repo.save(provider);
+	}
+
 	async getProviders () {
 		return this.repo.find();
 	}
