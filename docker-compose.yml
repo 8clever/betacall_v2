@@ -2,8 +2,7 @@ version: '3.9'
 services:
 
   ui-admin:
-    build:
-      dockerfile: ./dockerfiles/Dockerfile.system
+    image: ghcr.io/8clever/betacall_v2/system:main
     command: npx nx serve ui-admin
     environment:
       - BASE_URL=/admin
@@ -12,6 +11,7 @@ services:
     depends_on:
       - svc-stats
       - svc-export
+      - svc-provider
       - ui-auth
     labels:
       - "traefik.enable=true"
@@ -20,8 +20,7 @@ services:
       - traefik.http.services.ui-admin.loadbalancer.server.port=3000
 
   ui-operator:
-    build:
-      dockerfile: ./dockerfiles/Dockerfile.system
+    image: ghcr.io/8clever/betacall_v2/system:main
     command: npx nx serve ui-operator
     environment:
       - BASE_URL=/operator
@@ -40,8 +39,7 @@ services:
       - traefik.http.services.ui-operator.loadbalancer.server.port=3000
 
   ui-auth:
-    build:
-      dockerfile: ./dockerfiles/Dockerfile.system
+    image: ghcr.io/8clever/betacall_v2/system:main
     command: npx nx serve ui-auth
     environment:
       - BASE_URL=/auth
@@ -55,10 +53,9 @@ services:
       - "traefik.http.routers.ui-auth.entrypoints=web"
       - traefik.http.services.ui-auth.loadbalancer.server.port=3000
 
-  svc-sip:
-    build:
-      dockerfile: ./dockerfiles/Dockerfile.system
-    command: npx nx serve svc-sip
+  svc-provider:
+    image: ghcr.io/8clever/betacall_v2/system:main
+    command: npx nx serve svc-provider
     volumes:
       - ./:/app
     environment:
@@ -70,15 +67,12 @@ services:
       - mqtt
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.svc-sip.rule=PathPrefix(`/api/v1/sip`)"
-      - "traefik.http.routers.svc-sip.entrypoints=web"
-      - traefik.http.services.svc-sip.loadbalancer.server.port=3000
-    ports:
-      - 2700:2700
+      - "traefik.http.routers.svc-export.rule=PathPrefix(`/api/v1/provider`)"
+      - "traefik.http.routers.svc-export.entrypoints=web"
+      - traefik.http.services.svc-export.loadbalancer.server.port=3000
 
   svc-export:
-    build:
-      dockerfile: ./dockerfiles/Dockerfile.system
+    image: ghcr.io/8clever/betacall_v2/system:main
     command: npx nx serve svc-export
     volumes:
       - ./:/app
@@ -96,8 +90,7 @@ services:
       - traefik.http.services.svc-export.loadbalancer.server.port=3000
 
   svc-stats:
-    build:
-      dockerfile: ./dockerfiles/Dockerfile.system
+    image: ghcr.io/8clever/betacall_v2/system:main
     command: npx nx serve svc-stats
     volumes:
       - ./:/app
@@ -115,8 +108,7 @@ services:
       - traefik.http.services.svc-stats.loadbalancer.server.port=3000
 
   svc-users:
-    build:
-      dockerfile: ./dockerfiles/Dockerfile.system
+    image: ghcr.io/8clever/betacall_v2/system:main
     command: npx nx serve svc-users
     volumes:
       - ./:/app
@@ -134,8 +126,7 @@ services:
       - traefik.http.services.svc-users.loadbalancer.server.port=3000
 
   svc-b2cpl:
-    build:
-      dockerfile: ./dockerfiles/Dockerfile.system
+    image: ghcr.io/8clever/betacall_v2/system:main
     command: npx nx serve svc-b2cpl
     volumes:
       - ./:/app
@@ -155,8 +146,7 @@ services:
       - traefik.http.services.svc-b2cpl.loadbalancer.server.port=3000
 
   svc-topdelivery:
-    build:
-      dockerfile: ./dockerfiles/Dockerfile.system
+    image: ghcr.io/8clever/betacall_v2/system:main
     command: npx nx serve svc-topdelivery
     volumes:
       - ./:/app
@@ -176,8 +166,7 @@ services:
       - traefik.http.services.svc-topdelivery.loadbalancer.server.port=3000
 
   svc-caller:
-    build:
-      dockerfile: ./dockerfiles/Dockerfile.system
+    image: ghcr.io/8clever/betacall_v2/system:main
     command: npx nx serve svc-caller
     volumes:
       - ./:/app
@@ -235,6 +224,7 @@ services:
 
   install:
     user: node
+    image: ghcr.io/8clever/betacall_v2/system:main
     build:
       dockerfile: ./dockerfiles/Dockerfile.system
     command: npm ci --legacy-peer-deps

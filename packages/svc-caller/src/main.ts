@@ -1,4 +1,4 @@
-import { createModule, runModule } from '@betacall/svc-common'
+import { Call, User, createModule, runModule } from '@betacall/svc-common'
 import { AsteriskModule } from './asterisk/asterisk.module';
 import { CallerModule } from "./caller/caller.module"
 import { LoopModule } from './loop/loop.module';
@@ -10,7 +10,10 @@ const AppModule = createModule({
       LoopModule,
       AsteriskModule
     ]
-  }
+  },
+  entities: [
+    Call, User
+  ]
 });
 
 runModule(AppModule, {

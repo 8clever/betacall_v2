@@ -9,6 +9,7 @@ export * from "./lib/ping"
 export * from "./lib/entities/user.entity"
 export * from "./lib/entities/call.entity"
 export * from "./lib/entities/stats.entity"
+export * from "./lib/entities/provider.entity"
 
 /** guards */
 export * from "./lib/guards/auth.guard"

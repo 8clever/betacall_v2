@@ -5,26 +5,23 @@ import { User } from "./entities/user.entity";
 import { Call } from './entities/call.entity'
 import { HelmMiddleware } from "./middlewares/helm.middleware";
 import { Stats } from "./entities/stats.entity";
+import { EntitySchema, MixedList } from "typeorm";
 
 interface Options {
 	metadata: ModuleMetadata
-	db?: boolean;
+	entities?: MixedList<EntitySchema | Function | string>	
 }
 
 export function createModule (options: Options) {
-	const { db = true } = options;
-	const imports = [...options.metadata.imports || []];
+	const { entities = [], metadata } = options;
+	const imports = [...metadata.imports || []];
 
-	if (db) {
+	if (entities.length) {
 		imports.push(
 			TypeOrmModule.forRoot({
 				type: 'postgres',
 				...config.pg,
-				entities: [
-					User,
-					Call,
-					Stats
-				],
+				entities,
 				synchronize: true,
 			})
 		)
