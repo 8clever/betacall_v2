@@ -6,6 +6,7 @@ export * from "./lib/api/TDApi"
 export * from "./lib/api/StatsApi"
 export * from "./lib/api/B2CPLManualApi"
 export * from "./lib/api/ExportApi"
+export * from "./lib/api/ProviderApi"
 
 /** components */
 export * from "./lib/components/AuthProvider"

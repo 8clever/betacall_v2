@@ -67,6 +67,7 @@ const columns: ColumnsType<StatsApi.Stat> = [
 	{
 		title: "JSON",
 		key: 'json',
+		width: 50,
 		dataIndex: "data",
 		render: (_) => {
 			return (
@@ -159,7 +160,7 @@ export function Statistics () {
 	}, [ form ])
 	
 	return (
-		<Container>
+		<>
 			<FilterContainer>
 				<Form layout="inline" onFinish={submit} form={form}>
 					<Form.Item name="range-picker" label="Date">
@@ -205,16 +206,12 @@ export function Statistics () {
 				}}
 				dataSource={stats.list}
 			/>
-		</Container>
+		</>
 	)
 }
 
 const FilterContainer = styled.div`
 	margin-bottom: 10px;
-`
-
-const Container = styled.div`
-	padding: 10px;
 `
 
 export default Statistics;

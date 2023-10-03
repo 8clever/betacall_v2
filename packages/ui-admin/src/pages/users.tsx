@@ -92,7 +92,8 @@ export function Users () {
 				dataIndex: "role"
 			},
 			{
-				title: "Actions",
+				title: "",
+				width: 100,
 				key: "actions",
 				render: (_: UserApi.User) => {
 					return (
@@ -120,7 +121,7 @@ export function Users () {
 	}, [ editUser, deleteUser ])
 
 	return (
-		<Container>
+		<>
 			<Header>
 				<Button 
 					onClick={editUser}
@@ -143,7 +144,7 @@ export function Users () {
 				toggle={toggleModal}
 				onSave={refresh}
 			/>
-		</Container>
+		</>
 	)
 }
 
@@ -151,10 +152,6 @@ const Header = styled.div`
 	display: flex;
 	justify-content: end;
 	margin-bottom: 5px;
-`
-
-const Container = styled.div`
-	padding: 10px;
 `
 
 export default Users;

@@ -9,6 +9,7 @@ services:
     volumes:
       - ./:/app
     depends_on:
+      - traefik
       - svc-stats
       - svc-export
       - svc-provider
@@ -67,9 +68,9 @@ services:
       - mqtt
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.svc-export.rule=PathPrefix(`/api/v1/provider`)"
-      - "traefik.http.routers.svc-export.entrypoints=web"
-      - traefik.http.services.svc-export.loadbalancer.server.port=3000
+      - "traefik.http.routers.svc-provider.rule=PathPrefix(`/api/v1/provider`)"
+      - "traefik.http.routers.svc-provider.entrypoints=web"
+      - traefik.http.services.svc-provider.loadbalancer.server.port=3000
 
   svc-export:
     image: ghcr.io/8clever/betacall_v2/system:main

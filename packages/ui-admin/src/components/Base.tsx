@@ -1,7 +1,7 @@
 import { Layout, Menu, MenuProps } from "antd";
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { LineChartOutlined, UserOutlined } from '@ant-design/icons'
+import { ApiOutlined, LineChartOutlined, UserOutlined } from '@ant-design/icons'
 import { MenuInfo } from "rc-menu/lib/interface";
 
 interface IProps {
@@ -20,6 +20,11 @@ const items: MenuItem[] = [
 		icon: <UserOutlined />,
 		key: "/users",
 		label: "Users"
+	},
+	{
+		icon: <ApiOutlined />,
+		key: "/providers",
+		label: "Providers"
 	}
 ]
 
@@ -46,7 +51,7 @@ export function Base (props: IProps) {
 					theme="dark" 
 				/>
 			</Layout.Sider>
-			<Layout style={{ overflow: "auto" }}>
+			<Layout style={{ overflow: "auto", padding: 10 }}>
 				{props.children}
 			</Layout>
 		</Layout>
