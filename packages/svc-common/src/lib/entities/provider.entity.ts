@@ -18,4 +18,7 @@ export class Provider {
 
 	@Column({ nullable: true, unique: true })
 	apiKey: string;
+
+	@Column({ default: 0 })
+	slots: number;
 }

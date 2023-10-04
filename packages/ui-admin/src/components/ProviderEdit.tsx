@@ -1,6 +1,6 @@
 import { ReloadOutlined } from "@ant-design/icons";
 import { ProviderApi } from "@betacall/ui-kit";
-import { Button, Form, Input, Modal } from "antd";
+import { Button, Form, Input, InputNumber, Modal } from "antd";
 import React from "react";
 import { v4 as uid } from "uuid"
 
@@ -44,6 +44,9 @@ export function ProviderEdit (props: IProps) {
 				</Form.Item>
 				<Form.Item label="Name" name="name" rules={[{ required: true }]}>
 					<Input />
+				</Form.Item>
+				<Form.Item label="Slots" name="slots" rules={[{ required: true, type: "number", min: 0 }]}>
+					<InputNumber />
 				</Form.Item>
 				<Form.Item label="Api Key" name="apiKey">
 					<Input 

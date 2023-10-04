@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, JoinTable, ManyToOne, Column, CreateDateColumn, Index } from 'typeorm'
 import { User } from './user.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 enum Statuses {
   COMPLETED = 'completed',
@@ -35,6 +36,7 @@ export class Call {
   @CreateDateColumn()
   dt?: number;
 
+  @ApiProperty()
   @Column()
   phone: string;
 
@@ -47,6 +49,7 @@ export class Call {
   /** MAIN RELATION WITH ORDERS */
   @Index()
   @Column()
+  @ApiProperty()
   orderId: string;
 
   @Column({ nullable: true })

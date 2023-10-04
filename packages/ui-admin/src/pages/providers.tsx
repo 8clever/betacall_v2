@@ -43,6 +43,10 @@ const columns: TableColumnType<ProviderApi.Provider>[] = [
 		dataIndex: "key"
 	},
 	{
+		title: "Slots",
+		dataIndex: "slots"
+	},
+	{
 		title: "",
 		width: 100,
 		render: (value: ProviderApi.Provider) => <RenderActions item={value} />

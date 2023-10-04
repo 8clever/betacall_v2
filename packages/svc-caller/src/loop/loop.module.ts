@@ -11,5 +11,6 @@ import { LoopService } from "./loop.service";
 	imports: [CallerModule, AsteriskModule, ClientsModule.register([mqttRegister])],
 	providers: [LoopService, LoopGateway],
 	controllers: [LoopController],
+	exports: [LoopService]
 })
 export class LoopModule {}

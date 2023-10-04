@@ -1,7 +1,7 @@
 import { CustomMqtt, MQTT_TOKEN, Provider, Providers } from "@betacall/svc-common";
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { FindManyOptions, Repository } from "typeorm";
 
 @Injectable()
 export class ProviderService implements OnModuleInit {
@@ -24,8 +24,8 @@ export class ProviderService implements OnModuleInit {
 		return this.repo.save(provider);
 	}
 
-	async getProviders () {
-		return this.repo.find();
+	async getProviders (options: FindManyOptions<Provider> = {}) {
+		return this.repo.find(options);
 	}
 
 	async onModuleInit() {

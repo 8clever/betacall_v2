@@ -2,7 +2,9 @@ import { AuthGuard, Call, Roles, User } from "@betacall/svc-common";
 import { Controller, Get, Query, Req, UseGuards } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { LoopService } from "./loop.service";
+import { ApiTags } from "@nestjs/swagger";
 
+@ApiTags("Loop")
 @Controller()
 export class LoopController {
 

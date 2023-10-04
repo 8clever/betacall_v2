@@ -181,6 +181,7 @@ services:
       - postgres
       - mqtt
       - svc-users
+      - svc-provider
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.svc-caller.rule=PathPrefix(`/api/v1/caller`)"

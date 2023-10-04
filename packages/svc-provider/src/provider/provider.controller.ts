@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards } from "@nestjs/common";
 import { ProviderService } from "./provider.service";
 import { AuthGuard, Provider, Roles, User } from "@betacall/svc-common";
+import { MessagePattern, Payload } from "@nestjs/microservices";
 
 @Controller()
 export class ProviderController {
@@ -8,6 +9,16 @@ export class ProviderController {
 	constructor(
 		private providersvc: ProviderService
 	) {}
+
+	@MessagePattern('provider:apikey')
+	async getProviderByApiKey (@Payload() payload: string) {
+		const providers = await this.providersvc.getProviders({
+			where: {
+				apiKey: payload
+			}
+		});
+		return providers[0] || null;
+	}
 
 	@Roles(User.Roles.ADMIN)
 	@UseGuards(AuthGuard)

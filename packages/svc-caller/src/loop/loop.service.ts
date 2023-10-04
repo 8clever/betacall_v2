@@ -11,7 +11,7 @@ import { getUserTopic } from "./user.topic";
 @Injectable()
 export class LoopService implements OnModuleInit {
 
-	providers: Map<Call.Provider, Loop> = new Map();
+	providers: Map<string, Loop> = new Map();
 
   socket: Server
 
@@ -162,7 +162,43 @@ export class LoopService implements OnModuleInit {
     return queue.rPush(orderId);
   }
 
-	async push(providerName: Call.Provider, calls: Omit<Call, "id" | "dt" | "user">[]) {
+  async removeOne (providerName: string, orderid: string) {
+    const provider = this.providers.get(providerName);
+    if (!provider)
+      throw new Error("Provider loop not exists: " + providerName);
+
+    provider.queue.delete(orderid);
+    const list = await this.callsvc.findLastOrderStatus({
+      where1: `"orderId"='${orderid}' AND provider='${providerName}'`
+    });
+    const call = list[0];
+    if (!call)
+      return { message: "Call order already removed from queue" }
+
+    await this.callsvc.save({
+      ...call,
+      history: true
+    });
+
+    return { message: "Call order remove from queue" }
+  }
+
+  async pushOne (providerName: string, call: Omit<Call, "id" | "dt" | "user">) {
+    const provider = this.providers.get(providerName);
+    if (!provider)
+      throw new Error("Provider loop not exists: " + providerName);
+
+    const exists = (await provider.queue.list()).has(call.orderId);
+    if (exists)
+      return { message: "Call order already exists in queue" }
+
+    await this.callsvc.add(call);
+    await provider.queue.lPush(call.orderId);
+
+    return { message: "Call order successfully added to queue"};
+  }
+
+	async push(providerName: string, calls: Omit<Call, "id" | "dt" | "user">[]) {
 		const provider = this.providers.get(providerName);
 		if (!provider)
 			throw new Error("Provider by name not found: " + providerName);
