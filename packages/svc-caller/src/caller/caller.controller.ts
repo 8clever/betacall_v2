@@ -2,7 +2,9 @@ import { AuthGuard, Call, Roles, User } from "@betacall/svc-common";
 import { Controller, Get, Query, Req, UseGuards } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { CallerService } from "./caller.service";
+import { ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 
+@ApiTags("Caller")
 @Controller()
 export class CallerController {
 
@@ -12,11 +14,24 @@ export class CallerController {
 
   }
 
+  @ApiResponse({
+    type: Boolean
+  })
   @Get('/ping')
   ping() {
     return true;
   }
 
+  @ApiQuery({
+    name: 'id'
+  })
+  @ApiQuery({
+    name: "provider",
+    enum: Call.Provider
+  })
+  @ApiResponse({
+    type: Boolean
+  })
   @Roles(User.Roles.OPERATOR)
   @UseGuards(AuthGuard)
   @Get('/assign-order')
@@ -28,6 +43,22 @@ export class CallerController {
     });
   }
 
+  @ApiResponse({
+    schema: {
+      type: "array",
+      items: {
+        properties: {
+          order: {
+            description: "Provider's orders",
+            type: 'object'
+          },
+          provider: {
+            enum: Object.values(Call.Provider)
+          }
+        }
+      }
+    }
+  })
   @Roles(User.Roles.OPERATOR)
   @UseGuards(AuthGuard)
   @Get('/my-orders')

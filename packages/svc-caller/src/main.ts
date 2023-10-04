@@ -17,5 +17,9 @@ const AppModule = createModule({
 });
 
 runModule(AppModule, {
+  swagger: {
+    title: "Caller API",
+    version: "1.0.0"
+  },
   prefix: "api/v1/caller"
 });
